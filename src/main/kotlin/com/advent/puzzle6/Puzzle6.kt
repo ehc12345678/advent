@@ -52,10 +52,6 @@ class Puzzle6 {
     }
     
     fun countEm(inputs: List<Answers>): Int {
-        var countAll = 0
-        inputs.forEach {
-            countAll += it.size
-        }
-        return countAll
+        return inputs.fold(0) { sum, element -> sum + element.size }
     }
 }
