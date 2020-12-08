@@ -1,7 +1,6 @@
 package com.advent.puzzle7
 
 import java.io.File
-import java.util.Stack
 
 fun main() {
     val puzzle = Puzzle7()
