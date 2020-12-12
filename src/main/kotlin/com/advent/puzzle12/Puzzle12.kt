@@ -10,7 +10,7 @@ class Instruction(val type: InstructionType, val num: Int)
 fun main() {
     val puzzle = Puzzle12()
     try {
-        val instructions = puzzle.readInputs("inputs.txt")
+        val instructions = puzzle.readInputs("test.txt")
         val robot = Robot()
         instructions.forEach {
             robot.doInstruction(it)
@@ -62,10 +62,8 @@ class Robot(
 
     fun doInstruction2(instruction: Instruction, waypoint: Robot) {
         when (instruction.type) {
-            InstructionType.E -> waypoint.doInstruction(instruction)
-            InstructionType.S -> waypoint.doInstruction(instruction)
-            InstructionType.W -> waypoint.doInstruction(instruction)
-            InstructionType.N -> waypoint.doInstruction(instruction)
+            InstructionType.E, InstructionType.S, InstructionType.N, InstructionType.W ->
+                waypoint.doInstruction(instruction)
             InstructionType.L -> rotateWaypointAroundRobot(-instruction.num / 90, waypoint)
             InstructionType.R -> rotateWaypointAroundRobot(instruction.num / 90, waypoint)
             InstructionType.F -> moveTowardsWaypoint(instruction.num, waypoint)
@@ -89,10 +87,8 @@ class Robot(
     }
 
     private fun moveTowardsWaypoint(num: Int, waypoint: Robot) {
-        val deltaX = num * waypoint.x
-        val deltaY = num * waypoint.y
-        x += deltaX
-        y += deltaY
+        x += num * waypoint.x
+        y += num * waypoint.y
     }
 
     private fun dirToType(dir: Direction) : InstructionType {
