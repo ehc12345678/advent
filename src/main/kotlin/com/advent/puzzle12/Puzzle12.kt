@@ -1,6 +1,7 @@
 package com.advent.puzzle12
 
 import java.io.File
+import java.lang.RuntimeException
 import kotlin.math.abs
 
 enum class Direction(var value: Int) { E(0), S(1), W(2), N(3) }
@@ -32,19 +33,22 @@ fun main() {
 }
 
 fun testRotate() {
-    testOneRotate(30, 40, 1, 30, -40)
-    testOneRotate(30, 40, 2, -30, -40)
-    testOneRotate(30, 40, 3, -30, 40)
-    testOneRotate(30, 40, -1, -30, 40)
-    testOneRotate(30, 40, -2, -30, -40)
-    testOneRotate(30, 40, -3, -30, 40)
+    testOneRotateInstruction(30, 40, Instruction(InstructionType.R, 90), 40, -30)
+    testOneRotateInstruction(30, 40, Instruction(InstructionType.R, 180), -30, -40)
+    testOneRotateInstruction(30, 40, Instruction(InstructionType.R, 270), -40, 30)
+    testOneRotateInstruction(30, 40, Instruction(InstructionType.L, 90), -40, 30)
+    testOneRotateInstruction(30, 40, Instruction(InstructionType.L, 180), -30, -40)
+    testOneRotateInstruction(30, 40, Instruction(InstructionType.L, 270), 40, -30)
 }
 
-fun testOneRotate(x: Int, y: Int, steps: Int, expectedX: Int, expectedY: Int) {
-    val waypoint = Robot(x, y)
-    waypoint.rotate(steps)
-    assert(waypoint.east == expectedX)
-    assert(waypoint.north == expectedY)
+fun testOneRotateInstruction(east: Int, north: Int, instruction: Instruction, expectedEast: Int, expectedNorth: Int) {
+    val waypoint = Robot(east, north)
+    val robot = Robot(50, 100)
+    robot.doInstruction2(instruction, waypoint)
+    if (waypoint.east != expectedEast)
+        throw RuntimeException("didn't match east ${waypoint.east} $expectedEast")
+    if (waypoint.north != expectedNorth)
+        throw RuntimeException("didn't match north ${waypoint.north} $expectedNorth")
 }
 
 class Puzzle12 {
@@ -93,14 +97,10 @@ class Robot(
     }
 
     fun rotate(steps: Int) {
-        for (i in 0 until steps) {
-            when {
-                (east >= 0 && north >= 0) -> north *= -1
-                (east >= 0 && north <= 0) -> east *= -1
-                (east <= 0 && north <= 0) -> north *= -1
-                else -> east *= -1
-            }
-        }
+        val listRotates = listOf(Pair(north, -east), Pair(-east, -north), Pair(-north, east))
+        val pair = listRotates[(steps - 1) % 4]
+        east = pair.first
+        north = pair.second
     }
 
     private fun moveTowardsWaypoint(num: Int, waypoint: Robot) {
