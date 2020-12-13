@@ -10,23 +10,41 @@ class Instruction(val type: InstructionType, val num: Int)
 fun main() {
     val puzzle = Puzzle12()
     try {
-        val instructions = puzzle.readInputs("test.txt")
+        val instructions = puzzle.readInputs("inputs.txt")
         val robot = Robot()
         instructions.forEach {
             robot.doInstruction(it)
         }
-        println("Final pos ${abs(robot.x) + abs(robot.y)}")
+        println("Final pos ${abs(robot.east) + abs(robot.north)}")
+
+        testRotate()
 
         val waypoint = Robot(10, 1)
-        robot.x = 0
-        robot.y = 0
+        robot.east = 0
+        robot.north = 0
         instructions.forEach {
             robot.doInstruction2(it, waypoint)
         }
-        println("Final pos ${abs(robot.x) + abs(robot.y)}")
+        println("Final pos ${abs(robot.east) + abs(robot.north)}")
     } catch (e: Throwable) {
         e.printStackTrace()
     }
+}
+
+fun testRotate() {
+    testOneRotate(30, 40, 1, 30, -40)
+    testOneRotate(30, 40, 2, -30, -40)
+    testOneRotate(30, 40, 3, -30, 40)
+    testOneRotate(30, 40, -1, -30, 40)
+    testOneRotate(30, 40, -2, -30, -40)
+    testOneRotate(30, 40, -3, -30, 40)
+}
+
+fun testOneRotate(x: Int, y: Int, steps: Int, expectedX: Int, expectedY: Int) {
+    val waypoint = Robot(x, y)
+    waypoint.rotate(steps)
+    assert(waypoint.east == expectedX)
+    assert(waypoint.north == expectedY)
 }
 
 class Puzzle12 {
@@ -44,16 +62,16 @@ class Puzzle12 {
 }
 
 class Robot(
-    var x: Int = 0,
-    var y: Int = 0,
+    var east: Int = 0,
+    var north: Int = 0,
     var dir: Direction = Direction.E
 ) {
     fun doInstruction(instruction: Instruction) {
         when (instruction.type) {
-            InstructionType.E -> x += instruction.num
-            InstructionType.S -> y -= instruction.num
-            InstructionType.W -> x -= instruction.num
-            InstructionType.N -> y += instruction.num
+            InstructionType.E -> east += instruction.num
+            InstructionType.S -> north -= instruction.num
+            InstructionType.W -> east -= instruction.num
+            InstructionType.N -> north += instruction.num
             InstructionType.L -> turn(-instruction.num / 90)
             InstructionType.R -> turn(instruction.num / 90)
             InstructionType.F -> doInstruction(Instruction(dirToType(dir), instruction.num))
@@ -64,31 +82,30 @@ class Robot(
         when (instruction.type) {
             InstructionType.E, InstructionType.S, InstructionType.N, InstructionType.W ->
                 waypoint.doInstruction(instruction)
-            InstructionType.L -> rotateWaypointAroundRobot(-instruction.num / 90, waypoint)
-            InstructionType.R -> rotateWaypointAroundRobot(instruction.num / 90, waypoint)
-            InstructionType.F -> moveTowardsWaypoint(instruction.num, waypoint)
+            InstructionType.L ->
+                waypoint.rotate(4 - (instruction.num / 90))
+            InstructionType.R ->
+                waypoint.rotate(instruction.num / 90)
+            InstructionType.F ->
+                moveTowardsWaypoint(instruction.num, waypoint)
         }
-        println("${instruction.type} ${instruction.num} ($x,$y) waypoint (${waypoint.x}, ${waypoint.y})")
+        println("${instruction.type} ${instruction.num} (e=$east,n=$north) waypoint (e=${waypoint.east}, n=${waypoint.north})")
     }
 
-    private fun rotateWaypointAroundRobot(steps: Int, waypoint: Robot) {
-        for (i in 0 until (((steps + 4) % 4))) {
-            rotatePointOnce(waypoint)
-        }
-    }
-
-    private fun rotatePointOnce(waypoint: Robot) {
-        when {
-            (waypoint.x >= 0 && waypoint.y >= 0) -> waypoint.y *= -1
-            (waypoint.x >= 0 && waypoint.y <= 0) -> waypoint.x *= -1
-            (waypoint.x <= 0 && waypoint.y <= 0) -> waypoint.y *= -1
-            else -> waypoint.x *= -1
+    fun rotate(steps: Int) {
+        for (i in 0 until steps) {
+            when {
+                (east >= 0 && north >= 0) -> north *= -1
+                (east >= 0 && north <= 0) -> east *= -1
+                (east <= 0 && north <= 0) -> north *= -1
+                else -> east *= -1
+            }
         }
     }
 
     private fun moveTowardsWaypoint(num: Int, waypoint: Robot) {
-        x += num * waypoint.x
-        y += num * waypoint.y
+        east += num * waypoint.east
+        north += num * waypoint.north
     }
 
     private fun dirToType(dir: Direction) : InstructionType {
