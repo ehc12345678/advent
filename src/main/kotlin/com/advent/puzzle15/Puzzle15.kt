@@ -22,10 +22,10 @@ class Puzzle15 {
         inputs.forEach {
             next = say(i++, it, map)
         }
-        for (x in i..n) {
+        for (x in i until n) {
             next = say(x, next, map)
         }
-        return map.filter { it.value == n }.iterator().next().key
+        return next
     }
 
     fun say(index: Int, number: Int, map: NumberMap) : Int {
