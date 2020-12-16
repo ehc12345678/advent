@@ -88,7 +88,10 @@ class Puzzle16 {
     private fun inValidRange(namedRange: NamedRanges, num: Int) = namedRange.ranges.find { range -> range.contains(num) } != null
 
     fun puzzleFindAnswerB(data: Data): Long {
-        val validTickets = listOf(data.ticket) + data.nearByTickets.filter { findNotInValid(it, data.validRanges) == 0 }
+        val validTickets = listOf(data.ticket) +
+            data.nearByTickets.filter {
+                ticket -> ticket.none { number -> !inValidRanges(number, data.validRanges) }
+            }
         val possible = data.validRanges.map { it.name }.toSet()
         val columnPossibles = Array(possible.size) { HashSet(possible) }
 
@@ -132,7 +135,7 @@ class Puzzle16 {
         var answer = 1L
         data.ticket.forEachIndexed { colIndex, number ->
             val colName = columnSolutions[colIndex]
-            if (colName.contains("departure")) {
+            if (colName.startsWith("departure")) {
                 println("Found $colName with $number at $colIndex")
                 answer *= number
             }
@@ -170,6 +173,8 @@ class Puzzle16 {
         // if we reach a point where we have only one possibility, all the other columns cannot be that
         if (columnPossible.size == 1) {
             reducePossibles(columnPossibles, columnPossible.first())
+        } else if (columnPossible.size == 0) {
+            println("Oh no!")
         }
     }
 
