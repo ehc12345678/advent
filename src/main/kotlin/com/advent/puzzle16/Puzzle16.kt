@@ -140,6 +140,10 @@ class Puzzle16 {
         return answer
     }
 
+    // This goes through an uses logic to reduce the column possibilities.  If an item only appears in one set, then
+    // it must be the one that is picked.  For instance, if you have (a,b,c), (a, b), (d,f)... you can say that
+    // column one is definitely c because it is the only place c appears.  You can continue doing that until you
+    // nothing changes, which is the most reduced it can get
     private fun reducePossibleColumns(columnPossibles: Array<java.util.HashSet<String>>) {
         var changed: Boolean
 
@@ -160,23 +164,22 @@ class Puzzle16 {
         } while (changed)
     }
 
-    private fun reducePossibles(columnPossibles: Array<java.util.HashSet<String>>, only: String) {
-        columnPossibles.forEach { columnPossible ->
-            if (columnPossible.size != 1 && columnPossible.contains(only)) {
-                removeItem(columnPossible, only, columnPossibles)
-            }
-        }
-    }
-
-    private fun removeItem(
-        columnPossible: java.util.HashSet<String>,
-        only: String,
-        columnPossibles: Array<java.util.HashSet<String>>
-    ) {
-        columnPossible.remove(only)
+    private fun removeItem(columnPossible: java.util.HashSet<String>, column: String,
+                           columnPossibles: Array<java.util.HashSet<String>>) {
+        columnPossible.remove(column)
+        // if we reach a point where we have only one possibility, all the other columns cannot be that
         if (columnPossible.size == 1) {
             reducePossibles(columnPossibles, columnPossible.first())
         }
     }
 
+    // this removes the column from all the other places it finds (making sure not to remove it from the one
+    // in which it definitely is (the one with only one possibility)
+    private fun reducePossibles(columnPossibles: Array<java.util.HashSet<String>>, column: String) {
+        columnPossibles.forEach { columnPossible ->
+            if (columnPossible.size != 1 && columnPossible.contains(column)) {
+                removeItem(columnPossible, column, columnPossibles)
+            }
+        }
+    }
 }
