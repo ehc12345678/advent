@@ -84,6 +84,20 @@ class Puzzle17 {
         return ret
     }
 
+    private fun addNeighbors(dimStart: Int, dims: Int, point: PointND, points: HashSet<PointND>) {
+        if (dimStart == dims) {
+            if (point != PointND(dims)) {
+                points.add(point)
+            }
+        } else {
+            for (num in -1..1) {
+                val newPoint = point add PointND(dims)
+                newPoint.coords[dimStart] = num
+                addNeighbors(dimStart + 1, dims, newPoint, points)
+            }
+        }
+    }
+
     private fun doOneTurn(data: Cubes) : Cubes {
         val ret = Cubes()
         data.forEach {
@@ -108,59 +122,9 @@ class Puzzle17 {
         return neighbors.map { it add point }
     }
 
-    private fun countNeighbors(point: Point, data: Cubes): Int {
-        return getAllNeighbors(point).fold(0) { acc, it -> acc + if (data.contains(it)) 1 else 0 }
-    }
-
-    fun partB(data: Cubes4D): Int {
-        var newState = data
-        for (i in 0 until 6) {
-            newState = doOneTurn4D(newState)
-        }
-        return newState.size
-    }
-
-    private fun calcNeighbors4D() : Set<Point4D> {
-        val ret = HashSet<Point4D>()
-        for (x in -1..1) {
-            for (y in -1..1) {
-                for (z in -1..1) {
-                    for (w in -1..1) {
-                        if (!(x == 0 && y == 0 && z == 0 && w == 0)) {
-                            ret.add(Point4D(x, y, z, w))
-                        }
-                    }
-                }
-            }
-        }
-        return ret
-    }
-
-    private fun doOneTurn4D(data: Cubes4D) : Cubes4D {
-        val ret = Cubes4D()
-        data.forEach {
-            // active
-            if (countNeighbors(it, data) in 2..3) {
-                ret.add(it)
-            }
-
-            // inactive
-            val allMyNeighbors = getAllNeighbors4D(it)
-            allMyNeighbors.forEach { neighbor ->
-                if (!data.contains(neighbor) && countNeighbors(neighbor, data) == 3) {
-                    ret.add(neighbor)
-                }
-            }
-        }
-
-        return ret
-    }
-
-    private fun getAllNeighbors4D(point: Point4D): List<Point4D> {
-        return neighbors4D.map { it add point }
-    }
-
-    private fun countNeighbors(point: Point4D, data: Cubes4D): Int {
-        return getAllNeighbors4D(point).fold(0) { acc, it -> acc + if (data.contains(it)) 1 else 0 }
+    private fun countNeighbors(point: PointND, data: CubesND): Int {
+        val allNeighbors = getAllNeighbors(point)
+        val theCount = allNeighbors.count { data.contains(it) }
+        return theCount
     }
 }
