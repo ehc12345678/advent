@@ -2,67 +2,62 @@ package com.advent.puzzle17
 
 import java.io.File
 
-data class Point(val x: Int, val y: Int, val z: Int)
-data class Point4D(val x: Int, val y: Int, val z: Int, val w: Int)
+data class PointND(val dims: Int, val coords: ArrayList<Int>) {
+    constructor(dims: Int) : this(dims, ArrayList()) {
+        for (i in 0 until dims) {
+            coords.add(0)
+        }
+    }
+    constructor(dims: Int, x: Int, y: Int) : this(dims) {
+        coords[0] = x
+        coords[1] = y
+    }
 
-infix fun Point.add(other: Point)  = Point(x + other.x, y + other.y, z + other.z)
-infix fun Point4D.add(other: Point4D)  = Point4D(x + other.x, y + other.y, z + other.z, w + other.z)
+    override fun toString(): String {
+        return coords.toString()
+    }
+}
 
-typealias Cubes = HashSet<Point>
-typealias Cubes4D = HashSet<Point4D>
+infix fun PointND.add(other: PointND) : PointND {
+    val ret = PointND(other.dims)
+    for (index in coords.indices) {
+        ret.coords[index] = coords[index] + other.coords[index]
+    }
+    return ret
+}
+typealias CubesND = HashSet<PointND>
 
 fun main() {
     val puzzle = Puzzle17()
     try {
-        val data = puzzle.readInputs("inputs.txt")
+        val data = puzzle.readInputs("inputs.txt", 3)
         val answer = puzzle.partA(data)
         println("Answer is $answer")
 
-        val dataB = puzzle.readInputsB("inputs.txt")
-        val answer2 = puzzle.partB(dataB)
-        println("Answer is $answer2")
+        val dataB = puzzle.readInputs("inputs.txt", 4)
+        val answerB = puzzle.partA(dataB)
+        println("Answer is $answerB")
     } catch (e: Throwable) {
         e.printStackTrace()
     }
 }
 
 class Puzzle17 {
-    private val neighbors: Set<Point>
-    private val neighbors4D: Set<Point4D>
-    init {
-        neighbors = calcNeighbors()
-        neighbors4D = calcNeighbors4D()
-    }
-
-    fun readInputs(filename: String): Cubes {
+    fun readInputs(filename: String, dims: Int): CubesND {
         val file = File(filename)
         val lines = file.readLines()
-        val ret = Cubes()
+        val ret = CubesND()
         lines.forEachIndexed { yIndex, line ->
             line.forEachIndexed { xIndex, ch ->
                 if (ch == '#') {
-                    ret.add(Point(xIndex, yIndex, 0))
+                    ret.add(PointND(dims, xIndex, yIndex))
                 }
             }
         }
         return ret
     }
 
-    fun readInputsB(filename: String): Cubes4D {
-        val file = File(filename)
-        val lines = file.readLines()
-        val ret = Cubes4D()
-        lines.forEachIndexed { yIndex, line ->
-            line.forEachIndexed { xIndex, ch ->
-                if (ch == '#') {
-                    ret.add(Point4D(xIndex, yIndex, 0, 0))
-                }
-            }
-        }
-        return ret
-    }
-
-    fun partA(data: Cubes): Int {
+    fun partA(data: CubesND): Int {
         var newState = data
         for (i in 0 until 6) {
             newState = doOneTurn(newState)
@@ -70,17 +65,9 @@ class Puzzle17 {
         return newState.size
     }
 
-    private fun calcNeighbors() : Set<Point> {
-        val ret = HashSet<Point>()
-        for (x in -1..1) {
-            for (y in -1..1) {
-                for (z in -1..1) {
-                    if (!(x == 0 && y == 0 && z == 0)) {
-                        ret.add(Point(x, y, z))
-                    }
-                }
-            }
-        }
+    private fun calcNeighbors(dims: Int) : Set<PointND> {
+        val ret = HashSet<PointND>()
+        addNeighbors(0, dims, PointND(dims), ret)
         return ret
     }
 
@@ -98,8 +85,8 @@ class Puzzle17 {
         }
     }
 
-    private fun doOneTurn(data: Cubes) : Cubes {
-        val ret = Cubes()
+    private fun doOneTurn(data: CubesND) : CubesND {
+        val ret = CubesND()
         data.forEach {
             // active
             if (countNeighbors(it, data) in 2..3) {
@@ -118,7 +105,8 @@ class Puzzle17 {
         return ret
     }
 
-    private fun getAllNeighbors(point: Point): List<Point> {
+    private fun getAllNeighbors(point: PointND): List<PointND> {
+        val neighbors = calcNeighbors(point.dims)
         return neighbors.map { it add point }
     }
 
