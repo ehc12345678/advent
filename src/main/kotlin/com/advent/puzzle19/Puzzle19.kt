@@ -76,7 +76,8 @@ class Puzzle19 {
     }
 
     fun isValid(data: Data, str: String) : Boolean {
-        val isValid = traverse(data, data.rules[0]!!, str) == str
+        val fullTraverse = traverse(data, data.rules[0]!!, str)
+        val isValid = fullTraverse == str
         if (!isValid) {
             println(str)
         }
@@ -107,7 +108,7 @@ class Puzzle19 {
 
     fun traverseSegment(data: Data, parent: Rule, ruleSegment: RuleSegment, str: String) : String? {
         // all rule segments have exactly two rule references, so this is safe
-        println("\tSegment $ruleSegment")
+        debug("\tSegment $ruleSegment")
         if (ruleSegment.contains(parent.key)) {
             return handleSefRefs(data, ruleSegment, str)
         }
@@ -136,33 +137,32 @@ class Puzzle19 {
         val strFirst = traverse(data, first!!, str) ?: return null
         if (ruleSegment.size == 2) {
             var workingStr = strFirst
+            var other = ""
             while (workingStr.length <= str.length) {
                 val restString = str.substring(workingStr.length)
-                val again = traverse(data, first, restString) ?: break
-                workingStr += again
+                other = traverse(data, first, restString) ?: break
+                workingStr += other
             }
-            return workingStr
+            // remove the last match so that the next one can pick it up
+            return workingStr.substring(0, workingStr.length - other.length)
         }
         // we know that this is a (a b)* b, so we can look for that
         else if (ruleSegment.size == 3) {
-            val last = data.rules[ruleSegment[2]]
-
             var workingStr = strFirst
+            var countFirst = 1
             while (workingStr.length < str.length) {
                 val restString = str.substring(workingStr.length)
-                val nextOfFirst = traverse(data, first, restString)
+                val nextOfFirst = traverse(data, first, restString) ?: break
+                workingStr += nextOfFirst
+                countFirst++
+            }
 
-                // we found a ... now we found a again, so we better find (a b)
-                if (nextOfFirst != null) {
-                    val restString2 = restString.substring(nextOfFirst.length)
-                    val strLast = traverse(data, last!!, restString2) ?: return null
-                    workingStr += nextOfFirst + strLast
-                } else {
-                    // we didn't find a, so, we better find the last, otherwise we don't match
-                    val strLast = traverse(data, last!!, restString) ?: return null
-                    workingStr += strLast
-                    break;
-                }
+            // need to find just as many lasts as firsts
+            for (countLast in 0 until countFirst + 1) {
+                val last = data.rules[ruleSegment[2]]
+                val restString = str.substring(workingStr.length)
+                val strLast = traverse(data, last!!, restString) ?: return null
+                workingStr += strLast
             }
             return workingStr
         }
