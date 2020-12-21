@@ -175,7 +175,7 @@ class Puzzle20 {
         val notEdges = data.tiles.filter { !it.isEdge() }
         println("not edges: ${notEdges.size}")
 
-        var puzzle = assemblePuzzle(corners, edges, notEdges)
+        var puzzle = assemblePuzzle(data, corners, edges, notEdges)
 
         var countSeaMonsters = 0
         return notEdges.size
@@ -200,37 +200,47 @@ class Puzzle20 {
         return tile
     }
 
-    fun assemblePuzzle(corners: List<Tile>, edges: List<Tile>, notEdges: List<Tile>): Puzzle {
+    fun assemblePuzzle(data: Data, corners: List<Tile>, edges: List<Tile>, notEdges: List<Tile>): Puzzle {
         val puzzle = Puzzle()
         val upperLeft = rotateFlip(corners.first()) { it.north().isEdge() && it.west().isEdge() }
-        val upperRight = rotateFlip(corners[1]) { it.north().isEdge() && it.east().isEdge() }
-        val lowerLeft = rotateFlip(corners[2]) { it.south().isEdge() && it.west().isEdge() }
-        val lowerRight = rotateFlip(corners[3]) { it.south().isEdge() && it.east().isEdge() }
-        val firstRow = fillRow(upperLeft, upperRight, edges) ?: throw RuntimeException("oops")
+        val n = data.tiles[0].contents.size
+
+        val firstRow = fillRow(upperLeft, n) ?: throw RuntimeException("Could not fill first row")
         puzzle.add(firstRow)
+        for (x in 1 until n) {
+            val first = findNextSouth(puzzle[x - 1][0].south()) ?: throw RuntimeException("Could not find first at row ${x}")
+            val row = fillRow(first, n) ?: throw RuntimeException("Could not fill row $x")
+            puzzle.add(row)
+        }
         return puzzle
     }
 
-    private fun fillRow(first: Tile, last: Tile, edges: List<Tile>) : ArrayList<Tile>?{
-        val firstRow = ArrayList<Tile>()
-        firstRow.add(first)
+    private fun fillRow(first: Tile, n: Int) : ArrayList<Tile>?{
+        val row = ArrayList<Tile>()
+        row.add(first)
         var next = first
-        do {
-            next = findNext(next, next.east(), edges) ?: return null
-            firstRow.add(next)
-        } while (next.id != last.id)
-        return firstRow
+        for (x in 1 until n) {
+            next = findNextEast(next.east()) ?: return null
+            row.add(next)
+        }
+        return row
     }
 
-    private fun findNext(next: Tile, east: Boundary, edges: List<Tile>) : Tile? {
-        val matchTiles = east.matches.filter { edges.contains(it.tile) }
-        if (matchTiles.size > 1) {
-            println("hmmm")
-        }
+    private fun findNextEast(east: Boundary) : Tile? {
+        val matchTiles = east.matches
         if (matchTiles.size == 0) {
-            println("Oh no")
+            return null
         }
         val matchTile = matchTiles[0].tile
         return rotateFlip(matchTile) { east.str == matchTile.west().str }
+    }
+
+    private fun findNextSouth(south: Boundary) : Tile? {
+        val matchTiles = south.matches
+        if (matchTiles.size == 0) {
+            return null
+        }
+        val matchTile = matchTiles[0].tile
+        return rotateFlip(matchTile) { south.str == matchTile.north().str }
     }
 }
