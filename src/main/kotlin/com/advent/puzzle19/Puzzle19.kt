@@ -5,7 +5,7 @@ import java.io.File
 fun main() {
     val puzzle = Puzzle19()
     try {
-        val data = puzzle.readInputs("test2.txt")
+        val data = puzzle.readInputs("inputs.txt")
         val countValids = data.strs.count { puzzle.isValid(data, it) }
         println("valid count is $countValids")
 
@@ -84,7 +84,7 @@ class Puzzle19 {
         val rule42 = data.rules[42]
         val rule31 = data.rules[31]
         val strFirst = traverse(data, rule42!!, str) ?: return false
-        var count42 = 1
+        var count42 = 0
 
         var workingStr = ""
         var next42 : String? = strFirst
@@ -103,16 +103,16 @@ class Puzzle19 {
             count31++
         } while (workingStr.length < str.length)
 
-        return workingStr == str && count31 < count42
+        val isValid = workingStr == str && count31 < count42
+        if (isValid) {
+            println(str)
+        }
+        return isValid
     }
 
     fun isValid(data: Data, str: String) : Boolean {
         val fullTraverse = traverse(data, data.rules[0]!!, str)
-        val isValid = fullTraverse == str
-        if (!isValid) {
-            println(str)
-        }
-        return isValid
+        return fullTraverse == str
     }
 
     fun traverse(data: Data, rule: Rule, str: String) : String? {
