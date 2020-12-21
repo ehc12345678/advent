@@ -57,7 +57,7 @@ class Tile(var id: Int, var contents: ArrayList<String> = ArrayList()) {
 
     fun rotate() {
         west().reverseStr()
-        south().reverseStr()
+        east().reverseStr()
         boundaries = ArrayList(listOf(west(), north(), east(), south()))
 
         //first change the dimensions vertical length for horizontal length
@@ -77,13 +77,6 @@ class Tile(var id: Int, var contents: ArrayList<String> = ArrayList()) {
         west().reverseStr()
         boundaries = ArrayList(listOf(south(), east(), north(), west()))
         contents.reverse()
-    }
-
-    fun flipEastWest() {
-        north().reverseStr()
-        south().reverseStr()
-        boundaries = ArrayList(listOf(north(), west(), south(), east()))
-        contents = ArrayList(contents.map { it.reversed() })
     }
 
     override fun toString(): String {
@@ -166,19 +159,13 @@ class Puzzle20 {
     }
 
     fun partB(data: Data): Int {
-        val edges = data.tiles.filter { it.isEdge() }
-        println("edges: ${edges.size}")
-
         val corners = data.tiles.filter { it.isCorner() }
         println("corners: ${corners.map { it.id }}")
 
-        val notEdges = data.tiles.filter { !it.isEdge() }
-        println("not edges: ${notEdges.size}")
-
-        var puzzle = assemblePuzzle(data, corners, edges, notEdges)
-
-        var countSeaMonsters = 0
-        return notEdges.size
+        val puzzle = assemblePuzzle(data, corners)
+        val str = makeStringFromPuzzle(puzzle)
+        val numberSeaMonsters = findSeaMonsters(str)
+        return numberSeaMonsters
     }
 
     fun rotateFlip(tile: Tile, pred: (tile: Tile) -> Boolean) : Tile {
@@ -200,7 +187,7 @@ class Puzzle20 {
         return tile
     }
 
-    fun assemblePuzzle(data: Data, corners: List<Tile>, edges: List<Tile>, notEdges: List<Tile>): Puzzle {
+    fun assemblePuzzle(data: Data, corners: List<Tile>): Puzzle {
         val puzzle = Puzzle()
         val upperLeft = rotateFlip(corners.first()) { it.north().isEdge() && it.west().isEdge() }
         val n = data.tiles[0].contents.size
@@ -242,5 +229,80 @@ class Puzzle20 {
         }
         val matchTile = matchTiles[0].tile
         return rotateFlip(matchTile) { south.str == matchTile.north().str }
+    }
+
+    fun makeStringFromPuzzle(puzzle: Puzzle) : List<String> {
+        // avoid edges
+        val n = puzzle.size
+        val ret = ArrayList<String>()
+        for (i in 1 until n - 1) {
+            val tileRow = puzzle[i]
+            for (index in 0 until n) {
+                var str = ""
+                for (j in 1 until n - 1) {
+                    val tile: Tile = tileRow[j]
+                    str += tile.contents[index]
+                }
+                ret.add(str)
+            }
+        }
+        return ret
+    }
+
+    private fun findSeaMonsters(strs: List<String>) : Int {
+        val tile = Tile(0, ArrayList(strs))
+        rotateFlip(tile) { findSeaMonstersInList(it.contents) != 0 }
+        return findSeaMonstersInList(tile.contents)
+    }
+
+    private fun findSeaMonstersInList(strs: List<String>): Int {
+        val seaMonster =
+            listOf(
+                "                  # ",
+                "#    ##    ##    ###",
+                " #  #  #  #  #  #   "
+            )
+
+        var matches = 0
+        for (i in 1 until strs.size - 1) {
+            var middleIndex = 0
+            do {
+                middleIndex = findSingleLine(strs[i], seaMonster[1], middleIndex)
+                if (middleIndex > 0) {
+                    if (matchAtIndex(strs[i + 1], seaMonster[2], middleIndex)) {
+                        if (matchAtIndex(strs[i - 1], seaMonster[0], middleIndex)) {
+                            ++matches
+                        }
+                    }
+                    ++middleIndex
+                }
+            } while (middleIndex >= 0)
+        }
+        return matches
+    }
+
+    private fun findSingleLine(str: String, seaMonsterLine: String, start: Int) : Int {
+        for (y in start until str.length) {
+            if (y + seaMonsterLine.length >= str.length) {
+                return -1
+            }
+
+            if (matchAtIndex(str, seaMonsterLine, y)) {
+                return y
+            }
+        }
+        return -1
+    }
+
+    private fun matchAtIndex(str: String, seaMonsterLine: String, index: Int): Boolean {
+        var found = true
+        val substr = str.substring(index, index+seaMonsterLine.length)
+        for (x in seaMonsterLine.indices) {
+            if (seaMonsterLine[x] == '#' && substr[x] != '#') {
+                found = false
+                break
+            }
+        }
+        return found
     }
 }
