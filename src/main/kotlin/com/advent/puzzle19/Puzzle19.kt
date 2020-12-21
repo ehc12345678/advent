@@ -6,8 +6,8 @@ fun main() {
     val puzzle = Puzzle19()
     try {
         val data = puzzle.readInputs("test2.txt")
-//        val countValids = data.strs.count { puzzle.isValid(data, it) }
-//        println("valid count is $countValids")
+        val countValids = data.strs.count { puzzle.isValid(data, it) }
+        println("valid count is $countValids")
 
         data.rules[8] = puzzle.parseRule("8: 42 8 | 42")
         data.rules[11] = puzzle.parseRule("11: 42 11 31 | 42 31")
