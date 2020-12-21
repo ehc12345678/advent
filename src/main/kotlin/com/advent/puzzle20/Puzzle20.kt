@@ -266,7 +266,6 @@ class Puzzle20 {
     }
 
     private fun findSeaMonstersInList(strs: List<String>): Int {
-
         var matches = 0
         for (i in 1 until strs.size - 1) {
             var middleIndex = 0
