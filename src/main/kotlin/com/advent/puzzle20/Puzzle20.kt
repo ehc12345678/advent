@@ -190,7 +190,7 @@ class Puzzle20 {
     fun assemblePuzzle(data: Data, corners: List<Tile>): Puzzle {
         val puzzle = Puzzle()
         val upperLeft = rotateFlip(corners.first()) { it.north().isEdge() && it.west().isEdge() }
-        val n = data.tiles[0].contents.size
+        val n = Math.sqrt(data.tiles.size.toDouble()).toInt()
 
         val firstRow = fillRow(upperLeft, n) ?: throw RuntimeException("Could not fill first row")
         puzzle.add(firstRow)
@@ -233,15 +233,15 @@ class Puzzle20 {
 
     fun makeStringFromPuzzle(puzzle: Puzzle) : List<String> {
         // avoid edges
-        val n = puzzle.size
         val ret = ArrayList<String>()
-        for (i in 1 until n - 1) {
+        for (i in puzzle.indices) {
             val tileRow = puzzle[i]
-            for (index in 0 until n) {
+            for (index in 1 until tileRow[i].contents.size - 1) {
                 var str = ""
-                for (j in 1 until n - 1) {
+                for (j in tileRow.indices) {
                     val tile: Tile = tileRow[j]
-                    str += tile.contents[index]
+                    val thisLine = tile.contents[index]
+                    str += thisLine.substring(1, thisLine.length - 1)
                 }
                 ret.add(str)
             }
@@ -249,26 +249,30 @@ class Puzzle20 {
         return ret
     }
 
+    private val seaMonster =
+        listOf(
+            "                  # ",
+            "#    ##    ##    ###",
+            " #  #  #  #  #  #   "
+        )
+
     private fun findSeaMonsters(strs: List<String>) : Int {
         val tile = Tile(0, ArrayList(strs))
         rotateFlip(tile) { findSeaMonstersInList(it.contents) != 0 }
-        return findSeaMonstersInList(tile.contents)
+        val numMonsters = findSeaMonstersInList(tile.contents)
+        val perSeamonster = seaMonster.fold(0) { acc, line -> acc + line.count { it == '#'} }
+        val puzzleNum = strs.fold(0) { acc, line -> acc + line.count { it == '#'} }
+        return puzzleNum - (numMonsters * perSeamonster)
     }
 
     private fun findSeaMonstersInList(strs: List<String>): Int {
-        val seaMonster =
-            listOf(
-                "                  # ",
-                "#    ##    ##    ###",
-                " #  #  #  #  #  #   "
-            )
 
         var matches = 0
         for (i in 1 until strs.size - 1) {
             var middleIndex = 0
             do {
                 middleIndex = findSingleLine(strs[i], seaMonster[1], middleIndex)
-                if (middleIndex > 0) {
+                if (middleIndex >= 0) {
                     if (matchAtIndex(strs[i + 1], seaMonster[2], middleIndex)) {
                         if (matchAtIndex(strs[i - 1], seaMonster[0], middleIndex)) {
                             ++matches
