@@ -9,10 +9,8 @@ fun main() {
         val countValids = data.strs.count { puzzle.isValid(data, it) }
         println("valid count is $countValids")
 
-        data.rules[8] = puzzle.parseRule("8: 42 8 | 42")
-        data.rules[11] = puzzle.parseRule("11: 42 11 31 | 42 31")
-        val countValids2 = data.strs.count { puzzle.isValid(data, it) }
-        println("valid count2 is $countValids2")
+        val countValidsB = data.strs.count { puzzle.isValidPartB(data, it) }
+        println("B count is $countValidsB")
     } catch (e: Throwable) {
         e.printStackTrace()
     }
@@ -75,6 +73,39 @@ class Puzzle19 {
         return rule
     }
 
+    fun isValidPartB(data: Data, str: String) : Boolean {
+        // rule 0 is 8 11
+        // rule 8: is 42 | 8
+        // rule 11: is 42 31 | 42 11 31
+        // so we need at least one or more 42s... like this 42 42 42 42 42 ...
+        //    if we do not see a 42, it must be a 31... we should have a number of 31s that is at least one less than the 42s
+        //    42 42 (42 31) works, 42 (42 31) works, but not 42 42 31 31 (2 31s >= 2 42s)
+        //    (42 42 42 42 42) 42 31
+        val rule42 = data.rules[42]
+        val rule31 = data.rules[31]
+        val strFirst = traverse(data, rule42!!, str) ?: return false
+        var count42 = 1
+
+        var workingStr = ""
+        var next42 : String? = strFirst
+        while (next42 != null) {
+            workingStr += next42
+            val restString = str.substring(workingStr.length)
+            next42 = traverse(data, rule42, restString)
+            count42++
+        }
+
+        var count31 = 0
+        do {
+            val restString = str.substring(workingStr.length)
+            val next31 = traverse(data, rule31!!, restString) ?: return false
+            workingStr += next31
+            count31++
+        } while (workingStr.length < str.length)
+
+        return workingStr == str && count31 < count42
+    }
+
     fun isValid(data: Data, str: String) : Boolean {
         val fullTraverse = traverse(data, data.rules[0]!!, str)
         val isValid = fullTraverse == str
@@ -109,9 +140,6 @@ class Puzzle19 {
     fun traverseSegment(data: Data, parent: Rule, ruleSegment: RuleSegment, str: String) : String? {
         // all rule segments have exactly two rule references, so this is safe
         debug("\tSegment $ruleSegment")
-        if (ruleSegment.contains(parent.key)) {
-            return handleSefRefs(data, ruleSegment, str)
-        }
         var workingStr: String? = ""
         for (i in ruleSegment.indices) {
             val rule = data.rules[ruleSegment[i]]
@@ -129,44 +157,6 @@ class Puzzle19 {
             debug("\tSegment ${ruleSegment} found ${workingStr}")
         }
         return workingStr
-    }
-
-    fun handleSefRefs(data: Data, ruleSegment: RuleSegment, str: String): String? {
-        // we know that we end with the self ref, it is as a reg exp (a)+
-        val first = data.rules[ruleSegment[0]]
-        val strFirst = traverse(data, first!!, str) ?: return null
-        if (ruleSegment.size == 2) {
-            var workingStr = strFirst
-            var other = ""
-            while (workingStr.length <= str.length) {
-                val restString = str.substring(workingStr.length)
-                other = traverse(data, first, restString) ?: break
-                workingStr += other
-            }
-            // remove the last match so that the next one can pick it up
-            return workingStr.substring(0, workingStr.length - other.length)
-        }
-        // we know that this is a (a b)* b, so we can look for that
-        else if (ruleSegment.size == 3) {
-            var workingStr = strFirst
-            var countFirst = 1
-            while (workingStr.length < str.length) {
-                val restString = str.substring(workingStr.length)
-                val nextOfFirst = traverse(data, first, restString) ?: break
-                workingStr += nextOfFirst
-                countFirst++
-            }
-
-            // need to find just as many lasts as firsts
-            for (countLast in 0 until countFirst + 1) {
-                val last = data.rules[ruleSegment[2]]
-                val restString = str.substring(workingStr.length)
-                val strLast = traverse(data, last!!, restString) ?: return null
-                workingStr += strLast
-            }
-            return workingStr
-        }
-        return null
     }
 
     fun debug(str: String) {
