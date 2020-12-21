@@ -128,7 +128,7 @@ class Puzzle19 {
         if (rule.ruleSegments != null) {
             var i = 0
             while (substr == null && i < rule.ruleSegments.size) {
-                substr = traverseSegment(data, rule, rule.ruleSegments[i++], str)
+                substr = traverseSegment(data, rule.ruleSegments[i++], str)
             }
         }
         if (substr != null) {
@@ -137,8 +137,7 @@ class Puzzle19 {
         return substr
     }
 
-    fun traverseSegment(data: Data, parent: Rule, ruleSegment: RuleSegment, str: String) : String? {
-        // all rule segments have exactly two rule references, so this is safe
+    fun traverseSegment(data: Data, ruleSegment: RuleSegment, str: String) : String? {
         debug("\tSegment $ruleSegment")
         var workingStr: String? = ""
         for (i in ruleSegment.indices) {
