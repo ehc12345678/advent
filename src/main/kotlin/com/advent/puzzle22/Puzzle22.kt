@@ -25,13 +25,13 @@ typealias SeenCards = String
 typealias SeenDecks = HashSet<SeenCards>
 class Data(var playerOne: Deck = Deck(), var playerTwo: Deck = Deck()) {
     fun winner() : Deck = if (playerOne.size > playerTwo.size) playerOne else playerTwo
-    fun score(deck: Deck) : Int {
-        return deck.foldIndexed(0) { index, acc, i ->
+    fun score(deck: Deck) : Long {
+        return deck.foldIndexed(0L) { index, acc, i ->
             acc + ((deck.size - index) * i)
         }
     }
 
-    // by adding a -1, we can be sure that (1,2,3) (4,5) != (1,2) (3,4,5)
+    // by adding a space, we can be sure that (1,2,3) (4,5) != (1,2) (3,4,5)
     fun seenCards() : SeenCards {
         return "${playerOne.joinToString(",")} ${playerTwo.joinToString(",")}"
     }
@@ -73,18 +73,18 @@ class Puzzle22 {
     }
 
     fun playRecursiveWar(data: Data): Deck {
-        try {
-            recurse(data)
-            return data.winner()
+        return try {
+            recurse(data, SeenDecks())
+            data.winner()
         } catch (rb: RecursionBuster) {
-            return data.playerOne
+            data.playerOne
         }
     }
 
-    var gameNum = 0
+    private var gameNum = 0
 
     @Throws(RecursionBuster::class)
-    fun recurse(data: Data): Boolean {
+    fun recurse(data: Data, seen: SeenDecks): Boolean {
         val game = ++gameNum
         println("=== Game $game ===")
 
@@ -92,7 +92,6 @@ class Puzzle22 {
         val playerTwo = data.playerTwo
 
         var round = 0
-        val seen = SeenDecks()
         while (playerOne.isNotEmpty() && playerTwo.isNotEmpty()) {
             if (seen.contains(data.seenCards())) {
                 throw RecursionBuster() // infinite recursion is bad!
@@ -116,7 +115,7 @@ class Puzzle22 {
                     Deck(playerOne.subList(0, playerOneCard)),
                     Deck(playerTwo.subList(0, playerTwoCard))
                 )
-                playerOneWon = recurse(newDeck)
+                playerOneWon = recurse(newDeck, seen)
             } else {
                 playerOneWon = playerOneCard > playerTwoCard
             }
