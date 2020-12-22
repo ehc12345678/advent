@@ -7,7 +7,7 @@ fun main() {
     val puzzle = Puzzle21()
     try {
         val data = puzzle.readInputs("inputs.txt")
-        val noPossibleAllergens = data.any.filter { str -> data.possibles.none() { entry -> entry.value.contains(str) } }
+        val noPossibleAllergens = data.any.filter { str -> data.possibles.none { entry -> entry.value.contains(str) } }
         println("A is ${noPossibleAllergens.size}")
 
         puzzle.reducePossibles(data)
@@ -18,8 +18,8 @@ fun main() {
     }
 }
 
-typealias IngrediantSet = Set<String>
-typealias Possibles = HashMap<String, IngrediantSet>
+typealias IngredientSet = Set<String>
+typealias Possibles = HashMap<String, IngredientSet>
 typealias Solution = HashMap<String, String>
 class Data {
     var possibles = Possibles()
@@ -41,39 +41,34 @@ class Puzzle21 {
         val regex = """(.*) \(contains (.*)\)""".toRegex()
         val match = regex.find(line) ?: throw IllegalArgumentException("Bad data $line")
         val scrambled = match.groups[1]?.value?.split(" ") ?: throw IllegalArgumentException("No group1 $line")
-        val ingrediants = match.groups[2]?.value?.split(", ") ?: throw IllegalArgumentException("No group1 $line")
+        val ingredients = match.groups[2]?.value?.split(", ") ?: throw IllegalArgumentException("No group1 $line")
 
         data.any.addAll(scrambled)
 
         val scrambledSet = scrambled.toSet()
-        ingrediants.forEach { ingrediant ->
-            if (data.solutions.containsKey(ingrediant)) {
+        ingredients.forEach { ingredient ->
+            if (data.solutions.containsKey(ingredient)) {
                 // sanity check
-                if (!scrambledSet.contains(data.solutions[ingrediant])) {
+                if (!scrambledSet.contains(data.solutions[ingredient])) {
                     throw IllegalArgumentException("Something went wrong, we didn't find solution")
                 }
             } else {
-                val existing = data.possibles[ingrediant]
-                val newScrambledList =
-                    if (existing == null) {
-                        scrambledSet
-                    } else {
-                        existing.intersect(scrambledSet)
-                    }
-                data.possibles[ingrediant] = newScrambledList
+                val existing = data.possibles[ingredient]
+                val newScrambledList = existing?.intersect(scrambledSet) ?: scrambledSet
+                data.possibles[ingredient] = newScrambledList
                 if (newScrambledList.size == 1) {
-                    data.solutions[ingrediant] = newScrambledList.first()
+                    data.solutions[ingredient] = newScrambledList.first()
                 }
             }
         }
     }
 
     fun reducePossibles(data: Data) {
-        var changed: Boolean = true
+        var changed = true
         val possibles = Possibles(data.possibles)
         while (changed) {
             val onlyOne = possibles.filter { entry -> entry.value.size == 1 }
-            changed = !onlyOne.isEmpty()
+            changed = onlyOne.isNotEmpty()
             onlyOne.forEach { entry ->
                 val solution = entry.value.first()
                 data.solutions[entry.key] = solution
