@@ -37,7 +37,7 @@ class Data(var playerOne: Deck = Deck(), var playerTwo: Deck = Deck()) {
     }
 }
 
-class RecursionBuster(var winner: Deck) : Exception()
+class RecursionBuster : Exception()
 class Puzzle22 {
     fun readInputs(filename: String): Data {
         val file = File(filename)
@@ -77,7 +77,7 @@ class Puzzle22 {
             recurse(data)
             return data.winner()
         } catch (rb: RecursionBuster) {
-            return rb.winner
+            return data.playerOne
         }
     }
 
@@ -95,7 +95,7 @@ class Puzzle22 {
         val seen = SeenDecks()
         while (playerOne.isNotEmpty() && playerTwo.isNotEmpty()) {
             if (seen.contains(data.seenCards())) {
-                throw RecursionBuster(playerOne) // infinite recursion is bad!
+                throw RecursionBuster() // infinite recursion is bad!
             }
             seen.add(data.seenCards())
 
