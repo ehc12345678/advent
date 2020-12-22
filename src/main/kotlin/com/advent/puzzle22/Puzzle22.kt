@@ -37,7 +37,6 @@ class Data(var playerOne: Deck = Deck(), var playerTwo: Deck = Deck()) {
     }
 }
 
-class RecursionBuster : Exception()
 class Puzzle22 {
     fun readInputs(filename: String): Data {
         val file = File(filename)
@@ -73,18 +72,12 @@ class Puzzle22 {
     }
 
     fun playRecursiveWar(data: Data): Deck {
-        return try {
-            recurse(data, SeenDecks())
-            data.winner()
-        } catch (rb: RecursionBuster) {
-            data.playerOne
-        }
+        recurse(data)
+        return data.winner()
     }
 
     private var gameNum = 0
-
-    @Throws(RecursionBuster::class)
-    fun recurse(data: Data, seen: SeenDecks): Boolean {
+    fun recurse(data: Data): Boolean {
         val game = ++gameNum
         println("=== Game $game ===")
 
@@ -92,9 +85,10 @@ class Puzzle22 {
         val playerTwo = data.playerTwo
 
         var round = 0
+        val seen = SeenDecks()
         while (playerOne.isNotEmpty() && playerTwo.isNotEmpty()) {
             if (seen.contains(data.seenCards())) {
-                throw RecursionBuster() // infinite recursion is bad!
+                return true
             }
             seen.add(data.seenCards())
 
@@ -108,16 +102,15 @@ class Puzzle22 {
 
             println("Player 1 plays: $playerOneCard")
             println("Player 2 plays: $playerTwoCard")
-            var playerOneWon: Boolean
-            if (playerOneCard <= playerOne.size && playerTwoCard <= playerTwo.size) {
+            val playerOneWon = if (playerOneCard <= playerOne.size && playerTwoCard <= playerTwo.size) {
                 println("Playing a sub-game to determine the winner...\n")
                 val newDeck = Data(
                     Deck(playerOne.subList(0, playerOneCard)),
                     Deck(playerTwo.subList(0, playerTwoCard))
                 )
-                playerOneWon = recurse(newDeck, seen)
+                recurse(newDeck)
             } else {
-                playerOneWon = playerOneCard > playerTwoCard
+                playerOneCard > playerTwoCard
             }
 
             // two ways to win... higher card or recursion
