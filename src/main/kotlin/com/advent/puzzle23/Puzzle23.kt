@@ -5,7 +5,7 @@ import kotlin.math.min
 fun main() {
     val puzzle = Puzzle23()
     try {
-        val input = "389125467"
+        val input = "792845136"
         val answerA = puzzle.solutionA(puzzle.toIntList(input), 100)
         println("Answer A is $answerA")
 
@@ -107,33 +107,18 @@ class Puzzle23 {
                 destinationCup = if (destinationCup - 1 <= 0) length else destinationCup - 1
             }
 
-//            println("-- move ${i + 1} --")
-//            println("current: $currentCup")
-//            println("cups: ${circle.toString(currentCup)}")
-//            println("pick up: ${otherCups.joinToString(" ")}")
-//            println("destination: $destinationCup\n")
-
             val findDestination = circle.getNode(destinationCup)
             moveThreeNodes(node, findDestination)
 
             node = node.next!!
         }
 
-//        var ret = ""
-//        val oneIndex = circle.getNode(1)
-//        var next = oneIndex.next
-//        while (next != oneIndex) {
-//            ret += "${next?.number}"
-//            next = next?.next
-//        }
-//        println("String answer: $ret")
-
         val oneNode = circle.getNode(1)
         val nextNode = oneNode.next!!
         val nextNextNode = nextNode.next!!
+        println("(${nextNode.number} ${nextNextNode.number}")
         return nextNextNode.number.toLong() * nextNode.number.toLong()
     }
-
 }
 
 class Node(var number: Int, var next: Node?, var prev: Node?) {
@@ -151,7 +136,7 @@ class Circle(input: ArrayList<Int>, highWater: Int) {
         for (i in 1 until input.size) {
             add(input[i])
         }
-        for (i in input.size until highWater) {
+        for (i in input.size+1..highWater) {
             add(i)
         }
         current?.next = head
