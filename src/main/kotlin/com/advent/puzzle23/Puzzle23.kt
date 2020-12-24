@@ -132,7 +132,7 @@ class Node(var number: Int, var next: Node?) {
 class Circle(input: ArrayList<Int>, highWater: Int) {
     var head: Node? = null
     private var current: Node? = null
-    private val nodes = HashMap<Int, Node>()
+    private val nodes = Array(highWater) { Node(-1, null) }
 
     init {
         head = add(input[0])
@@ -149,12 +149,12 @@ class Circle(input: ArrayList<Int>, highWater: Int) {
         val node = Node(number, null)
         current?.next = node
         current = node
-        nodes[number] = node
+        nodes[number - 1] = node
         return node
     }
 
     fun getNode(number: Int) : Node {
-        return nodes[number]!!
+        return nodes[number - 1]
     }
 
     val size : Int
