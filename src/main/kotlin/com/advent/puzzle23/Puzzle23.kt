@@ -1,13 +1,16 @@
 package com.advent.puzzle23
 
+import kotlin.math.min
+
 fun main() {
     val puzzle = Puzzle23()
     try {
         val input = "389125467"
-//        val answerA = puzzle.solutionA(puzzle.toIntList(input), 100)
-//        println("Answer A is $answerA")
+        val answerA = puzzle.solutionA(puzzle.toIntList(input), 100)
+        println("Answer A is $answerA")
 
-        val answerB = puzzle.solutionB(puzzle.toIntList(input), 1000000)
+        println("-- Part B")
+        val answerB = puzzle.solutionB(puzzle.toIntList(input), 1000000, 10000000)
         println("Answer B is $answerB")
     } catch (e: Throwable) {
         e.printStackTrace()
@@ -89,8 +92,7 @@ class Puzzle23 {
         saveLastThreeNext.prev = beforeThree
     }
 
-    fun solutionB(input: ArrayList<Int>, upperLimit: Int) : Long {
-        val numTimes = upperLimit * 10
+    fun solutionB(input: ArrayList<Int>, upperLimit: Int, numTimes: Int) : Long {
         val circle = Circle(input, upperLimit)
         val length = circle.size
         var node = circle.head!!
@@ -105,21 +107,40 @@ class Puzzle23 {
                 destinationCup = if (destinationCup - 1 <= 0) length else destinationCup - 1
             }
 
+//            println("-- move ${i + 1} --")
+//            println("current: $currentCup")
+//            println("cups: ${circle.toString(currentCup)}")
+//            println("pick up: ${otherCups.joinToString(" ")}")
+//            println("destination: $destinationCup\n")
+
             val findDestination = circle.getNode(destinationCup)
             moveThreeNodes(node, findDestination)
 
             node = node.next!!
         }
 
+//        var ret = ""
+//        val oneIndex = circle.getNode(1)
+//        var next = oneIndex.next
+//        while (next != oneIndex) {
+//            ret += "${next?.number}"
+//            next = next?.next
+//        }
+//        println("String answer: $ret")
+
         val oneNode = circle.getNode(1)
-        val prevNode = oneNode.prev!!
         val nextNode = oneNode.next!!
-        return prevNode.number.toLong() * nextNode.number.toLong()
+        val nextNextNode = nextNode.next!!
+        return nextNextNode.number.toLong() * nextNode.number.toLong()
     }
 
 }
 
-class Node(var number: Int, var next: Node?, var prev: Node?)
+class Node(var number: Int, var next: Node?, var prev: Node?) {
+    override fun toString(): String {
+        return "${number}->${next?.number}"
+    }
+}
 class Circle(input: ArrayList<Int>, highWater: Int) {
     var head: Node? = null
     var current: Node? = null
@@ -152,18 +173,19 @@ class Circle(input: ArrayList<Int>, highWater: Int) {
         get() = nodes.size
 
     override fun toString(): String {
+        return toString(-1)
+    }
+
+    fun toString(current: Int) : String {
         val buf = StringBuffer()
         var node = head
-        buf.append("next: ")
-        for (i in 0 until 20) {
-            buf.append("${node!!.number}->")
+        for (i in 0 until min(nodes.size, 20)) {
+            if (current == node!!.number) {
+                buf.append("(${node.number}) ")
+            } else {
+                buf.append("${node.number} ")
+            }
             node = node.next
-        }
-        buf.append("\n")
-        buf.append("prev: ")
-        for (i in 0 until 20) {
-            node = node!!.prev
-            buf.append("${node!!.number}->")
         }
         return buf.toString()
     }
