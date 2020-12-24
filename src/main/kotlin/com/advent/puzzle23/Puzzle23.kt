@@ -69,27 +69,21 @@ class Puzzle23 {
         val ret = HashSet<Int>()
         var next = node
         for (i in 0 until 3) {
-            next = next.next!!
+            next = next.nextNode()
             ret.add(next.number)
         }
         return ret
     }
 
     private fun moveThreeNodes(beforeThree: Node, destinationNode: Node) {
-        val firstThree = beforeThree.next!!
-        val lastThree = firstThree.next?.next!!
+        val firstThree = beforeThree.nextNode()
+        val lastThree = beforeThree.nextNode(3)
 
         // moves the three nodes to after the destination node
-        val saveDestinationNodeNext = destinationNode.next!!
-        val saveLastThreeNext = lastThree.next!!
+        val saveDestinationNodeNext = destinationNode.nextNode()
         destinationNode.next = firstThree
-        beforeThree.next = lastThree.next!!
+        beforeThree.next = lastThree.nextNode()
         lastThree.next = saveDestinationNodeNext
-
-        // fixes the prev pointers
-        firstThree.prev = destinationNode
-        saveDestinationNodeNext.prev = lastThree
-        saveLastThreeNext.prev = beforeThree
     }
 
     fun solutionB(input: ArrayList<Int>, upperLimit: Int, numTimes: Int) : Long {
@@ -110,26 +104,35 @@ class Puzzle23 {
             val findDestination = circle.getNode(destinationCup)
             moveThreeNodes(node, findDestination)
 
-            node = node.next!!
+            node = node.nextNode()
         }
 
         val oneNode = circle.getNode(1)
-        val nextNode = oneNode.next!!
-        val nextNextNode = nextNode.next!!
+        val nextNode = oneNode.nextNode()
+        val nextNextNode = nextNode.nextNode()
         println("(${nextNode.number} ${nextNextNode.number}")
         return nextNextNode.number.toLong() * nextNode.number.toLong()
     }
 }
 
-class Node(var number: Int, var next: Node?, var prev: Node?) {
+class Node(var number: Int, var next: Node?) {
     override fun toString(): String {
         return "${number}->${next?.number}"
     }
+
+    fun nextNode(n: Int = 1) : Node {
+        var ret = this
+        for (i in 0 until n) {
+            ret = ret.next!!
+        }
+        return ret
+    }
 }
+
 class Circle(input: ArrayList<Int>, highWater: Int) {
     var head: Node? = null
-    var current: Node? = null
-    val nodes = HashMap<Int, Node>()
+    private var current: Node? = null
+    private val nodes = HashMap<Int, Node>()
 
     init {
         head = add(input[0])
@@ -143,7 +146,7 @@ class Circle(input: ArrayList<Int>, highWater: Int) {
     }
 
     fun add(number: Int) : Node {
-        val node = Node(number, null, current)
+        val node = Node(number, null)
         current?.next = node
         current = node
         nodes[number] = node
