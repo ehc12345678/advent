@@ -26,33 +26,25 @@ class Puzzle1 : Base<Data, Solution?, Solution2?>() {
         data.add(line.toInt())
     }
 
-    override fun computeSolution(data: Data): Solution {
-        var last = data[0]
-        val solution = Solution(0)
-        data.subList(1, data.size).forEach {
-            if (it > last) {
-                solution.count++
-            }
-            last = it
-        }
-        return solution
-    }
+    override fun computeSolution(data: Data): Solution = computeWindow(data, 1)
+    override fun computeSolution2(data: Data): Solution2 = computeWindow(data, 3)
 
-    override fun computeSolution2(data: Data): Solution2 {
-        var last = sumWindow(data, 0)
+    private fun computeWindow(data: Data, windowSize: Int) : Solution {
+        var last = sumWindow(data, 0, windowSize)
         val solution = Solution2(0)
-        (1..data.size - 3).forEach { index ->
-            val window = sumWindow(data, index)
+        (1..data.size - windowSize).forEach { index ->
+            val window = sumWindow(data, index, windowSize)
             if (window > last) {
                 solution.count++
             }
             last = window
         }
         return solution
+
     }
 
-    private fun sumWindow(data: Data, index: Int) : Int {
-        return data.subList(index, index + 3).reduce { acc, i -> acc + i }
+    private fun sumWindow(data: Data, index: Int, windowSize: Int) : Int {
+        return data.subList(index, index + windowSize).reduce { acc, i -> acc + i }
     }
 }
 

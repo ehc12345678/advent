@@ -27,9 +27,11 @@ class Puzzle2 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
+        return Solution(0)
     }
 
     override fun computeSolution2(data: Data): Solution2 {
+        return Solution(0)
     }
 }
 
