@@ -1,4 +1,4 @@
-package com.advent.advent2021.puzzle1
+package com.advent2021.puzzle1
 
 import com.advent2021.base.Base
 
