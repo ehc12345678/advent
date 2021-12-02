@@ -5,11 +5,11 @@ import java.io.IOException
 
 abstract class Base<T, V, U> {
     @Throws(IOException::class)
-    open fun readInput(filename: String, data: T): T {
+    open fun readInput(filename: String, data: T, parseLineFunc: (String, T) -> Unit): T {
         try {
             val file = File(filename)
             file.readLines().forEach {
-                parseLine(it, data)
+                parseLineFunc(it, data)
             }
             return data
         } catch (ex: IOException) {
@@ -19,17 +19,18 @@ abstract class Base<T, V, U> {
     }
 
     abstract fun parseLine(line: String, data: T)
+    open fun parseLine2(line: String, data: T) = parseLine(line, data)
 
     @Throws(IOException::class)
     open fun solvePuzzle(filename: String, data: T) : V {
-        val newData = readInput(filename, data)
-        return computeSolution(data)
+        val newData = readInput(filename, data, this::parseLine)
+        return computeSolution(newData)
     }
 
     @Throws(IOException::class)
     open fun solvePuzzle2(filename: String, data: T) : U {
-        val newData = readInput(filename, data)
-        return computeSolution2(data)
+        val newData = readInput(filename, data, this::parseLine2)
+        return computeSolution2(newData)
     }
 
     abstract fun computeSolution(data: T): V

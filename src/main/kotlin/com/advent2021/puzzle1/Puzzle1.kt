@@ -31,7 +31,7 @@ class Puzzle1 : Base<Data, Solution?, Solution2?>() {
 
     private fun computeWindow(data: Data, windowSize: Int) : Solution {
         var last = sumWindow(data, 0, windowSize)
-        val solution = Solution2(0)
+        val solution = Solution(0)
         (1..data.size - windowSize).forEach { index ->
             val window = sumWindow(data, index, windowSize)
             if (window > last) {
@@ -40,7 +40,6 @@ class Puzzle1 : Base<Data, Solution?, Solution2?>() {
             last = window
         }
         return solution
-
     }
 
     private fun sumWindow(data: Data, index: Int, windowSize: Int) : Int {

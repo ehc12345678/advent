@@ -1,11 +1,15 @@
 package com.advent2021.puzzle2
 
 import com.advent2021.base.Base
+import java.lang.IllegalArgumentException
 
-typealias Data = ArrayList<Int>
-data class Solution(
-   var count: Int
+enum class Direction { forward, up, down }
+data class InputLine(
+    val dir: Direction,
+    val x: Int
 )
+typealias Data = ArrayList<InputLine>
+typealias Solution = Int
 typealias Solution2 = Solution
 
 fun main() {
@@ -23,15 +27,44 @@ fun main() {
 
 class Puzzle2 : Base<Data, Solution?, Solution2?>() {
     override fun parseLine(line: String, data: Data) {
-        data.add(line.toInt())
+        val parts = line.split(" ")
+        data.add(InputLine(Direction.valueOf(parts[0]), parts[1].toInt()))
     }
 
     override fun computeSolution(data: Data): Solution {
-        return Solution(0)
+        data class Position(
+            var depth: Int = 0,
+            var distance: Int = 0
+        )
+        val pos = Position()
+        data.forEach { line ->
+            when (line.dir) {
+                Direction.forward -> pos.distance += line.x
+                Direction.down -> pos.depth += line.x
+                Direction.up -> pos.depth -= line.x
+            }
+        }
+        return pos.depth * pos.distance
     }
 
     override fun computeSolution2(data: Data): Solution2 {
-        return Solution(0)
+        data class Position(
+            var depth: Int = 0,
+            var distance: Int = 0,
+            var aim: Int = 0
+        )
+        val pos = Position()
+        data.forEach { line ->
+            when (line.dir) {
+                Direction.forward -> {
+                    pos.distance += line.x
+                    pos.depth += (pos.aim * line.x)
+                }
+                Direction.down -> pos.aim += line.x
+                Direction.up -> pos.aim -= line.x
+            }
+        }
+        return pos.depth * pos.distance
     }
 }
 
