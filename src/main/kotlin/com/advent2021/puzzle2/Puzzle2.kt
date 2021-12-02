@@ -1,7 +1,6 @@
 package com.advent2021.puzzle2
 
 import com.advent2021.base.Base
-import java.lang.IllegalArgumentException
 
 enum class Direction { forward, up, down }
 data class InputLine(
@@ -10,7 +9,7 @@ data class InputLine(
 )
 typealias Data = ArrayList<InputLine>
 typealias Solution = Int
-typealias Solution2 = Solution
+typealias Solution2 = Int
 
 fun main() {
     try {
