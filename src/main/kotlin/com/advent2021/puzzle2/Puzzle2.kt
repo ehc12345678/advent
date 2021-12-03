@@ -24,6 +24,27 @@ fun main() {
     }
 }
 
+open class Position(
+    var depth: Int = 0,
+    var distance: Int = 0
+) {
+    val solution: Int
+        get() { return depth * distance }
+    open fun incDistance(x: Int): Position = Position(depth, distance + x)
+    open fun incDepth(x: Int): Position = Position(depth + x, distance)
+}
+
+class Position2(
+    depth: Int = 0,
+    distance: Int = 0,
+    var aim: Int = 0
+) : Position(depth, distance) {
+    override fun incDistance(x: Int): Position2 = Position2(depth, distance + x, aim)
+    override fun incDepth(x: Int): Position2 = Position2(depth + x, distance, aim)
+    fun incAim(x: Int): Position2 = Position2(depth, distance, aim + x)
+}
+
+
 class Puzzle2 : Base<Data, Solution?, Solution2?>() {
     override fun parseLine(line: String, data: Data) {
         val parts = line.split(" ")
@@ -31,39 +52,23 @@ class Puzzle2 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-        data class Position(
-            var depth: Int = 0,
-            var distance: Int = 0
-        )
-        val pos = Position()
-        data.forEach { line ->
+        return with(data.fold(Position()) { acc, line ->
             when (line.dir) {
-                Direction.forward -> pos.distance += line.x
-                Direction.down -> pos.depth += line.x
-                Direction.up -> pos.depth -= line.x
+                Direction.forward -> acc.incDistance(line.x)
+                Direction.down -> acc.incDepth(line.x)
+                Direction.up -> acc.incDepth(-line.x)
             }
-        }
-        return pos.depth * pos.distance
+        }) { solution }
     }
 
     override fun computeSolution2(data: Data): Solution2 {
-        data class Position(
-            var depth: Int = 0,
-            var distance: Int = 0,
-            var aim: Int = 0
-        )
-        val pos = Position()
-        data.forEach { line ->
+        return with(data.fold(Position2()) { acc, line ->
             when (line.dir) {
-                Direction.forward -> {
-                    pos.distance += line.x
-                    pos.depth += (pos.aim * line.x)
-                }
-                Direction.down -> pos.aim += line.x
-                Direction.up -> pos.aim -= line.x
+                Direction.forward -> acc.incDistance(line.x).incDepth(acc.aim * line.x)
+                Direction.down -> acc.incAim(line.x)
+                Direction.up -> acc.incAim(-line.x)
             }
-        }
-        return pos.depth * pos.distance
+        }) { solution }
     }
 }
 
