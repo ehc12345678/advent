@@ -1,6 +1,9 @@
 package com.advent2021.puzzle2
 
 import com.advent2021.base.Base
+import com.advent2021.puzzle2.Position.Companion.incDepth
+import com.advent2021.puzzle2.Position.Companion.incDistance
+import com.advent2021.puzzle2.Position2.Companion.incAim
 
 enum class Direction { forward, up, down }
 data class InputLine(
@@ -30,8 +33,11 @@ open class Position(
 ) {
     val solution: Int
         get() { return depth * distance }
-    open fun incDistance(x: Int): Position = Position(depth, distance + x)
-    open fun incDepth(x: Int): Position = Position(depth + x, distance)
+
+    companion object {
+        fun <Pos: Position> incDistance(x: Int, pos: Pos): Pos = pos.also { pos.distance += x }
+        fun <Pos: Position> incDepth(x: Int, pos: Pos): Pos = pos.also { pos.depth += x }
+    }
 }
 
 class Position2(
@@ -39,9 +45,9 @@ class Position2(
     distance: Int = 0,
     var aim: Int = 0
 ) : Position(depth, distance) {
-    override fun incDistance(x: Int): Position2 = Position2(depth, distance + x, aim)
-    override fun incDepth(x: Int): Position2 = Position2(depth + x, distance, aim)
-    fun incAim(x: Int): Position2 = Position2(depth, distance, aim + x)
+    companion object {
+        fun incAim(x: Int, pos: Position2): Position2 = pos.also { pos.aim += x }
+    }
 }
 
 
@@ -54,9 +60,9 @@ class Puzzle2 : Base<Data, Solution?, Solution2?>() {
     override fun computeSolution(data: Data): Solution {
         return with(data.fold(Position()) { acc, line ->
             when (line.dir) {
-                Direction.forward -> acc.incDistance(line.x)
-                Direction.down -> acc.incDepth(line.x)
-                Direction.up -> acc.incDepth(-line.x)
+                Direction.forward -> incDistance(line.x, acc)
+                Direction.down -> incDepth(line.x, acc)
+                Direction.up -> incDepth(-line.x, acc)
             }
         }) { solution }
     }
@@ -64,9 +70,9 @@ class Puzzle2 : Base<Data, Solution?, Solution2?>() {
     override fun computeSolution2(data: Data): Solution2 {
         return with(data.fold(Position2()) { acc, line ->
             when (line.dir) {
-                Direction.forward -> acc.incDistance(line.x).incDepth(acc.aim * line.x)
-                Direction.down -> acc.incAim(line.x)
-                Direction.up -> acc.incAim(-line.x)
+                Direction.forward -> incDistance(line.x, acc).also { incDepth(acc.aim * line.x, it) }
+                Direction.down -> incAim(line.x, acc)
+                Direction.up -> incAim(-line.x, acc)
             }
         }) { solution }
     }
