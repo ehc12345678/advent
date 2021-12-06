@@ -2,17 +2,13 @@ package com.advent2021.puzzle5
 
 import com.advent2021.base.Base
 
-data class Point(val x: Int, val y: Int) {
-    constructor(array: List<Int>) : this(array[0], array[1])
-}
-data class Line(val pt1: Point, val pt2: Point) {
-    constructor(pts: List<Point>) : this(pts[0], pts[1])
-}
-class Data(
-    val lines: ArrayList<Line> = ArrayList(),
-)
+data class Point(val x: Int, val y: Int)
+data class Line(val pt1: Point, val pt2: Point)
+data class Data(val lines: ArrayList<Line> = ArrayList())
+
 class Solution {
     val pointMap: HashMap<Point, Int> = HashMap()
+
     fun addPoints(line: Line, diagonals: Boolean) {
         if (line.pt1.x == line.pt2.x || line.pt1.y == line.pt2.y || diagonals) {
             addPoints(line.pt1, line.pt2)
@@ -54,8 +50,8 @@ fun main() {
     }
 }
 
-fun String.toPoint() = Point(split(",").map { it.toInt() })
-fun String.toLine() = Line(split(" -> ").map { it.toPoint() })
+fun String.toPoint() = split(",").run { Point(this[0].toInt(), this[1].toInt()) }
+fun String.toLine() = split(" -> ").run { Line(this[0].toPoint(), this[1].toPoint()) }
 
 class Puzzle5 : Base<Data, Solution?, Solution2?>() {
     override fun parseLine(line: String, data: Data) {
