@@ -29,12 +29,13 @@ class Puzzle6 : Base<Data, Solution?, Solution2?>() {
     override fun computeSolution2(data: Data): Solution2 = solution(data, 256)
 
     private fun solution(data: Data, days: Int): BigInteger {
-        val cnts = Array(9) { 0.toBigInteger() }
-        data.forEach { cnts[it]++ }
-        for (i in 0 until days) {
-            step1(cnts)
+        return Array(9) { 0.toBigInteger() }.let { cnts ->
+            data.forEach { cnts[it]++ }
+            for (i in 0 until days) {
+                step1(cnts)
+            }
+            cnts.sumOf { it }
         }
-        return cnts.sumOf { it }
     }
 
     private fun step1(sol: Array<BigInteger>) {

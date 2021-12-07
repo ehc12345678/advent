@@ -79,7 +79,7 @@ class Puzzle7 {
     fun countBags(root: Node, color: String) : Int {
         val child = root.children[color]
         var count = 1
-        child?.children?.forEach { key, value ->
+        child?.children?.forEach { (key, value) ->
             count += value.number * countBags(root, key)
         }
         return count
