@@ -35,10 +35,7 @@ class Puzzle9 {
         val first = index - lastN
         val last = first + lastN
         val thisSet = HashSet(nums.subList(first, last))
-        val find = findSumOperands(thisSet, nums[index])
-        if (find == null) {
-            return Pair(nums[index], index)
-        }
+        val find = findSumOperands(thisSet, nums[index]) ?: return Pair(nums[index], index)
         return findFirst(index + 1, lastN, nums)
     }
 
