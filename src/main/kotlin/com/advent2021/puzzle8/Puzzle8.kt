@@ -2,7 +2,6 @@ package com.advent2021.puzzle8
 
 import com.advent2021.base.Base
 import com.advent2021.puzzle8.Puzzle8.Companion.stringToSetOfChars
-import java.lang.IllegalArgumentException
 
 data class Line(
     var inputs: List<String>,
@@ -72,164 +71,64 @@ class Puzzle8 : Base<Data, Solution?, Solution2?>() {
     }
 
     private fun solveOne(line: Line): Int {
-        val possibleChars = HashMap<Char, Set<Char>>()
-        for (ch in 'a'..'g') {
-            possibleChars[ch.toUpperCase()] = stringToSetOfChars("abcdefg")
-        }
-        val workingData = WorkingData(line)
-        for (ch in 'a'..'g') {
-            workingData.possibleChars[ch.toUpperCase()] = stringToSetOfChars("abcdefg")
-        }
-        workingData.possibleDigits =
-            (line.inputs + line.answerDigits).map { stringToSetOfChars(it) }.associateWith { input ->
-                DIGIT_MAP.filter { entry ->
-                    entry.value.set.size == input.size
-                }.map { it.key }.toMutableSet()
-            }.toMutableMap()
+        val allNumbers = (line.inputs + line.answerDigits).map { stringToSetOfChars(it) }.toSet()
+        val one = findDistinctByLen(allNumbers, ONE)
+        val seven = findDistinctByLen(allNumbers, SEVEN)
+        val eight = findDistinctByLen(allNumbers, EIGHT)
+        val four = findDistinctByLen(allNumbers, FOUR)
 
-        line.inputs.forEach {
-            consumeInput(it, workingData)
-        }
-        line.answerDigits.forEach  {
-            consumeInput(it, workingData)
-        }
-        lastReduce(workingData)
+        val allFives = findAllByLen(allNumbers, FIVE)
+        val allSixes = findAllByLen(allNumbers, ZERO)
 
-        println("Checking ${workingData.line}")
+        val three = allFives.find { it.containsAll(seven) }!!
+        val twoOrFive = allFives.filter { it != three }
+        val bg = four - one
+        val five = twoOrFive.find { it.containsAll(bg) }!!
+        val two = twoOrFive.find { it != five }!!
+
+        val nine = five + one
+        val zeroOrSix = allSixes.filter { it != nine }
+        val zero = zeroOrSix.find { it.containsAll(one) }!!
+        val six = zeroOrSix.find { it != zero }!!
+
+        val answers = mapOf(
+            zero to 0, one to 1, two to 2, three to 3, four to 4,
+            five to 5, six to 6, seven to 7, eight to 8, nine to 9)
+
         val buf = StringBuffer()
         line.answerDigits.forEach {
-            val possibles = workingData.possibleDigits[stringToSetOfChars(it)]
-            if (possibles == null || possibles.size > 1) {
-                throw IllegalArgumentException("Couldn't find a number for $it")
-            } else if (possibles.size == 0) {
-                throw IllegalArgumentException("Oops for $it")
+            if (answers[stringToSetOfChars(it)] == null) {
+                val dbg = "${answers.entries.associate { setToString(it.key) to it.value }}"
+                throw IllegalArgumentException(it)
             }
-            buf.append(possibles.first())
+            buf.append(answers[stringToSetOfChars(it)]!!)
         }
         return buf.toString().toInt()
     }
 
-    private fun lastReduce(workingData: WorkingData) {
-        val ambigiousDigits = workingData.possibleDigits.entries.filter { entry -> entry.value.size > 1 }
-        val ambiguousChars = workingData.possibleChars.entries.filter { entry -> entry.value.size > 1 }
-        var somethingChanged = false
-        while (ambigiousDigits.isNotEmpty()) {
-            ambigiousDigits.forEach { entry ->
-                println("Reducing ambigious digits for ${workingData.line}")
-                HashSet(entry.value).forEach { num ->
-                    if (ambigiousDigits.count { it.value.contains(num) } == 1) {
-                        somethingChanged = true
-                        foundDigit(entry.key, num, workingData)
-                    }
-                }
-            }
-            ambiguousChars.forEach { entry ->
-                println("Reducing ambigious chars for ${workingData.line}")
-                HashSet(entry.value).forEach { ch ->
-                    if (ambiguousChars.count { it.value.contains(ch) } == 1) {
-                        somethingChanged = true
-                        foundChar(entry.key, ch, workingData)
-                    }
-                }
-            }
-            if (somethingChanged) {
-                lastReduce(workingData)
-            } else {
-                println("Ut oh")
-            }
-        }
+    fun setToString(set: Set<Char>): String {
+        return ArrayList(set).sorted().joinToString("") { it.toString() }
     }
 
-    private fun consumeInput(input: String, workingData: WorkingData) {
-        val possibleDigits = workingData.possibleDigits.filter { entry ->
-            entry.key.size == input.length
-        }.map { it.value }.toMutableSet()
-
-        if (possibleDigits.size == 1) {
-            foundDigit(stringToSetOfChars(input), possibleDigits.first().first(), workingData)
-        }
-    }
-
-    private fun foundDigit(input: Set<Char>, digit: Int, workingData: WorkingData) {
-        // remove the digit from possibilities for everything except the thing we found
-        val setOfInts = workingData.possibleDigits[input] ?: return
-        setOfInts.removeIf { it != digit }
-        workingData.possibleDigits.filter { it.key != input }.forEach {
-            val possibilitySet = it.value
-            if (possibilitySet.size > 1) {
-                possibilitySet.removeIf { num -> num == digit }
-                if (possibilitySet.size == 1) {
-                    foundDigit(it.key, possibilitySet.first(), workingData)
-                }
-            }
-        }
-
-        input.forEach { ch ->
-            val possible = workingData.possibleChars[ch]
-            if (possible != null && possible.size > 1) {
-                possible.retainAll(DIGIT_MAP[digit]!!.set)
-                if (possible.size == 1) {
-                    foundChar(ch, possible.first(), workingData)
-                }
-            }
-        }
-    }
-
-    private fun foundChar(inputCh: Char, realCh: Char, workingData: WorkingData) {
-//        workingData.possibleDigits.forEach { entry ->
-//            val key = entry.key
-//            if (key.contains(inputCh) && entry.value.size > 1) {
-//                entry.value.retainAll { DIGIT_MAP[it]!!.set.contains(realCh) }
-//                if (entry.value.size == 1) {
-//                    foundDigit(key, entry.value.first(), workingData)
-//                }
-//            }
-//        }
-
-        val newMap = workingData.possibleDigits.entries.associate { entry ->
-            val key: MutableSet<Char> = HashSet(entry.key)
-            if (key.contains(inputCh)) {
-                key.remove(inputCh)
-                key.add(realCh)
-            }
-            val value = entry.value.also { set -> set.retainAll { DIGIT_MAP[it]!!.set.contains(realCh) } }
-            key to value
-        }.toMutableMap()
-        workingData.possibleDigits = newMap
-
-        workingData.possibleChars.forEach { otherCh ->
-            if (otherCh.key != inputCh) {
-                val possible = workingData.possibleChars[otherCh.key]
-                if (possible != null && possible.remove(inputCh) && possible.size == 1) {
-                    foundChar(otherCh.key, possible.first(), workingData)
-                }
-            } else {
-                workingData.possibleChars[inputCh]?.retainAll(listOf(realCh))
-            }
-        }
-        workingData.possibleDigits.forEach { entry ->
-            val key = entry.key
-            if (key.contains(inputCh) && entry.value.size > 1) {
-                entry.value.retainAll { DIGIT_MAP[it]!!.set.contains(realCh) }
-                if (entry.value.size == 1) {
-                    foundDigit(key, entry.value.first(), workingData)
-                }
-            }
-        }
-    }
+    private fun findDistinctByLen(allNumbers: Set<MutableSet<Char>>, digit: EncodedDigit) =
+        allNumbers.find { it.size == digit.set.size }!!
+    private fun findAllByLen(allNumbers: Set<MutableSet<Char>>, digit: EncodedDigit) =
+        allNumbers.filter { it.size == digit.set.size }
 
     companion object {
         fun stringToSetOfChars(s: String) = s.toCharArray().toMutableSet()
 
-        val ZERO = EncodedDigit(0, "abcefg")
         val ONE = EncodedDigit(1, "cf")
-        val TWO = EncodedDigit(2, "acdeg")
-        val THREE=  EncodedDigit(3, "acdfg")
-        val FOUR = EncodedDigit(4, "bcfg")
-        val FIVE = EncodedDigit(5, "abdfg")
-        val SIX = EncodedDigit(6, "abdefg")
         val SEVEN = EncodedDigit(7, "acf")
+        val FOUR = EncodedDigit(4, "bcfg")
         val EIGHT = EncodedDigit(8, "abcdefg")
+
+        val THREE=  EncodedDigit(3, "acdfg")  // "acdfg" - "cf" = "adg"
+        val TWO = EncodedDigit(2, "acdeg")
+        val FIVE = EncodedDigit(5, "abdfg")
+
+        val ZERO = EncodedDigit(0, "abcefg")
+        val SIX = EncodedDigit(6, "abdefg")
         val NINE = EncodedDigit(9, "abcdfg")
         val DIGIT_MAP: Map<Int, EncodedDigit> =
             listOf(ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE).associateBy { it.digit }
