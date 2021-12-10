@@ -1,4 +1,4 @@
-package com.advent2021.puzzleXYZ
+package com.advent2021.puzzle11
 
 import com.advent2021.base.Base
 
@@ -8,7 +8,7 @@ typealias Solution2 = Solution
 
 fun main() {
     try {
-        val puz = PuzzleXYZ()
+        val puz = Puzzle11()
         val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
@@ -19,7 +19,7 @@ fun main() {
     }
 }
 
-class PuzzleXYZ : Base<Data, Solution?, Solution2?>() {
+class Puzzle11 : Base<Data, Solution?, Solution2?>() {
     override fun parseLine(line: String, data: Data) {
         data.add(line.toInt())
     }
