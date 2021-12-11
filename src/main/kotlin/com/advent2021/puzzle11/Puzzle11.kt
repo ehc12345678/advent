@@ -32,6 +32,25 @@ class Data {
             }
         }
     }
+
+    operator fun iterator(): DataIterator = DataIterator(this)
+
+    class DataIterator(val data: Data) : Iterator<Square> {
+        var pt: Point = Point(0, 0)
+        override fun hasNext(): Boolean = pt.row < data.rows() && pt.col < data.cols()
+
+        override fun next(): Square {
+            var newCol = pt.col + 1
+            var newRow = pt.row
+            if (newCol >= data.cols()) {
+                ++newRow
+                newCol = 0
+            }
+            val thisSquare = data.value(pt.row, pt.col)
+            pt = Point(newRow, newCol)
+            return thisSquare!!
+        }
+    }
 }
 typealias Solution = Int
 typealias Solution2 = Solution
@@ -62,7 +81,6 @@ class Puzzle11 : Base<Data, Solution?, Solution2?>() {
     override fun computeSolution(data: Data): Solution {
         val numSteps = 100
         var answer = 0
-        println("Solving for $data")
         for (i in 0 until numSteps) {
             answer += doStep(data)
         }
@@ -79,22 +97,17 @@ class Puzzle11 : Base<Data, Solution?, Solution2?>() {
 
 
     private fun doStep(data: Data): Int {
-        for (r in 0 until data.rows()) {
-            for (c in 0 until data.cols()) {
-                data.value(r, c)!!.increment()
-            }
+        for (sq in data) {
+            sq.increment()
         }
 
         val flashes = HashSet<Point>()
         var endConditionReached: Boolean
         do {
             val thisFlashes = HashSet<Point>()
-            for (r in 0 until data.rows()) {
-                for (c in 0 until data.cols()) {
-                    val sq = data.value(r, c)!!
-                    if (sq.num > 9 && !flashes.contains(sq.point)) {
-                        thisFlashes.add(sq.point)
-                    }
+            for (sq in data) {
+                if (sq.num > 9 && !flashes.contains(sq.point)) {
+                    thisFlashes.add(sq.point)
                 }
             }
 //            println(data.toString(thisFlashes))
