@@ -44,7 +44,6 @@ class Puzzle12 : Base<Data, Solution?, Solution2?>() {
     override fun computeSolution(data: Data): Solution = computeImpl(data, false)
     override fun computeSolution2(data: Data): Solution2 = computeImpl(data, true)
 
-
     private fun computeImpl(data: Data, allowOneSmallCaveVisit: Boolean): Int {
         val finishedPaths: ArrayList<Path> = ArrayList()
         val unfinished = Stack<Path>()
