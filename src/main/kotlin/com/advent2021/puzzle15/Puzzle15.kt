@@ -78,29 +78,49 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
         data.grid.add(gridLine)
     }
 
-    override fun computeSolution(data: Data): Solution {
-        val graph = Graph<Square>()
+    override fun computeSolution(data: Data): Solution = computeImpl(data, data.rows(), data.cols())
+    override fun computeSolution2(data: Data): Solution2 = computeImpl(data, data.rows() * 5, data.cols() * 5)
+
+    fun calcWeight(pt: Point, data: Data): Int {
+        val row = pt.row % data.rows()
+        val col = pt.col % data.cols()
+        return data.value(row, col)!!.num + (pt.row / data.rows()) + (pt.col / data.cols())
+    }
+
+    private fun computeImpl(data: Data, rows: Int, cols: Int): Int {
+        val graph = buildInitialGraph(data, rows, cols)
+
+        val start = Point(0, 0)
+        val end = Point(rows - 1, cols - 1)
+        val shortPathTree = dijkstra(graph, start)
+        val path = shortestPath(shortPathTree, start, end)
+        return path.map { calcWeight(it, data) }.sumOf { it } - calcWeight(start, data)
+    }
+
+    private fun buildInitialGraph(data: Data, rows: Int, cols: Int): Graph<Point> {
+        val graph = Graph<Point>()
 
         // build a dijkstra weighted graph
-        for (line in data.grid) {
-            for (sq in line) {
-                graph.vertices.add(sq)
+        for (r in 0 until rows) {
+            for (c in 0 until cols) {
+                val pt = Point(r, c)
+                graph.vertices.add(pt)
 
-                val neighbors = data.neighbors(sq.point)
-                graph.edges[sq] = HashSet(neighbors.filter { !graph.vertices.contains(it) })
-                for (neighbor in neighbors) {
-                    if (!graph.vertices.contains(neighbor)) {
-                        graph.weights[Pair(sq, neighbor)] = neighbor.num
+                val neighbors = HashSet<Point>().also {
+                    if (r < rows - 1) {
+                        it.add(Point(r + 1, c))
                     }
+                    if (c < cols - 1) {
+                        it.add(Point(r, c + 1))
+                    }
+                }
+                graph.edges[pt] = neighbors
+                for (neighbor in neighbors) {
+                    graph.weights[Pair(pt, neighbor)] = calcWeight(neighbor, data)
                 }
             }
         }
-
-        val start = data.value(0, 0)!!
-        val end = data.value(data.endPoint)!!
-        val shortPathTree = dijkstra(graph, start)
-        val path = shortestPath(shortPathTree, start, end)
-        return path.sumOf { it.num } - path.first().num
+        return graph
     }
 
     class Graph<T> {
@@ -144,10 +164,6 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
             return listOf(pathTo(start, shortestPathTree[end]!!), listOf(end)).flatten()
         }
         return pathTo(start, end)
-    }
-
-    override fun computeSolution2(data: Data): Solution2 {
-        return 0
     }
 }
 
