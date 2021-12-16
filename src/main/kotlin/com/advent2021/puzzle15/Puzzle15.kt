@@ -16,21 +16,18 @@ class Data {
     fun value(r: Int, c: Int): Square? = if (r in grid.indices && c in grid[r].indices) grid[r][c] else null
     fun rows() = grid.size
     fun cols() = grid[0].size
-    val endPoint: Point
-        get() = Point(rows() - 1, cols() - 1)
 }
 data class Path(
-    val squares: LinkedHashSet<Square>,
-    var isDefinitelyShortest: Boolean = false
+    val squares: LinkedHashSet<Square>
 ) {
-    fun score() = if (squares.isEmpty()) {
+    val score: Int = if (squares.isEmpty()) {
         Integer.MAX_VALUE
     } else {
         squares.sumOf { it.num } - squares.first().num
     }
 
-    val endOfPath: Square
-        get() = squares.last()
+    val endOfPath: Square = squares.last()
+    val priority: Float = score / squares.size.toFloat()
 
     override fun toString(): String {
         return squares.joinToString("->") { "${it.point.row},${it.point.col}" }
@@ -46,8 +43,8 @@ fun main() {
         val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
-        val solution2 = puz.solvePuzzle2("inputs.txt", Data())
-        println("Solution2: $solution2")
+//        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data())
+//        println("Solution2: $solution2")
     } catch (t: Throwable) {
         t.printStackTrace()
     }
@@ -79,35 +76,37 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
 
     private fun computeImpl(data: Data, rows: Int, cols: Int): Int {
         val queue = PriorityQueue<Path>(1000) { path1, path2 ->
-            Integer.compare(path1.score(), path2.score())
+            if (path1.priority < path2.priority) -1 else 1
         }
         val firstPath = LinkedHashSet<Square>().also { it.add(data.value(0,0)!!) }
         val endPoint = Point(rows - 1, cols - 1)
 
         queue.add(Path(firstPath))
-        val visited = HashSet<Point>()
-        while (queue.peek().endOfPath.point != endPoint) {
+
+        val solutions = ArrayList<Path>()
+        while (solutions.size < 1000) {
             val top = queue.remove()
             val topSquare = top.endOfPath
+            if (topSquare.point == endPoint) {
+                solutions.add(top)
+            }
 
             val nextRow = Point(topSquare.point.row + 1, topSquare.point.col)
-            if (nextRow.row < rows && !visited.contains(nextRow)) {
-                visited.add(nextRow)
+            if (nextRow.row < rows) {
                 val nextRowPath = LinkedHashSet<Square>(top.squares).also {
                     it.add(Square(nextRow, calcWeight(nextRow, data)))
                 }
                 queue.add(Path(nextRowPath))
             }
             val nextCol = Point(topSquare.point.row, topSquare.point.col + 1)
-            if (nextRow.col < cols && !visited.contains(nextCol)) {
-                visited.add(nextCol)
+            if (nextRow.col < cols) {
                 val nextColPath = LinkedHashSet<Square>(top.squares).also {
                     it.add(Square(nextCol, calcWeight(nextCol, data)))
                 }
                 queue.add(Path(nextColPath))
             }
         }
-        return queue.peek().score()
+        return solutions.minOfOrNull { it.score }!!
     }
 }
 
