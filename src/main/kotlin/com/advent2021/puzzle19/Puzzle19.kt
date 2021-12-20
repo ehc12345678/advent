@@ -20,7 +20,7 @@ typealias PointTransform = (pt: Point3D) -> Point3D
 fun main() {
     try {
         val puz = Puzzle19()
-        val solution1 = puz.solvePuzzle("inputsTest.txt", Data())
+        val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
         val solution2 = puz.solvePuzzle2("inputs.txt", Data())
@@ -54,42 +54,54 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-        val first = data.first()
-        //val rest = ArrayList(data.subList(1, data.size))
-        val rest = ArrayList(listOf(data[1], data[4], data[2], data[3]))
+//        var first: Scanner? = null
+//        val rest = data.filter { it != first }.toMutableList()
+//        for (i in 0 until data.size - 1) {
+//            for (j in i + 1 until data.size) {
+//                if (i != j) {
+//                    if (matchDiffs(data[i], data[j]) != null) {
+//                        first = data[i]
+//                        break
+//                    }
+//                }
+//                if (first == null) break
+//            }
+//        }
+        var first = data.first()
+        val rest = data.filter { it != first }.toMutableList()
+        val beacons = LinkedHashSet<Point3D>(first!!.points)
+        val foundScanners = ArrayList<Scanner>()
+        foundScanners.add(first)
 
-        val beacons = LinkedHashSet<Point3D>(first.points)
-        val foundScanners = HashMap<Scanner, Point3D>()
-        foundScanners[first] = Point3D(0, 0, 0)
         while (rest.isNotEmpty()) {
+            var match: Scanner? = null
             for (scanner in rest) {
-                var foundIt = false
-                for (foundScanner in foundScanners.keys) {
-                    val match = matchDiffs(foundScanner, scanner)
+                for (foundScanner in foundScanners) {
+                    match = matchDiffs(foundScanner, scanner)
                     if (match != null) {
-                        val offset = foundScanners[foundScanner]!!
-                        beacons.addAll(match.first.map { it + offset })
-                        foundScanners[scanner] = offset + match.second
-                        foundIt = true
+                        println("Scanner ${scanner.number} was a match for ${foundScanner.number}")
                         break
                     }
                 }
-                if (foundIt) {
+                if (match != null) {
                     rest.remove(scanner)
+                    foundScanners.add(match)
+                    beacons.addAll(match.points)
                     break
-                } else {
-                    println("Could not find a scanner")
                 }
             }
+            if (match == null) {
+                println("Could not find a candidate")
+                break
+            }
         }
-        println(beacons.sortedBy { it.x }.joinToString("\n"))
         return beacons.size
     }
 
     private fun matchDiffs(
         firstScanner: Scanner,
         secondScanner: Scanner
-    ): Pair<List<Point3D>, Point3D>? {
+    ): Scanner? {
         val firstPoints = LinkedHashSet<Point3D>(firstScanner.points.sortedByDescending { it.z })
         val pointTransforms: List<PointTransform> = listOf(
             { Point3D(it.x, it.y, it.z) }, { Point3D(it.x, it.z, it.y) },
@@ -108,10 +120,9 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
                         if (intersects.size >= 12) {
                             val firstScannerView = intersects.map { it + firstPt }
                             val secondScannerView = intersects.map { (it + secondPt) * transform }
-                            //val secondScannerPos = firstScannerView.first() - (secondScannerView.first() * transform)
                             val secondScannerPos = findConsistentDiff(firstScannerView, secondScannerView)
-                            val allSecondBecons = secondPoints.map { it * transform }
-                            return Pair(ArrayList(allSecondBecons), secondScannerPos)
+                            val allSecondBeacons = secondPoints.map { it + secondScannerPos }
+                            return Scanner(secondScanner.number).also { it.points = ArrayList(allSecondBeacons) }
                         }
                     }
                 }
