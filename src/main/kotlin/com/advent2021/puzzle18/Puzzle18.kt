@@ -27,12 +27,10 @@ class PairTerm(parent: Term?): Term(parent) {
             pair = Pair(pair.first, setParent(t))
         }
     override fun add(t: Term) {
-        if (first == null) {
-            first = t
-        } else if (second == null) {
-            second = t
-        } else {
-            throw IllegalArgumentException("Invalid state")
+        when {
+            first == null -> first = t
+            second == null -> second = t
+            else -> throw IllegalArgumentException("Invalid state")
         }
     }
 
@@ -93,10 +91,7 @@ fun consumePair(parent: Term?, state: State): PairTerm {
     return pairTerm
 }
 
-fun consumeNumber(parent: Term?, state: State): Number {
-    val num = state.nextCh() - '0'
-    return Number(parent, num)
-}
+fun consumeNumber(parent: Term?, state: State): Number = Number(parent, state.nextCh() - '0')
 
 typealias Data = ArrayList<Term>
 typealias Solution = Long
