@@ -1,22 +1,32 @@
 package com.advent2021.puzzle19
 
 import com.advent2021.base.Base
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashSet
 import kotlin.math.abs
+import kotlin.math.max
 
 data class Point3D(val x: Int, val y: Int, val z: Int) {
     operator fun plus(other: Point3D): Point3D = Point3D(x + other.x, y + other.y, z + other.z)
     operator fun minus(other: Point3D): Point3D = Point3D(x - other.x, y - other.y, z - other.z)
     operator fun times(other: Point3D): Point3D = Point3D(x * other.x, y * other.y, z * other.z)
-    fun absolute(): Point3D = Point3D(abs(x), abs(y), abs(z))
+    operator fun compareTo(other: Point3D): Int = when {
+        z != other.z -> { z.compareTo(other.z) }
+        y != other.y -> { y.compareTo(other.y) }
+        else -> { x.compareTo(x) }
+    }
 }
 data class Scanner(val number: Int) {
     var points: ArrayList<Point3D> = ArrayList()
+    var location: Point3D = Point3D(0, 0, 0)
 }
 typealias Data = ArrayList<Scanner>
 typealias Solution = Int
 typealias Solution2 = Solution
 typealias PointTransform = (pt: Point3D) -> Point3D
 
+var foundScanners = ArrayList<Scanner>()
 fun main() {
     try {
         val puz = Puzzle19()
@@ -54,23 +64,9 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-//        var first: Scanner? = null
-//        val rest = data.filter { it != first }.toMutableList()
-//        for (i in 0 until data.size - 1) {
-//            for (j in i + 1 until data.size) {
-//                if (i != j) {
-//                    if (matchDiffs(data[i], data[j]) != null) {
-//                        first = data[i]
-//                        break
-//                    }
-//                }
-//                if (first == null) break
-//            }
-//        }
-        var first = data.first()
+        val first = data.first()
         val rest = data.filter { it != first }.toMutableList()
-        val beacons = LinkedHashSet<Point3D>(first!!.points)
-        val foundScanners = ArrayList<Scanner>()
+        val beacons = LinkedHashSet<Point3D>(first.points)
         foundScanners.add(first)
 
         while (rest.isNotEmpty()) {
@@ -102,27 +98,31 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         firstScanner: Scanner,
         secondScanner: Scanner
     ): Scanner? {
-        val firstPoints = LinkedHashSet<Point3D>(firstScanner.points.sortedByDescending { it.z })
+        val firstStack = createSortedPts(firstScanner.points)
         val pointTransforms: List<PointTransform> = listOf(
             { Point3D(it.x, it.y, it.z) }, { Point3D(it.x, it.z, it.y) },
             { Point3D(it.y, it.x, it.z) }, { Point3D(it.y, it.z, it.x) },
             { Point3D(it.z, it.x, it.y) }, { Point3D(it.z, it.y, it.x) }
         )
-        for (firstPt in firstScanner.points) {
-            val deltasFirst = firstPoints.map { it - firstPt }
+        while (firstStack.size >= 12) {
+            val firstPt = firstStack.pop()
+            val deltasFirst = firstStack.map { it - firstPt }
             for (transform in transforms) {
                 for (pointTransform in pointTransforms) {
-                    val secondPoints = LinkedHashSet<Point3D>(
-                        secondScanner.points.sortedByDescending { it.z }.map { pointTransform(it * transform) })
-                    for (secondPt in secondPoints) {
-                        val deltasSecond = secondPoints.map { it - secondPt }
+                    val secondStack = createSortedPts(secondScanner.points.map { pointTransform(it * transform) })
+                    while (secondStack.size >= 12) {
+                        val secondPt = secondStack.pop()
+                        val deltasSecond = secondStack.map { it - secondPt }
                         val intersects = deltasFirst.intersect(deltasSecond)
-                        if (intersects.size >= 12) {
+                        if (intersects.size >= 11) {
                             val firstScannerView = intersects.map { it + firstPt }
                             val secondScannerView = intersects.map { (it + secondPt) * transform }
-                            val secondScannerPos = findConsistentDiff(firstScannerView, secondScannerView)
-                            val allSecondBeacons = secondPoints.map { it + secondScannerPos }
-                            return Scanner(secondScanner.number).also { it.points = ArrayList(allSecondBeacons) }
+                            val secondScannerPos = firstScannerView.first() - (secondScannerView.first() * transform)
+                            val allSecondBeacons = secondScanner.points.map { pointTransform(it * transform) + secondScannerPos }
+                            return Scanner(secondScanner.number).also {
+                                it.points = ArrayList(allSecondBeacons)
+                                it.location = secondScannerPos
+                            }
                         }
                     }
                 }
@@ -131,20 +131,28 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         return null
     }
 
-    // TODO: there is a bug in this code that gets the signs wrong
-    private fun findConsistentDiff(firstScannerView: List<Point3D>, secondScannerView: List<Point3D>): Point3D {
-        for (transform in transforms) {
-            val diff = firstScannerView.first() + (secondScannerView.first() * transform)
-            val nextDiff = firstScannerView[1] + (secondScannerView[1] * transform)
-            if (diff == nextDiff) {
-                return diff
+    private fun createSortedPts(points: List<Point3D>): Stack<Point3D> {
+        val comparator = compareBy<Point3D> { it.z }.thenBy { it.y }.thenBy { it.x }
+        return Stack<Point3D>().also { it.addAll(points.sortedWith(comparator).reversed()) }
+    }
+
+    override fun computeSolution2(data: Data): Solution2 {
+        var maxDistance = 0
+        for (i in 0 until foundScanners.size - 1) {
+            val firstScanner = foundScanners[i]
+            for (j in i + 1 until foundScanners.size) {
+                if (i != j) {
+                    val secondScanner = foundScanners[j]
+                    maxDistance = max(maxDistance, manhattanDistance(firstScanner.location, secondScanner.location))
+                }
             }
         }
-        throw IllegalArgumentException("No consistent diff")
+        return maxDistance
     }
-    
-    override fun computeSolution2(data: Data): Solution2 {
-        return 0
+
+    private fun manhattanDistance(pt1: Point3D, pt2: Point3D): Int {
+        val diff = pt1 - pt2
+        return abs(diff.x) + abs(diff.y) + abs(diff.z)
     }
 }
 
