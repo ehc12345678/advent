@@ -33,6 +33,7 @@ data class GameState(
     val player2: PlayerState
 ) {
     fun player1Won(): Boolean = player1.score >= 21
+    fun flip() = GameState(player2, player1)
 }
 
 data class WinsCount(
@@ -109,29 +110,43 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
         }
 
         val answer = getState(GameState(data[0].toState(), data[1].toState()), working, true)!!
-        return if (answer.player1Wins > answer.player2Wins) answer.player1Wins else answer.player2Wins
+        return if (answer.player1Wins.compareTo(answer.player2Wins) > 0) {
+            answer.player1Wins
+        } else {
+            answer.player2Wins
+        }
     }
 
     fun playUniverse(universe: GameState, working: Working, firstPlayerTurn: Boolean): WinsCount {
         val subUniverses = ArrayList<GameState>()
 
+        val thisPlayer: PlayerState
+        val otherPlayer: PlayerState
+        if (firstPlayerTurn) {
+            thisPlayer = universe.player1
+            otherPlayer = universe.player2
+        } else {
+            otherPlayer = universe.player1
+            thisPlayer = universe.player2
+        }
+
         // dice roll 1
-        (1..3).map { Dice(it).add(universe.player1.diceNumber) }.forEach { total1 ->
-            val subUniverse1 = GameState(PlayerState(total1, universe.player1.score + total1), universe.player2)
+        (1..3).map { Dice(it).add(thisPlayer.diceNumber) }.forEach { total1 ->
+            val subUniverse1 = GameState(PlayerState(total1, thisPlayer.score + total1), otherPlayer)
             subUniverses.add(subUniverse1)
 
             if (!subUniverse1.player1Won()) {
 
                 // dice roll 2
-                (1..3).map { Dice(it).add(universe.player1.diceNumber) }.forEach { total2 ->
-                    val subUniverse2 = GameState(PlayerState(total2, universe.player1.score + total2), universe.player2)
+                (1..3).map { Dice(it).add(thisPlayer.diceNumber) }.forEach { total2 ->
+                    val subUniverse2 = GameState(PlayerState(total2, thisPlayer.score + total2), otherPlayer)
                     subUniverses.add(subUniverse2)
 
                     if (!subUniverse2.player1Won()) {
 
                         // dice roll 3
-                        (1..3).map { Dice(it).add(universe.player1.diceNumber) }.forEach { total3 ->
-                            subUniverses.add(GameState(PlayerState(total3, universe.player1.score + total3), universe.player2))
+                        (1..3).map { Dice(it).add(thisPlayer.diceNumber) }.forEach { total3 ->
+                            subUniverses.add(GameState(PlayerState(total3, thisPlayer.score + total3), otherPlayer))
                         }
                     }
                 }
@@ -143,9 +158,10 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
             val subWinsCount: WinsCount = when {
                 subUniverse.player1Won() -> WinsCount().win(firstPlayerTurn)
                 else -> {
-                    var state = getState(subUniverse, working, !firstPlayerTurn)
+                    val flipped = subUniverse.flip()
+                    var state = getState(flipped, working, !firstPlayerTurn)
                     if (state == null) {
-                        state = playUniverse(subUniverse, working, !firstPlayerTurn)
+                        state = playUniverse(flipped, working, !firstPlayerTurn)
                     }
                     state
                 }
@@ -160,10 +176,10 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
 
     fun getState(state: GameState, working: Working, firstPlayerTurn: Boolean): WinsCount? {
         val lookup = working[state]
+
         return when (firstPlayerTurn) {
             true -> lookup
             false -> lookup?.swap()
         }
     }
 }
-
