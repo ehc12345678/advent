@@ -1,7 +1,6 @@
 package com.advent2021.puzzle21
 
 import com.advent2021.base.Base
-import java.lang.IllegalStateException
 import java.math.BigInteger
 import java.util.*
 import kotlin.collections.ArrayList
@@ -32,13 +31,19 @@ data class PlayerState(
 data class GameState(
     val player1: PlayerState,
     val player2: PlayerState
-)
+) {
+    fun player1Won(): Boolean = player1.score >= 21
+}
 
 data class WinsCount(
-    val player1Wins: BigInteger,
-    val player2Wins: BigInteger
+    val player1Wins: BigInteger = BigInteger.ZERO,
+    val player2Wins: BigInteger = BigInteger.ZERO
 ) {
     fun swap() = WinsCount(player2Wins, player1Wins)
+    operator fun plus(other: WinsCount) = WinsCount(player1Wins.add(other.player1Wins), player2Wins.add(other.player2Wins))
+    fun win1() = WinsCount(player1Wins.inc(), player2Wins)
+    fun win2() = WinsCount(player1Wins, player2Wins.inc())
+    fun win(firstPlayerTurn: Boolean) = if (firstPlayerTurn) win1() else win2()
 }
 typealias Working = HashMap<GameState, WinsCount>
 
@@ -88,10 +93,17 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
 
         var playerOneScore = 20
         while (playerOneScore >= 0) {
-            var playerTwoScore = 20
-            while (playerTwoScore >= 0) {
-                computeWins(playerOneScore, playerTwoScore, working)
-                --playerTwoScore
+            for (player1Dice in 1..10) {
+                val thisPlayer = PlayerState(player1Dice, playerOneScore)
+                var playerTwoScore = 20
+                while (playerTwoScore >= 0) {
+                    for (player2Dice in 1..10) {
+                        val otherPlayer = PlayerState(player2Dice, playerTwoScore)
+                        val universe = GameState(thisPlayer, otherPlayer)
+                        playUniverse(universe, working, true)
+                    }
+                    --playerTwoScore
+                }
             }
             --playerOneScore
         }
@@ -100,81 +112,58 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
         return if (answer.player1Wins > answer.player2Wins) answer.player1Wins else answer.player2Wins
     }
 
-    fun computeWins(playerOneScore: Int, playerTwoScore: Int, working: Working) {
-        for (dice in 1..10) {
-            val playersDice = Dice(dice)
+    fun playUniverse(universe: GameState, working: Working, firstPlayerTurn: Boolean): WinsCount {
+        val subUniverses = ArrayList<GameState>()
 
-            val player1 = PlayerState(dice, playerOneScore)
-            for (secondDice in 1..10) {
-                val secondPlayersDice = Dice(secondDice)
-                val player2 = PlayerState(secondDice, playerTwoScore)
-                val thisState = GameState(player1, player2)
+        // dice roll 1
+        (1..3).map { Dice(it).add(universe.player1.diceNumber) }.forEach { total1 ->
+            val subUniverse1 = GameState(PlayerState(total1, universe.player1.score + total1), universe.player2)
+            subUniverses.add(subUniverse1)
 
-                // we have already seen this
-                if (getState(thisState, working, true) != null) {
-                    continue
-                }
+            if (!subUniverse1.player1Won()) {
 
-                var numPlayer1Wins = BigInteger.valueOf(0)
-                var numPlayer2Wins = BigInteger.valueOf(0)
+                // dice roll 2
+                (1..3).map { Dice(it).add(universe.player1.diceNumber) }.forEach { total2 ->
+                    val subUniverse2 = GameState(PlayerState(total2, universe.player1.score + total2), universe.player2)
+                    subUniverses.add(subUniverse2)
 
-                for (newDice in getDiceInDescendingOrder(playersDice)) {
-                    val thisScore = newDice.number + player1.score
-                    if (thisScore >= 21) {
-                        ++numPlayer1Wins
-                    } else {
-                        for (otherDice in getDiceInDescendingOrder(secondPlayersDice)) {
-                            val otherScore = otherDice.number + player2.score
-                            if (otherScore >= 21) {
-                                ++numPlayer2Wins
-                            } else {
-                                val otherState =
-                                    GameState(
-                                        PlayerState(newDice.number, thisScore),
-                                        PlayerState(otherDice.number, otherScore)
-                                    )
-                                val lookup = getState(otherState, working, false)
-                                if (lookup == null) {
-                                    val all =
-                                        working.filter { it.key.player1 == PlayerState(newDice.number, thisScore) }
-                                    throw IllegalStateException()
-                                }
-                                numPlayer1Wins += lookup.player1Wins
-                                numPlayer2Wins += lookup.player2Wins
-                            }
+                    if (!subUniverse2.player1Won()) {
+
+                        // dice roll 3
+                        (1..3).map { Dice(it).add(universe.player1.diceNumber) }.forEach { total3 ->
+                            subUniverses.add(GameState(PlayerState(total3, universe.player1.score + total3), universe.player2))
                         }
                     }
                 }
-                addState(thisState, numPlayer1Wins, numPlayer2Wins, working)
             }
         }
+
+        // the working set keeps the stack from becoming too deep
+        val winsCount = subUniverses.fold(WinsCount()) { acc, subUniverse ->
+            val subWinsCount: WinsCount = when {
+                subUniverse.player1Won() -> WinsCount().win(firstPlayerTurn)
+                else -> {
+                    var state = getState(subUniverse, working, !firstPlayerTurn)
+                    if (state == null) {
+                        state = playUniverse(subUniverse, working, !firstPlayerTurn)
+                    }
+                    state
+                }
+            }
+            acc + subWinsCount
+        }
+
+        // store for the next time
+        working[universe] = winsCount
+        return winsCount
     }
 
     fun getState(state: GameState, working: Working, firstPlayerTurn: Boolean): WinsCount? {
-        val otherState =  GameState(state.player2, state.player1)
-
         val lookup = working[state]
-        val invLookup = working[otherState]
-        val playerOneRet = lookup ?: invLookup
-
         return when (firstPlayerTurn) {
-            true -> playerOneRet
-            false -> playerOneRet?.swap()
+            true -> lookup
+            false -> lookup?.swap()
         }
     }
-
-    fun addState(state: GameState, numPlayer1Wins: BigInteger, numPlayer2Wins: BigInteger, working: Working) {
-        working[state] = WinsCount(numPlayer1Wins, numPlayer2Wins)
-    }
-
-    private fun getDiceInDescendingOrder(baseDice: Dice): List<Dice> {
-        val theseDice = ArrayList<Dice>()
-        for (quantum in 1..3) {
-            theseDice.add(Dice(quantum).also { it.add(baseDice.number) })
-        }
-        theseDice.sortByDescending { it.number }
-        return theseDice
-    }
-
 }
 
