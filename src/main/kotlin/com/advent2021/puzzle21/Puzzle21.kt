@@ -31,8 +31,7 @@ data class PlayerState(
 )
 data class GameState(
     val player1: PlayerState,
-    val player2: PlayerState,
-    val player1Turn: Boolean
+    val player2: PlayerState
 )
 
 data class WinsCount(
@@ -89,18 +88,17 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
         while (playerOneScore >= data[0].dice.number) {
             var playerTwoScore = 20
             while (playerTwoScore >= data[1].dice.number) {
-                computeWins(playerOneScore, playerTwoScore, true, working)
-                computeWins(playerOneScore, playerTwoScore, false, working)
+                computeWins(playerOneScore, playerTwoScore, working)
                 --playerTwoScore
             }
             --playerOneScore
         }
 
-        val answer = working[GameState(data[0].toState(), data[1].toState(), true)]!!
+        val answer = working[GameState(data[0].toState(), data[1].toState())]!!
         return if (answer.player1Wins > answer.player2Wins) answer.player1Wins else answer.player2Wins
     }
 
-    fun computeWins(playerOneScore: Int, playerTwoScore: Int, playerOneTurn: Boolean, working: Working) {
+    fun computeWins(playerOneScore: Int, playerTwoScore: Int, working: Working) {
         for (dice in 1..10) {
             val playersDice = Dice(dice)
             var numPlayer1Wins = BigInteger.valueOf(0)
@@ -108,40 +106,29 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
 
             val player1 = PlayerState(dice, playerOneScore)
             val player2 = PlayerState(dice, playerTwoScore)
-            val player = if (playerOneTurn) player1 else player2
-            val otherPlayer = if (playerOneTurn) player2 else player1
-            val thisState = GameState(player1, player2, playerOneTurn)
+            val thisState = GameState(player1, player2)
             for (newDice in getDiceInDescendingOrder(playersDice)) {
-                val thisScore = newDice.number + player.score
+                val thisScore = newDice.number + player1.score
                 if (thisScore >= 21) {
-                    if (playerOneTurn) {
-                        ++numPlayer1Wins
-                    } else {
-                        ++numPlayer2Wins
-                    }
+                    ++numPlayer1Wins
                 } else {
                     for (otherDice in getDiceInDescendingOrder(playersDice)) {
-                        val otherScore = otherDice.number + otherPlayer.score
+                        val otherScore = otherDice.number + player1.score
                         if (otherScore >= 21) {
-                            if (playerOneTurn) {
-                                ++numPlayer2Wins
-                            } else {
-                                ++numPlayer1Wins
-                            }
+                            ++numPlayer2Wins
                         }
                         else {
                             val otherState =
                                 GameState(
                                     PlayerState(newDice.number, thisScore),
-                                    PlayerState(otherDice.number, otherScore),
-                                    !playerOneTurn
+                                    PlayerState(otherDice.number, otherScore)
                                 )
                             val lookup = working[otherState]
                             if (lookup == null) {
                                 throw IllegalStateException()
                             }
-                            numPlayer1Wins += lookup.player1Wins
-                            numPlayer2Wins += lookup.player2Wins
+                            numPlayer1Wins += lookup.player2Wins
+                            numPlayer2Wins += lookup.player1Wins
                         }
                     }
                 }
