@@ -2,6 +2,7 @@ package com.advent2021.puzzle22
 
 import com.advent2021.base.Base
 import com.advent2021.puzzle19.Point3D
+import java.math.BigInteger
 
 data class Cube(val points: Set<Point3D> = HashSet()) {
     constructor(xRange: IntRange, yRange: IntRange, zRange: IntRange)
@@ -20,6 +21,14 @@ data class Cube(val points: Set<Point3D> = HashSet()) {
 }
 data class Instruction(val onOff: Boolean, val xRange: IntRange, val yRange: IntRange, val zRange: IntRange) {
     fun getCube() = Cube(xRange, yRange, zRange)
+}
+
+data class Cube3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRange) {
+    fun numPoints(): BigInteger {
+        return BigInteger.valueOf(xRange.last.toLong() - xRange.first.toLong()).
+            multiply(BigInteger.valueOf(yRange.last.toLong() - yRange.first.toLong())).
+            multiply(BigInteger.valueOf(zRange.last.toLong() - zRange.first.toLong()))
+    }
 }
 
 typealias Data = ArrayList<Instruction>
@@ -71,8 +80,57 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
         }
         return workingCube.points.size
     }
+
     override fun computeSolution2(data: Data): Solution2 {
         return 0
     }
+
+    private fun calculateUnion(start: Cube3D, other: Cube3D) : List<Cube3D> {
+        return when {
+            !overlap(start, other) -> listOf(start, other)
+            surroundsFully(start, other) -> listOf(start)
+            surroundsFully(other, start) -> listOf(other)
+            else -> {
+                val ret = ArrayList<Cube3D>()
+                if (overlap(start.xRange, other.xRange)) {
+                    if (surroundsFully(start.xRange, other.xRange)) {
+                        // get the cube outside start
+                        val newXRange = other.xRange
+                        val newYRange = other.yRange.start .. start.yRange.last
+                        val newZRange = other.zRange.start .. start.zRange.last
+                        ret.addAll(calculateUnion(start, Cube3D(newXRange, newYRange, newZRange)))
+                    }
+                    if (start.xRange.first < other.xRange.first) {
+                        
+                    }
+                }
+                ret
+            }
+        }
+    }
+
+    private fun surroundsFully(
+        bigger: Cube3D,
+        smaller: Cube3D
+    ) = surroundsFully(bigger.xRange, smaller.xRange) &&
+        surroundsFully(bigger.yRange, smaller.yRange) &&
+        surroundsFully(bigger.zRange, smaller.zRange)
+
+    private fun surroundsFully(
+        bigger: IntRange,
+        smaller: IntRange
+    ) = smaller.first in bigger && smaller.last in bigger
+
+    private fun overlap(
+        cube1: Cube3D,
+        cube2: Cube3D
+    ) = overlap(cube1.xRange, cube2.xRange) ||
+        overlap(cube1.yRange, cube2.yRange) ||
+        overlap(cube1.zRange, cube2.zRange)
+
+    private fun overlap(
+        range1: IntRange,
+        range2: IntRange
+    ) = range1.first in range2 || range1.last in range2 || range2.first in range1 || range2.last in range1
 }
 
