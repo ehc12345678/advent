@@ -181,30 +181,42 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
             // o.first   s.first  s.last    o.last
             // |---------|---------|---------|
             if (surroundsFully(bigger = o, smaller = s)) {
-                // break the pieces into 3.
+                // break the other into 3 bits
                 ret.addIfNotEmpty(cubeFunc(other, o.first until s.first))
-                ret.addIfNotEmpty(start.copy())
+                ret.addIfNotEmpty(cubeFunc(other, s.first .. s.last))
                 ret.addIfNotEmpty(cubeFunc(other, s.last + 1 .. o.last))
+
+                ret.addIfNotEmpty(start.copy())
             }
             // s.first   o.first  o.last    s.last
             // |---------|---------|---------|
             else if (surroundsFully(bigger = s, smaller = o)) {
-                // break the pieces into 3.  The one in the middle is going to overlap, but will drop in snips later
-                ret.addIfNotEmpty(cubeFunc(other, s.first until o.first))
+                // break the start into 3 bits
+                ret.addIfNotEmpty(cubeFunc(start, s.first until o.first))
+                ret.addIfNotEmpty(cubeFunc(start, o.first .. o.last))
+                ret.addIfNotEmpty(cubeFunc(start, o.last + 1 .. s.last))
+
                 ret.addIfNotEmpty(other.copy())
-                ret.addIfNotEmpty(cubeFunc(other, o.last + 1 .. s.last))
             }
             // o.first   s.first  o.last    s.last
             // |---------|---------|---------|
             else if (o.first < s.first) {
+                // split other into 2 chunks
                 ret.addIfNotEmpty(cubeFunc(other, o.first until s.first))
-                ret.addIfNotEmpty(cubeFunc(other, s.first until o.last))
-                ret.addIfNotEmpty(cubeFunc(other, o.last .. s.last))
+                ret.addIfNotEmpty(cubeFunc(other, s.first .. o.last))
+
+                // split start into 2 chunks
+                ret.addIfNotEmpty(cubeFunc(start, s.first until o.last))
+                ret.addIfNotEmpty(cubeFunc(start, o.last .. s.last))
             }
             // s.first  o.first    s.last    o.last
             // |---------|---------|---------|
             else {
-                ret.addIfNotEmpty(cubeFunc(other, s.first until o.first))
+                // split start into 2 chunks
+                ret.addIfNotEmpty(cubeFunc(start, s.first until o.first))
+                ret.addIfNotEmpty(cubeFunc(start, o.first .. s.last))
+
+                // split other into 2 chunks
                 ret.addIfNotEmpty(cubeFunc(other, o.first until s.last))
                 ret.addIfNotEmpty(cubeFunc(other, s.last .. o.last))
             }
