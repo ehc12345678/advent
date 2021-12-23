@@ -18,6 +18,7 @@ data class Cube(val points: Set<Point3D> = HashSet()) {
 
     fun union(other: Cube): Cube { return Cube(points.union(other.points).toMutableSet()) }
     fun subtract(other: Cube): Cube { return Cube(points - other.points)}
+    fun volume() = points.size
 }
 data class Instruction(val onOff: Boolean, val xRange: IntRange, val yRange: IntRange, val zRange: IntRange) {
     fun getCube() = Cube(xRange, yRange, zRange)
@@ -25,10 +26,10 @@ data class Instruction(val onOff: Boolean, val xRange: IntRange, val yRange: Int
 }
 
 data class Cube3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRange) {
-    fun numPoints(): BigInteger {
-        return BigInteger.valueOf(xRange.last.toLong() - xRange.first.toLong()).
-            multiply(BigInteger.valueOf(yRange.last.toLong() - yRange.first.toLong())).
-            multiply(BigInteger.valueOf(zRange.last.toLong() - zRange.first.toLong()))
+    fun volume(): BigInteger {
+        return BigInteger.valueOf(xRange.last.toLong() - xRange.first.toLong() + 1).
+            multiply(BigInteger.valueOf(yRange.last.toLong() - yRange.first.toLong() + 1)).
+            multiply(BigInteger.valueOf(zRange.last.toLong() - zRange.first.toLong() + 1))
     }
 }
 
@@ -98,20 +99,19 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
 
             }
         }
-        return workingCubes.fold(BigInteger.ZERO) { acc, cube3D -> acc + cube3D.numPoints() }
+        return workingCubes.fold(BigInteger.ZERO) { acc, cube3D -> acc + cube3D.volume() }
     }
 
-    private fun union(start: Cube3D, other: Cube3D) : List<Cube3D> {
+    fun union(start: Cube3D, other: Cube3D) : List<Cube3D> {
         return when {
             !overlap(start, other) -> listOf(start, other)
             surroundsFully(start, other) -> listOf(start)
             surroundsFully(other, start) -> listOf(other)
-            overlap(start.xRange, other.xRange) -> snipX(start, other)
-            overlap(start.yRange, other.yRange) -> snipY(start, other)
-            overlap(start.zRange, other.zRange) -> snipZ(start, other)
             else -> {
-                // how did we get here
-                emptyList()
+                val workingSet = HashSet(splitX(start, other))
+                workingSet.addAll(workingSet.map { splitY(start, it) }.flatten())
+                workingSet.addAll(workingSet.map { splitZ(start, it) }.flatten())
+                workingSet.toList()
             }
         }
     }
@@ -128,99 +128,84 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
         smaller: IntRange
     ) = smaller.first in bigger && smaller.last in bigger
 
-    private fun overlap(
+    fun overlap(
         cube1: Cube3D,
         cube2: Cube3D
-    ) = overlap(cube1.xRange, cube2.xRange) ||
-        overlap(cube1.yRange, cube2.yRange) ||
+    ) = overlap(cube1.xRange, cube2.xRange) &&
+        overlap(cube1.yRange, cube2.yRange) &&
         overlap(cube1.zRange, cube2.zRange)
 
-    private fun overlap(
+    fun overlap(
         range1: IntRange,
         range2: IntRange
-    ) = range1.first in range2 || range1.last in range2 || range2.first in range1 || range2.last in range1
+    ): Boolean {
+        return range1.first in range2 || range1.last in range2 || range2.first in range1 || range2.last in range1
+    }
 
-    fun ArrayList<Cube3D>.addIfNotEmpty(xRange: IntRange, yRange: IntRange, zRange: IntRange) {
+    fun HashSet<Cube3D>.addIfNotEmpty(xRange: IntRange, yRange: IntRange, zRange: IntRange) {
         if (!xRange.isEmpty() && !yRange.isEmpty() && !zRange.isEmpty()) {
             add(Cube3D(xRange, yRange, zRange))
         }
     }
-    fun ArrayList<Cube3D>.addIfNotEmpty(cube3D: Cube3D) = addIfNotEmpty(cube3D.xRange, cube3D.yRange, cube3D.zRange)
+    fun HashSet<Cube3D>.addIfNotEmpty(cube3D: Cube3D) = addIfNotEmpty(cube3D.xRange, cube3D.yRange, cube3D.zRange)
 
-    private fun snipX(
+    fun splitX(
         start: Cube3D,
         other: Cube3D
-    ): List<Cube3D> {
-        return snip(start.xRange, other.xRange, start, other, true)
-            { cube, newRange -> Cube3D(newRange, cube.yRange, cube.zRange) }
+    ): HashSet<Cube3D> {
+        return split(start.xRange, other.xRange, start, other)
+        { cube, newRange -> Cube3D(newRange, cube.yRange, cube.zRange) }
     }
 
-    private fun snipY(
+    fun splitY(
         start: Cube3D,
         other: Cube3D
-    ): List<Cube3D> {
-        return snip(start.xRange, other.xRange, start, other, true)
-            { cube, newRange -> Cube3D(cube.xRange, newRange, cube.zRange) }
+    ): HashSet<Cube3D> {
+        return split(start.yRange, other.yRange, start, other)
+        { cube, newRange -> Cube3D(cube.xRange, newRange, cube.zRange) }
     }
 
-    private fun snipZ(
+    fun splitZ(
         start: Cube3D,
         other: Cube3D
-    ): List<Cube3D> {
-        return snip(start.xRange, other.xRange, start, other, false)
+    ): HashSet<Cube3D> {
+        return split(start.zRange, other.zRange, start, other)
         { cube, newRange -> Cube3D(cube.xRange, cube.yRange, newRange) }
     }
 
-    private fun snip(
-        s: IntRange, o: IntRange, start: Cube3D, other: Cube3D, allowOverlaps: Boolean, cubeFunc: CubeFunc
-    ): ArrayList<Cube3D> {
-        val ret = ArrayList<Cube3D>()
+    private fun split(
+        s: IntRange, o: IntRange, start: Cube3D, other: Cube3D, cubeFunc: CubeFunc
+    ): HashSet<Cube3D> {
+        val ret = HashSet<Cube3D>()
         if (overlap(s, o)) {
             // o.first   s.first  s.last    o.last
             // |---------|---------|---------|
             if (surroundsFully(bigger = o, smaller = s)) {
                 // break the pieces into 3.
-                if (allowOverlaps) {
-                    ret.addIfNotEmpty(cubeFunc(other, o.first until s.first))
-                    ret.addIfNotEmpty(start.copy())
-                    ret.addIfNotEmpty(cubeFunc(other, s.last + 1 .. o.last))
-                } else {
-                    // other has all the points, just add it
-                    ret.addIfNotEmpty(other.copy())
-                }
+                ret.addIfNotEmpty(cubeFunc(other, o.first until s.first))
+                ret.addIfNotEmpty(start.copy())
+                ret.addIfNotEmpty(cubeFunc(other, s.last + 1 .. o.last))
             }
             // s.first   o.first  o.last    s.last
             // |---------|---------|---------|
-            else if (surroundsFully(bigger = s, smaller = o) && allowOverlaps) {
-                if (allowOverlaps) {
-                    // break the pieces into 3.  The one in the middle is going to overlap, but will drop in snips later
-                    ret.addIfNotEmpty(cubeFunc(other, s.first until o.first))
-                    ret.addIfNotEmpty(other.copy())
-                    ret.addIfNotEmpty(cubeFunc(other, o.last + 1..s.last))
-                } else {
-                    // start has all the points, just add it
-                    ret.addIfNotEmpty(start.copy())
-                }
+            else if (surroundsFully(bigger = s, smaller = o)) {
+                // break the pieces into 3.  The one in the middle is going to overlap, but will drop in snips later
+                ret.addIfNotEmpty(cubeFunc(other, s.first until o.first))
+                ret.addIfNotEmpty(other.copy())
+                ret.addIfNotEmpty(cubeFunc(other, o.last + 1 .. s.last))
             }
             // o.first   s.first  o.last    s.last
             // |---------|---------|---------|
             else if (o.first < s.first) {
                 ret.addIfNotEmpty(cubeFunc(other, o.first until s.first))
-
-                // snip off the overlap if it's not allowed
-                if (allowOverlaps) {
-                    ret.addIfNotEmpty(cubeFunc(other, s.first until o.last))
-                    ret.addIfNotEmpty(cubeFunc(other, o.last .. s.last))
-                }
+                ret.addIfNotEmpty(cubeFunc(other, s.first until o.last))
+                ret.addIfNotEmpty(cubeFunc(other, o.last .. s.last))
             }
             // s.first  o.first    s.last    o.last
             // |---------|---------|---------|
             else {
-                // snip off the overlap if it's not allowed
-                if (allowOverlaps) {
-                    ret.addIfNotEmpty(cubeFunc(other, s.first until o.first))
-                    ret.addIfNotEmpty(cubeFunc(other, o.first until s.last))
-                }
+                ret.addIfNotEmpty(cubeFunc(other, s.first until o.first))
+                ret.addIfNotEmpty(cubeFunc(other, o.first until s.last))
                 ret.addIfNotEmpty(cubeFunc(other, s.last .. o.last))
             }
         } else {
