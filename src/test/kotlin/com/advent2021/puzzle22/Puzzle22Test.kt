@@ -319,14 +319,6 @@ class Puzzle22Test {
         return BigInteger.valueOf(simple)
     }
 
-
-    private fun List<Cube3D>.totalVolume() =
-        fold(BigInteger.ZERO) { acc, cube3D -> acc.add(cube3D.volume()) }
-
-    private fun HashSet<Cube3D>.totalVolume() = toList().totalVolume()
-
-    private fun Cube3D.toSimple() = Cube(xRange, yRange, zRange)
-
     companion object {
         const val DEBUG = false
     }

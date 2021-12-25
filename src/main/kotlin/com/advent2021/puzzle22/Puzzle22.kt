@@ -36,7 +36,12 @@ data class Cube3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRan
 
     fun contains(pt: Point3D) = pt.x in xRange && pt.y in yRange && pt.z in zRange
     fun isEmpty() = xRange.isEmpty() || yRange.isEmpty() || zRange.isEmpty()
+    fun toSimple() = Cube(xRange, yRange, zRange)
 }
+
+fun List<Cube3D>.totalVolume() =
+    fold(BigInteger.ZERO) { acc, cube3D -> acc.add(cube3D.volume()) }
+
 
 typealias Data = ArrayList<Instruction>
 typealias Solution = Int
@@ -46,10 +51,10 @@ typealias CubeSet = LinkedHashSet<Cube3D>
 fun main() {
     try {
         val puz = Puzzle22()
-        val solution1 = puz.solvePuzzle("inputsTest.txt", Data())
+        val solution1 = puz.solvePuzzle("inputsTestCompare.txt", Data())
         println("Solution1: $solution1")
 
-        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data())
+        val solution2 = puz.solvePuzzle2("inputsTestCompare.txt", Data())
         println("Solution2: $solution2")
     } catch (t: Throwable) {
         t.printStackTrace()
@@ -86,17 +91,46 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
                 workingCube.subtract(instructionCube)
             }
         }
-        return workingCube.points.size
+        return workingCube.volume()
     }
 
     override fun computeSolution2(data: Data): Solution2 {
         var workingCubes: List<Cube3D> = emptyList()
+
+        var simpleWorkingCube = Cube(emptySet())
+
         for (instruction in data) {
             val instructionCube = instruction.getCube3D()
             workingCubes = if (instruction.onOff) {
                 union(workingCubes, instructionCube)
             } else {
                 subtract(workingCubes, instructionCube)
+            }
+            val currentVolume = workingCubes.totalVolume()
+
+            simpleWorkingCube = if (instruction.onOff) {
+                simpleWorkingCube.union(instructionCube.toSimple())
+            } else {
+                simpleWorkingCube.subtract(instructionCube.toSimple())
+            }
+            val simpleVolume = simpleWorkingCube.volume()
+            if (currentVolume != BigInteger.valueOf(simpleVolume.toLong())) {
+                for (cube3D in workingCubes) {
+                    val thisSimpleVolume = cube3D.toSimple().subtract(instructionCube.toSimple()).volume().toLong()
+                    if (subtract(cube3D, instructionCube).totalVolume() != BigInteger.valueOf(thisSimpleVolume)) {
+                        println("Problem subtract\n")
+                        println("""
+                            Cube3D(${cube3D.xRange}, ${cube3D.yRange}, ${cube3D.zRange})
+                        """.trimIndent())
+                    }
+                }
+//                for (i in 0 until workingCubes.size - 1) {
+//                    for (j in i + 1 until workingCubes.size) {
+//                        if (i != j && !findCommon(workingCubes[i], workingCubes[j]).isEmpty()) {
+//                            println("Overlapping cubes")
+//                        }
+//                    }
+//                }
             }
         }
         return workingCubes.fold(BigInteger.ZERO) { acc, cube3D -> acc + cube3D.volume() }
