@@ -35,9 +35,9 @@ data class Cube3D(val xRange: IntRange, val yRange: IntRange, val zRange: IntRan
     }
 
     fun contains(pt: Point3D) = pt.x in xRange && pt.y in yRange && pt.z in zRange
+    fun isEmpty() = xRange.isEmpty() || yRange.isEmpty() || zRange.isEmpty()
 }
 
-typealias CubeFunc = (cube: Cube3D, newRange: IntRange) -> Cube3D
 typealias Data = ArrayList<Instruction>
 typealias Solution = Int
 typealias Solution2 = BigInteger
@@ -93,29 +93,29 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
         var workingCubes: List<Cube3D> = emptyList()
         for (instruction in data) {
             val instructionCube = instruction.getCube3D()
-            if (workingCubes.isEmpty()) {
-                workingCubes = listOf(instructionCube)
+            workingCubes = if (instruction.onOff) {
+                union(workingCubes, instructionCube)
             } else {
-                workingCubes = if (instruction.onOff) {
-                    workingCubes.map { union(it, instructionCube) }.flatten()
-                } else {
-                    workingCubes.map { subtract(it, instructionCube) }.flatten()
-                }
+                subtract(workingCubes, instructionCube)
             }
         }
         return workingCubes.fold(BigInteger.ZERO) { acc, cube3D -> acc + cube3D.volume() }
     }
 
     fun union(start: Cube3D, other: Cube3D) : List<Cube3D> {
-        return when {
-            !overlap(start, other) -> listOf(start, other)
-            surroundsFully(start, other) -> listOf(start)
-            surroundsFully(other, start) -> listOf(other)
-            else -> {
-                val common = findCommon(start, other)
-                subtract(start, common) + listOf(other)  // cubex + cubey is the sum of the cubes - common
-            }
-        }
+        return union(listOf(start), other)
+    }
+
+    fun union(cubes: List<Cube3D>, other: Cube3D) : List<Cube3D> {
+        val ret = CubeSet()
+        ret.addIfNotEmpty(other)
+
+        ret.addAll(cubes.map {
+            val common = findCommon(it, other)
+            subtract(it, common) // cubex + cubey is the sum of the cubes - common
+        }.flatten())
+
+        return ret.toList()
     }
 
     private fun surroundsFully(
@@ -152,77 +152,16 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
     }
     fun CubeSet.addIfNotEmpty(cube3D: Cube3D) = addIfNotEmpty(cube3D.xRange, cube3D.yRange, cube3D.zRange)
 
-    fun splitCube(cube3D: Cube3D, xRange: IntRange, yRange: IntRange, zRange: IntRange): CubeSet {
-        val workingSet = CubeSet(splitX(cube3D, xRange))
-        workingSet.addAll(workingSet.map { splitY(it, yRange) }.flatten())
-        workingSet.addAll(workingSet.map { splitZ(it, zRange) }.flatten())
-        return workingSet
-    }
-
-    fun splitX(
-        bigCube: Cube3D,
-        xRange: IntRange
-    ): CubeSet {
-        return split(bigCube, bigCube.xRange, xRange) { cube, newRange -> Cube3D(newRange, cube.yRange, cube.zRange) }
-    }
-
-    fun splitY(
-        bigCube: Cube3D,
-        yRange: IntRange
-    ): CubeSet {
-        return split(bigCube, bigCube.yRange, yRange) { cube, newRange -> Cube3D(cube.xRange, newRange, cube.zRange) }
-    }
-
-    fun splitZ(
-        bigCube: Cube3D,
-        zRange: IntRange
-    ): CubeSet {
-        return split(bigCube, bigCube.zRange, zRange) { cube, newRange -> Cube3D(cube.xRange, cube.yRange, newRange) }
-    }
-
-    private fun split(
-        start: Cube3D, s: IntRange, o: IntRange, cubeFunc: CubeFunc
-    ): CubeSet {
-        val ret = CubeSet()
-        if (overlap(s, o)) {
-            // o.first   s.first  s.last    o.last
-            // |---------|---------|---------|
-            if (surroundsFully(bigger = o, smaller = s)) {
-                ret.addIfNotEmpty(start.copy())
-            }
-            // s.first   o.first  o.last    s.last
-            // |---------|---------|---------|
-            else if (surroundsFully(bigger = s, smaller = o)) {
-                // break the start into 3 bits
-                ret.addIfNotEmpty(cubeFunc(start, s.first until o.first))
-                ret.addIfNotEmpty(cubeFunc(start, o.first .. o.last))
-                ret.addIfNotEmpty(cubeFunc(start, o.last + 1 .. s.last))
-            }
-            // o.first   s.first  o.last    s.last
-            // |---------|---------|---------|
-            else if (o.first < s.first) {
-                // split start into 2 chunks
-                ret.addIfNotEmpty(cubeFunc(start, s.first until o.last))
-                ret.addIfNotEmpty(cubeFunc(start, o.last .. s.last))
-            }
-            // s.first  o.first    s.last    o.last
-            // |---------|---------|---------|
-            else {
-                // split start into 2 chunks
-                ret.addIfNotEmpty(cubeFunc(start, s.first until o.first))
-                ret.addIfNotEmpty(cubeFunc(start, o.first .. s.last))
-            }
-        } else {
-            ret.addIfNotEmpty(start.copy())
-        }
-        return ret
-    }
-
     enum class Face { TOP, BOTTOM, LEFT, RIGHT, FRONT, BACK }
+
+    fun subtract(cubes: List<Cube3D>, other: Cube3D): List<Cube3D> {
+        return cubes.map { subtract(it, other) }.flatten()
+    }
 
     fun subtract(start: Cube3D, other: Cube3D) : List<Cube3D> {
         val faces = findIntersectingFaces(start, other)
         return when {
+            other.isEmpty() -> listOf(start)
             !overlap(start, other) -> listOf(start)
             surroundsFully(other, start) -> listOf()
             surroundsFully(start, other) -> subtractSurrounded(start, other)
@@ -231,24 +170,46 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
                 subtractOneOrOppositeFaces(start, other, faces[0])
 
             faces.size == 2 -> subtractNonOppositeFaces(start, other, faces[0], faces[1])
-            // faces.size == 2 and not opposite
-            // faces.size == 3
-            // faces.size == 4
+
+            faces.size == 3 -> {
+                val oppositeFaces = faces.map { getOpposite(it) }.toSet()
+                val intersect = faces.toSet().intersect(oppositeFaces)
+                if (intersect.isNotEmpty()) {
+                    subtractOneOrOppositeFaces(start, other, intersect.first())
+                }
+                else {
+                    subtractThreeFaceChunk(start, other, faces)
+                }
+            }
+            faces.size == 4 -> {
+                val oppositeFaces = faces.map { getOpposite(it) }.toSet()
+                val nonOppositeFaces = faces.toSet() - oppositeFaces.toSet()
+                if (nonOppositeFaces.isEmpty()) {
+                    sliceIntoTwoCubes(start, other, faces[0])
+                } else {
+                    val findOppositeFace = faces.find { oppositeFaces.contains(it) }!!
+                    subtractThreeFaceChunk(start, other, faces - findOppositeFace)
+                }
+            }
 
             faces.size == 5 -> {
-                var oddFace: Face? = null
-                for (face in Face.values()) {
-                    if (!faces.contains(face)) {
-                        oddFace = face
-                        break
-                    }
-                }
-                sliceOddFace(start, other, oddFace!!)
+                sliceOddFace(start, other, getFirstMissingFace(faces)!!)
             }
             else -> {
                 emptyList()
             }
         }
+    }
+
+    private fun getFirstMissingFace(faces: List<Face>): Face? {
+        var oddFace: Face? = null
+        for (face in Face.values()) {
+            if (!faces.contains(face)) {
+                oddFace = face
+                break
+            }
+        }
+        return oddFace
     }
 
     private fun getOpposite(face1: Face): Face {
@@ -450,7 +411,63 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
 
     fun subtractNonOppositeFaces(start: Cube3D, other: Cube3D, face1: Face, face2: Face): List<Cube3D> {
         val ret = CubeSet()
+        // todo
+        return ret.toList()
+    }
 
+    fun sliceIntoTwoCubes(start: Cube3D, other: Cube3D, oneFace: Face): List<Cube3D> {
+        return subtractOneOrOppositeFaces(start, other, oneFace)
+    }
+
+    fun subtractThreeFaceChunk(start: Cube3D, other: Cube3D, faces: List<Face>): List<Cube3D> {
+        val ret = CubeSet()
+        val common = findCommon(start, other)
+
+        // put the top or bottom on first
+        if (faces.contains(Face.BOTTOM)) {
+            ret.addIfNotEmpty(
+                Cube3D(
+                    start.xRange,
+                    start.yRange.first until common.yRange.first,
+                    start.zRange)) // top
+        } else {
+            ret.addIfNotEmpty(
+                Cube3D(
+                    start.xRange,
+                    common.yRange.last + 1 .. start.yRange.last,
+                    start.zRange)) // bottom
+        }
+
+
+        // put the left or right on first
+        if (faces.contains(Face.RIGHT)) {
+            ret.addIfNotEmpty(
+                Cube3D(
+                    start.xRange.first until common.xRange.first,
+                    common.yRange,
+                    start.zRange)) // left
+        } else {
+            ret.addIfNotEmpty(
+                Cube3D(
+                    common.xRange.last + 1 .. start.xRange.last,
+                    common.yRange,
+                    start.zRange)) // right
+        }
+
+        // one more block to fill in the first
+        if (faces.contains(Face.BACK)) {
+            ret.addIfNotEmpty(
+                Cube3D(
+                    common.xRange,
+                    common.yRange,
+                    start.zRange.start until common.zRange.start))   // front
+        } else {
+            ret.addIfNotEmpty(
+                Cube3D(
+                    common.xRange,
+                    common.yRange,
+                    common.zRange.last + 1 .. start.zRange.last))   // end
+        }
         return ret.toList()
     }
 }

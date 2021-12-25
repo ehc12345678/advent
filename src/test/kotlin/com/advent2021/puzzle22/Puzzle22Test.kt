@@ -1,6 +1,7 @@
 package com.advent2021.puzzle22
 
 import com.advent2021.puzzle19.Point3D
+import com.advent2021.puzzle22.Puzzle22.Face.*
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
@@ -8,52 +9,6 @@ import java.math.BigInteger
 
 class Puzzle22Test {
     val puz = Puzzle22()
-
-    @Test
-    fun testSplitZ() {
-        val cube1 = Cube3D(10..20,30..50, 75..100)
-        assertThat(cube1.volume(), equalTo(BigInteger.valueOf(11L * 21L * 26L)))
-        
-        puz.splitZ(cube1, 20..50).run {
-            assertThat(totalVolume(), equalTo(cube1.volume()))
-        }
-
-        puz.splitZ(cube1, 25..80).run {
-            assertThat(totalVolume(), equalTo(cube1.volume()))
-        }
-
-        puz.splitZ(cube1, 85..125).run {
-            assertThat(totalVolume(), equalTo(cube1.volume()))
-        }
-    }
-
-    @Test
-    fun testSplitY() {
-        val cube1 = Cube3D(10..20,30..50, 75..100)
-        puz.splitY(cube1,45..85).run {
-            assertThat(totalVolume(), equalTo(cube1.volume()))
-        }
-        puz.splitY(cube1, 20..85).run {
-            assertThat(totalVolume(), equalTo(cube1.volume()))
-        }
-        puz.splitY(cube1, 20..40).run {
-            assertThat(totalVolume(), equalTo(cube1.volume()))
-        }
-    }
-
-    @Test
-    fun testSplitX() {
-        val cube1 = Cube3D(10..20,30..50, 75..100)
-        puz.splitX(cube1, 0..15).run {
-            assertThat(totalVolume(), equalTo(cube1.volume()))
-        }
-        puz.splitX(cube1, 15..30).run {
-            assertThat(totalVolume(), equalTo(cube1.volume()))
-        }
-        puz.splitX(cube1,-5..40).run {
-            assertThat(totalVolume(), equalTo(cube1.volume()))
-        }
-    }
 
     @Test
     fun testSimpleUnion() {
@@ -199,42 +154,119 @@ class Puzzle22Test {
         val base = Cube3D(0..10, 2..8, 3..12)
 
         val leftThruExact = Cube3D(0..10, 4..7, 5..10)
-        compareSubtract(base, leftThruExact, puz.subtractOneOrOppositeFaces(base, leftThruExact, Puzzle22.Face.LEFT))
+        compareSubtract(base, leftThruExact, puz.subtractOneOrOppositeFaces(base, leftThruExact, LEFT))
 
         val leftThru = Cube3D(-3..13, 4..7, 5..10)
-        compareSubtract(base, leftThru, puz.subtractOneOrOppositeFaces(base, leftThru, Puzzle22.Face.LEFT))
+        compareSubtract(base, leftThru, puz.subtractOneOrOppositeFaces(base, leftThru, LEFT))
 
         val left = Cube3D(-3..3, 4..7, 5..10)
-        compareSubtract(base, left, puz.subtractOneOrOppositeFaces(base, left, Puzzle22.Face.LEFT))
+        compareSubtract(base, left, puz.subtractOneOrOppositeFaces(base, left, LEFT))
 
         val right = Cube3D(6..12, 4..7, 5..10)
-        compareSubtract(base, right, puz.subtractOneOrOppositeFaces(base, right, Puzzle22.Face.RIGHT))
+        compareSubtract(base, right, puz.subtractOneOrOppositeFaces(base, right, RIGHT))
 
         val frontThruExact = Cube3D(3..8, 4..7, 3..12)
-        compareSubtract(base, frontThruExact, puz.subtractOneOrOppositeFaces(base, frontThruExact, Puzzle22.Face.FRONT))
+        compareSubtract(base, frontThruExact, puz.subtractOneOrOppositeFaces(base, frontThruExact, FRONT))
 
         val frontThru = Cube3D(3..8, 4..7, 3..10)
-        compareSubtract(base, frontThru, puz.subtractOneOrOppositeFaces(base, frontThru, Puzzle22.Face.FRONT))
+        compareSubtract(base, frontThru, puz.subtractOneOrOppositeFaces(base, frontThru, FRONT))
 
         val front = Cube3D(3..8, 4..7, -3..6)
-        compareSubtract(base, front, puz.subtractOneOrOppositeFaces(base, front, Puzzle22.Face.FRONT))
+        compareSubtract(base, front, puz.subtractOneOrOppositeFaces(base, front, FRONT))
 
         val back = Cube3D(3..8, 4..7, 5..13)
-        compareSubtract(base, back, puz.subtractOneOrOppositeFaces(base, back, Puzzle22.Face.BACK))
+        compareSubtract(base, back, puz.subtractOneOrOppositeFaces(base, back, BACK))
 
         //val base = Cube3D(0..10, 2..8, 3..12)
 
         val topThruExact = Cube3D(3..7, 2..8, 5..10)
-        compareSubtract(base, topThruExact, puz.subtractOneOrOppositeFaces(base, topThruExact, Puzzle22.Face.TOP))
+        compareSubtract(base, topThruExact, puz.subtractOneOrOppositeFaces(base, topThruExact, TOP))
 
         val topThru = Cube3D(3..7, -4..12, 5..10)
-        compareSubtract(base, topThru, puz.subtractOneOrOppositeFaces(base, topThru, Puzzle22.Face.TOP))
+        compareSubtract(base, topThru, puz.subtractOneOrOppositeFaces(base, topThru, TOP))
 
         val top = Cube3D(3..7, 0..5, 5..10)
-        compareSubtract(base, top, puz.subtractOneOrOppositeFaces(base, top, Puzzle22.Face.TOP))
+        compareSubtract(base, top, puz.subtractOneOrOppositeFaces(base, top, TOP))
 
         val bottom = Cube3D(3..7, 5..13, 5..10)
-        compareSubtract(base, bottom, puz.subtractOneOrOppositeFaces(base, bottom, Puzzle22.Face.BOTTOM))
+        compareSubtract(base, bottom, puz.subtractOneOrOppositeFaces(base, bottom, BOTTOM))
+    }
+
+    @Test
+    fun testFourFaces() {
+        val base = Cube3D(0..10, 2..8, 3..12)
+
+        val sliceIntoLeftRight = Cube3D(-5..15, base.yRange, base.zRange)
+        compareSubtract(base, sliceIntoLeftRight, puz.sliceIntoTwoCubes(base, sliceIntoLeftRight, FRONT))
+
+        val sliceIntoTopBottom = Cube3D(base.xRange, 4..7, base.zRange)
+        compareSubtract(base, sliceIntoTopBottom, puz.sliceIntoTwoCubes(base, sliceIntoTopBottom, LEFT))
+
+        val sliceIntoFrontBack = Cube3D(base.xRange, base.yRange, 6..9)
+        compareSubtract(base, sliceIntoFrontBack, puz.sliceIntoTwoCubes(base, sliceIntoFrontBack, TOP))
+    }
+
+    @Test
+    fun testThreeFaceChunk() {
+        val base = Cube3D(0..10, 2..8, 3..12)
+        
+        val topLeftFrontCorner = Cube3D(-3..3, 0..4, 1..5)
+        compareSubtract(base, topLeftFrontCorner, puz.subtractThreeFaceChunk(base, topLeftFrontCorner, listOf(TOP, LEFT, FRONT)))
+
+        val topLeftBackCorner = Cube3D(-3..3, 0..4, 8..14)
+        compareSubtract(base, topLeftBackCorner, puz.subtractThreeFaceChunk(base, topLeftBackCorner, listOf(TOP, LEFT, BACK)))
+
+        val topRightFrontCorner = Cube3D(5..15, 0..4, 1..5)
+        compareSubtract(base, topRightFrontCorner, puz.subtractThreeFaceChunk(base, topRightFrontCorner, listOf(TOP, RIGHT, FRONT)))
+
+        val topRightBackCorner = Cube3D(5..12, 0..4, 8..14)
+        compareSubtract(base, topRightBackCorner, puz.subtractThreeFaceChunk(base, topRightBackCorner, listOf(TOP, RIGHT, BACK)))
+
+        val bottomLeftFrontCorner = Cube3D(-3..3, 5..12, 1..5)
+        compareSubtract(base, bottomLeftFrontCorner, puz.subtractThreeFaceChunk(base, bottomLeftFrontCorner, listOf(BOTTOM, LEFT, FRONT)))
+
+        val bottomLeftBackCorner = Cube3D(-3..3, 3..13, 8..14)
+        compareSubtract(base, bottomLeftBackCorner, puz.subtractThreeFaceChunk(base, bottomLeftBackCorner, listOf(BOTTOM, LEFT, BACK)))
+
+        val bottomRightFrontCorner = Cube3D(5..15, 7..10, 1..5)
+        compareSubtract(base, bottomRightFrontCorner, puz.subtractThreeFaceChunk(base, bottomRightFrontCorner, listOf(BOTTOM, RIGHT, FRONT)))
+
+        val bottomRightBackCorner = Cube3D(5..12, 4..10, 8..14)
+        compareSubtract(base, bottomRightBackCorner, puz.subtractThreeFaceChunk(base, bottomRightBackCorner, listOf(BOTTOM, RIGHT, BACK)))
+    }
+
+    @Test
+    fun testChainSubtracts() {
+        val base = Cube3D(0..50, 75..115, 200..240)
+        var working = listOf(base)
+
+        val cubes = listOf(
+            Cube3D(-4..5, 50..70, 235..255),
+            Cube3D(8..10, 40..80, 180..240)
+        )
+        cubes.forEach {
+            working = puz.subtract(working, it)
+        }
+        val volume = cubes.totalVolume()
+        val simpleVolume = cubes.fold(0) { acc, cube3D -> acc + cube3D.toSimple().volume() }
+        assertThat(volume, equalTo(BigInteger.valueOf(simpleVolume.toLong())))
+    }
+
+    @Test
+    fun testChainUnions() {
+        val base = Cube3D(0..50, 75..115, 200..240)
+        var working = listOf(base)
+
+        val cubes = listOf(
+            Cube3D(-4..5, 50..70, 235..255),
+            Cube3D(8..10, 40..80, 180..240)
+        )
+        cubes.forEach {
+            working = puz.union(working, it)
+        }
+        val volume = cubes.totalVolume()
+        val simpleVolume = cubes.fold(0) { acc, cube3D -> acc + cube3D.toSimple().volume() }
+        assertThat(volume, equalTo(BigInteger.valueOf(simpleVolume.toLong())))
     }
 
     private fun compareUnionSimple(cube1: Cube3D, cube2: Cube3D): BigInteger {
@@ -296,6 +328,6 @@ class Puzzle22Test {
     private fun Cube3D.toSimple() = Cube(xRange, yRange, zRange)
 
     companion object {
-        const val DEBUG = true
+        const val DEBUG = false
     }
 }
