@@ -269,6 +269,56 @@ class Puzzle22Test {
         assertThat(volume, equalTo(BigInteger.valueOf(simpleVolume.toLong())))
     }
 
+    @Test
+    fun testAllSubtracta() {
+        val xRange = 0..3
+        val yRange = 5..8
+        val zRange = 10..13
+        val base = Cube3D(xRange, yRange, zRange)
+
+        for (xStart in xRange.first - 1..xRange.last+1) {
+            for (xEnd in xStart..xRange.last+1) {
+                for (yStart in yRange.first - 1..yRange.last+1) {
+                    for (yEnd in yStart..yRange.last+1) {
+                        for (zStart in zRange.first - 1..zRange.last+1) {
+                            for (zEnd in zStart..zRange.last+1) {
+                                compareSubtractSimple(base, Cube3D(xStart..xEnd, yStart..yEnd, zStart..zEnd))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testMoreProblems() {
+        compareSubtractSimple(
+            Cube3D(xRange=0..3, yRange=5..8, zRange=10..13),
+            Cube3D(xRange=-1..0, yRange=6..6, zRange=9..11)
+        )
+
+        compareSubtractSimple(
+            Cube3D(xRange=0..3, yRange=5..8, zRange=10..13),
+            Cube3D(xRange=-1..0, yRange=4..6, zRange=11..11)
+        )
+
+        compareSubtractSimple(
+            Cube3D(xRange=0..3, yRange=5..8, zRange=10..13),
+            Cube3D(xRange=-1..0, yRange=4..5, zRange=11..11)
+        )
+
+        compareSubtractSimple(
+            Cube3D(xRange=0..3, yRange=5..8, zRange=10..13),
+            Cube3D(xRange=1..1, yRange=4..5, zRange=10..13)
+        )
+
+        compareSubtractSimple(
+            Cube3D(xRange = 0..3, yRange = 5..8, zRange = 10..13),
+            Cube3D(xRange = -1..0, yRange = 6..6, zRange = 10..13)
+        )
+    }
+
     private fun compareUnionSimple(cube1: Cube3D, cube2: Cube3D): BigInteger {
         val cube3Ds: List<Cube3D> = puz.union(cube1, cube2)
         val cube1Simple = cube1.toSimple()
@@ -294,6 +344,9 @@ class Puzzle22Test {
         val simple = subtract.volume().toLong()
         val totalVolume = cube3Ds.totalVolume()
         if (BigInteger.valueOf(simple) != totalVolume) {
+            println("cube1: $cube1")
+            println("cube2: $cube2")
+
             cube3Ds.forEach() { cube ->
                 println("$cube")
                 if (DEBUG) {
@@ -320,6 +373,6 @@ class Puzzle22Test {
     }
 
     companion object {
-        const val DEBUG = false
+        const val DEBUG = true
     }
 }

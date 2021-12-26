@@ -2,6 +2,7 @@ package com.advent2021.puzzle22
 
 import com.advent2021.base.Base
 import com.advent2021.puzzle19.Point3D
+import java.lang.IllegalStateException
 import java.math.BigInteger
 import kotlin.math.max
 import kotlin.math.min
@@ -124,13 +125,6 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
                         """.trimIndent())
                     }
                 }
-//                for (i in 0 until workingCubes.size - 1) {
-//                    for (j in i + 1 until workingCubes.size) {
-//                        if (i != j && !findCommon(workingCubes[i], workingCubes[j]).isEmpty()) {
-//                            println("Overlapping cubes")
-//                        }
-//                    }
-//                }
             }
         }
         return workingCubes.fold(BigInteger.ZERO) { acc, cube3D -> acc + cube3D.volume() }
@@ -209,7 +203,7 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
                 val oppositeFaces = faces.map { getOpposite(it) }.toSet()
                 val intersect = faces.toSet().intersect(oppositeFaces)
                 if (intersect.isNotEmpty()) {
-                    subtractOneOrOppositeFaces(start, other, intersect.first())
+                    subtractThreeFacesSlice(start, other, intersect.first(), (faces - intersect).first())
                 }
                 else {
                     subtractThreeFaceChunk(start, other, faces)
@@ -326,6 +320,11 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
             other.xRange.last + 1..start.xRange.last,
             start.yRange,
             start.zRange)
+        val fullTopFace = Cube3D(
+            start.xRange,
+            start.yRange.first until other.yRange.first,
+            start.zRange
+        )
         val fullBottomFace = Cube3D(
             start.xRange,
             other.yRange.last + 1..start.yRange.last,
@@ -363,11 +362,6 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
                             start.zRange)) // bottom
             }
             Face.LEFT, Face.RIGHT -> {
-                val fullTopFace = Cube3D(
-                    start.xRange,
-                    start.yRange.first until other.yRange.first,
-                    start.zRange
-                )
                 ret
                     .addIfNotEmpty(fullTopFace) // top
                     .addIfNotEmpty(fullBottomFace) // bottom
@@ -445,7 +439,67 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
 
     fun subtractNonOppositeFaces(start: Cube3D, other: Cube3D, face1: Face, face2: Face): List<Cube3D> {
         val ret = CubeSet()
-        // todo
+        val common = findCommon(start, other)
+
+        ret.addAll(subtractThreeFacesSlice(start, other, face1, face2))
+
+        val restBack = Cube3D(
+            common.xRange,
+            common.yRange,
+            common.zRange.start + 1..start.zRange.last)
+        val restFront = Cube3D(
+            common.xRange,
+            common.yRange,
+            start.zRange.first until common.zRange.first)
+        val restRight = Cube3D(
+            common.xRange.last + 1..start.xRange.last,
+            start.yRange,
+            common.zRange)
+        val restLeft = Cube3D(
+            start.xRange.first until common.xRange.first,
+            start.yRange,
+            common.zRange
+        )
+        val restTop = Cube3D(
+            start.xRange,
+            start.yRange.first until common.yRange.first,
+            start.zRange
+        )
+        val restBottom = Cube3D(
+            start.xRange,
+            common.yRange.start + 1..start.yRange.last,
+            start.zRange
+        )
+
+        when (face2) {
+            Face.TOP, Face.BOTTOM -> {
+                when (face1) {
+                    Face.LEFT -> ret.addIfNotEmpty(restRight)
+                    Face.RIGHT -> ret.addIfNotEmpty(restLeft)
+                    Face.FRONT -> ret.addIfNotEmpty(restBack)
+                    Face.BACK -> ret.addIfNotEmpty(restFront)
+                    Face.TOP, Face.BOTTOM -> throw IllegalStateException("Cannot happen")
+                }
+            }
+            Face.LEFT, Face.RIGHT -> {
+                when (face1) {
+                    Face.TOP -> ret.addIfNotEmpty(restBottom)
+                    Face.BOTTOM -> ret.addIfNotEmpty(restTop)
+                    Face.FRONT -> ret.addIfNotEmpty(restBack)
+                    Face.BACK -> ret.addIfNotEmpty(restFront)
+                    Face.LEFT, Face.RIGHT -> throw IllegalStateException("Cannot happen")
+                }
+            }
+            Face.FRONT, Face.BACK -> {
+                when (face1) {
+                    Face.TOP -> ret.addIfNotEmpty(restBottom)
+                    Face.BOTTOM -> ret.addIfNotEmpty(restTop)
+                    Face.LEFT -> ret.addIfNotEmpty(restRight)
+                    Face.RIGHT -> ret.addIfNotEmpty(restLeft)
+                    Face.FRONT, Face.BACK -> throw IllegalStateException("Cannot happen")
+                }
+            }
+        }
         return ret.toList()
     }
 
@@ -501,6 +555,139 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
                     common.xRange,
                     common.yRange,
                     common.zRange.last + 1 .. start.zRange.last))   // end
+        }
+        return ret.toList()
+    }
+
+    fun subtractThreeFacesSlice(start: Cube3D, other: Cube3D, oppositeFace: Face, oddFace: Face): List<Cube3D> {
+        val ret = CubeSet()
+        val common = findCommon(start, other)
+
+        val fullLeftFace = Cube3D(
+            start.xRange.first until common.xRange.first,
+            start.yRange,
+            start.zRange)
+        val fullRightFace = Cube3D(
+            common.xRange.last + 1..start.xRange.last,
+            start.yRange,
+            start.zRange)
+        val fullTopFace = Cube3D(
+            start.xRange,
+            start.yRange.first until common.yRange.first,
+            start.zRange
+        )
+        val fullBottomFace = Cube3D(
+            start.xRange,
+            common.yRange.last + 1..start.yRange.last,
+            start.zRange)
+        val fullFrontFace = Cube3D(
+            start.xRange,
+            start.yRange,
+            start.zRange.first until common.zRange.first,
+        )
+        val fullBackFace = Cube3D(
+            start.xRange,
+            start.yRange,
+            common.zRange.last + 1..start.zRange.last
+        )
+
+        when (oddFace) {
+            Face.TOP, Face.BOTTOM -> {
+                when (oppositeFace) {
+                    Face.LEFT, Face.RIGHT -> {
+                        ret.addIfNotEmpty(fullFrontFace)
+                        ret.addIfNotEmpty(fullBackFace)
+                    }
+                    Face.BACK, Face.FRONT -> {
+                        ret.addIfNotEmpty(fullLeftFace)
+                        ret.addIfNotEmpty(fullRightFace)
+                    }
+                    Face.TOP, Face.BOTTOM -> {
+                        throw IllegalStateException("cannot happen")
+                    }
+                }
+                if (oddFace == Face.TOP) {
+                    ret.addIfNotEmpty(
+                        Cube3D(
+                            common.xRange,
+                            common.yRange.last + 1 .. start.yRange.last,
+                            common.zRange
+                        )
+                    )
+                } else {
+                    ret.addIfNotEmpty(
+                        Cube3D(
+                            common.xRange,
+                            start.yRange.first until common.yRange.first,
+                            common.zRange
+                        )
+                    )
+                }
+            }
+            Face.LEFT, Face.RIGHT -> {
+                when (oppositeFace) {
+                    Face.BACK, Face.FRONT -> {
+                        ret.addIfNotEmpty(fullTopFace)
+                        ret.addIfNotEmpty(fullBottomFace)
+                    }
+                    Face.TOP, Face.BOTTOM -> {
+                        ret.addIfNotEmpty(fullBackFace)
+                        ret.addIfNotEmpty(fullFrontFace)
+                    }
+                    Face.LEFT, Face.RIGHT -> {
+                        throw IllegalStateException("cannot happen")
+                    }
+                }
+                if (oddFace == Face.LEFT) {
+                    ret.addIfNotEmpty(
+                        Cube3D(
+                            common.xRange.last + 1 .. start.xRange.last,
+                            common.yRange,
+                            common.zRange
+                        )
+                    )
+                } else {
+                    ret.addIfNotEmpty(
+                        Cube3D(
+                            start.xRange.first until common.xRange.first,
+                            common.yRange,
+                            common.zRange
+                        )
+                    )
+                }
+            }
+            Face.FRONT, Face.BACK -> {
+                when (oppositeFace) {
+                    Face.TOP, Face.BOTTOM -> {
+                        ret.addIfNotEmpty(fullBackFace)
+                        ret.addIfNotEmpty(fullFrontFace)
+                    }
+                    Face.LEFT, Face.RIGHT -> {
+                        ret.addIfNotEmpty(fullTopFace)
+                        ret.addIfNotEmpty(fullBottomFace)
+                    }
+                    Face.BACK, Face.FRONT -> {
+                        throw IllegalStateException("cannot happen")
+                    }
+                }
+                if (oddFace == Face.FRONT) {
+                    ret.addIfNotEmpty(
+                        Cube3D(
+                            common.xRange,
+                            common.yRange,
+                            common.zRange.last + 1..start.zRange.last,
+                        )
+                    )
+                } else {
+                    ret.addIfNotEmpty(
+                        Cube3D(
+                            common.xRange,
+                            common.yRange,
+                            common.zRange.first until common.zRange.first
+                        )
+                    )
+                }
+            }
         }
         return ret.toList()
     }
