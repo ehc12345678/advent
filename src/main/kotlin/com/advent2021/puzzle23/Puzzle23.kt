@@ -24,10 +24,10 @@ typealias Solution2 = Solution
 fun main() {
     try {
         val puz = Puzzle23()
-        val solution1 = puz.solvePuzzle("inputs.txt", Data())
-        println("Solution1: $solution1")
+//        val solution1 = puz.solvePuzzle("inputs.txt", Data())
+//        println("Solution1: $solution1")
 
-        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data(solution1 = false))
+        val solution2 = puz.solvePuzzle2("inputs.txt", Data(solution1 = false))
         println("Solution2: $solution2")
     } catch (t: Throwable) {
         t.printStackTrace()
@@ -80,7 +80,7 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-        val queue = PriorityQueue<PuzzleState>(1000) { state1, state2 ->
+        val queue = PriorityQueue<PuzzleState>(100000) { state1, state2 ->
             state1.minumumPossibleCost.compareTo(state2.minumumPossibleCost)
         }
         val firstState = data.toPuzzleState()
@@ -92,7 +92,7 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
             val newLegalMoves = calcLegalMoves(top)
             queue.addAll(newLegalMoves)
             ++steps
-            if ((steps % 10000) == 0) {
+            if ((steps % 100000) == 0) {
                 println("Step $steps has best score of ${top.score} with miminum possible ${top.minumumPossibleCost}")
             }
         }

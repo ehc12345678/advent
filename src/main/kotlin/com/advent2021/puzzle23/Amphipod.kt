@@ -4,6 +4,8 @@ import java.lang.IllegalStateException
 import kotlin.math.max
 import kotlin.math.min
 
+enum class WantsToMove { Left, Right, None }
+
 data class Amphipod(
     val letter: Char ,
     val position: Position
@@ -13,6 +15,24 @@ data class Amphipod(
     }
 
     fun move(newPosition: Position) = copy(position = newPosition)
+
+    fun wantsToMove(): WantsToMove {
+        val delta: Int
+        if (position.inHall) {
+            val homeHallPosition = 3 + ('D' - letter) * 2
+            delta = position.hallPosition!! - homeHallPosition
+        } else {
+            delta = position.roomLetter!! - letter
+        }
+
+        return if (delta < 0) {
+            WantsToMove.Left
+        } else if (delta > 0) {
+            WantsToMove.Right
+        } else {
+            WantsToMove.None
+        }
+    }
 }
 
 
@@ -371,18 +391,15 @@ data class PuzzleState(
         }
     }
 
-
-    enum class WantsToMove { Left, Right }
-
     fun isImpossibleToSolve(): Boolean {
         val amphipodsInHall = hall.amphipodsInHall().toSet()
         for (amphipod in amphipods()) {
             val homeRoom = findAmphipodHomeRoom(amphipod)
             if (amphipod.position.inHall) {
-                val wantsToMove = wantsToMove(amphipod)
+                val wantsToMove = amphipod.wantsToMove()
                 val others = amphipodsInHall - amphipod
                 for (other in others) {
-                    if (wantsToMove(other) != wantsToMove) {
+                    if (other.wantsToMove() != wantsToMove) {
                         val otherHomeRoom = findAmphipodHomeRoom(other)
                         if (!between(amphipod, homeRoom, other) && !between(amphipod, otherHomeRoom, other)) {
                             return true
@@ -407,15 +424,6 @@ data class PuzzleState(
             }
         }
         return false
-    }
-
-    private fun wantsToMove(amphipod: Amphipod): WantsToMove {
-        val homeRoom = findAmphipodHomeRoom(amphipod)
-        return if (amphipod.position.hallPosition!! < homeRoom.position.hallPosition!!) {
-            WantsToMove.Left
-        } else {
-            WantsToMove.Right
-        }
     }
 
     private fun between(amphipod: Amphipod, room: Room, other: Amphipod): Boolean {
