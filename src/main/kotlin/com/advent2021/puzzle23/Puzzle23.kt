@@ -1,15 +1,15 @@
 package com.advent2021.puzzle23
 
 import com.advent2021.base.Base
-import java.lang.IllegalStateException
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import kotlin.math.min
+import java.util.ArrayList
 
-data class Data(val rooms: ArrayList<Room> = ArrayList(),
-                val hall: ArrayList<Amphipod?> = ArrayList(),
-                var roomToAmphipod: HashMap<Room, ArrayList<Amphipod>> = HashMap()
+data class Data(
+    val solution1: Boolean = true,
+    val rooms: ArrayList<Room> = ArrayList(),
+    val hall: ArrayList<Amphipod?> = ArrayList(),
+    var roomToAmphipod: HashMap<Room, ArrayList<Amphipod?>> = HashMap()
 ) {
     fun toPuzzleState(): PuzzleState {
         return PuzzleState(
@@ -27,7 +27,7 @@ fun main() {
         val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
-        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data())
+        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data(solution1 = false))
         println("Solution2: $solution2")
     } catch (t: Throwable) {
         t.printStackTrace()
@@ -36,62 +36,71 @@ fun main() {
 
 class Puzzle23 : Base<Data, Solution?, Solution2?>() {
     override fun parseLine(line: String, data: Data) {
-        when {
-            line == "#############" || line == "  #########" -> { }
-            line.startsWith("#.") -> {
-                for (ch in line.substring(1, line.length - 1)) {
-                    data.hall.add(null)
-                }
+        fun addLine(l: String, d: Data) {
+            val chars = l.substring(3, l.lastIndexOf('#')).split("#").filter { it.isNotBlank() }
+            chars.forEachIndexed { index, s ->
+                val room = d.rooms[index]
+                val amphList = d.roomToAmphipod[room]!!
+                val roomOrder = amphList.size
+                val amphipod = if (s[0] == '.') null else Amphipod(s[0], Position(roomOrder = roomOrder, roomLetter = room.wantsLetter))
+                amphList.add(amphipod)
             }
-            line.startsWith("###") -> {
-                val chars = line.substring(3, line.length - 3).split("#")
-                var hallPosition = 3
+        }
 
-                chars.forEachIndexed { index, s ->
+        when {
+            line == "#############" -> {
+                var hallPosition = 3
+                for (index in 0..3) {
                     val room = Room(Position(hallPosition = hallPosition), 'A' + index)
                     data.rooms.add(room)
-                    data.roomToAmphipod.putIfAbsent(room, ArrayList<Amphipod>().also {
-                        it.add(Amphipod(s[0], Position(roomOrder = 0, roomLetter = room.wantsLetter)))
-                    })
+                    data.roomToAmphipod[room] = ArrayList()
                     hallPosition += 2
                 }
             }
-            line.startsWith("  #") -> {
-                val chars = line.substring(3, line.lastIndexOf('#')).split("#")
-                chars.forEachIndexed { index, s ->
-                    val room = data.rooms[index]
-                    data.roomToAmphipod[room]!!.add(Amphipod(s[0], Position(roomOrder = 1, roomLetter = room.wantsLetter)))
+            line == "  #########" -> { }
+            line.startsWith("#.") -> {
+                var hallPos = 1
+                for (ch in line.substring(1, line.length - 1)) {
+                    val amphipod = if (ch == '.') null else Amphipod(ch, Position(hallPosition = hallPos))
+                    data.hall.add(amphipod)
+                    ++hallPos
                 }
+            }
+            line.startsWith("###") -> {
+                addLine(line, data)
+            }
+            line.startsWith("  #") -> {
+                if (!data.solution1) {
+                    addLine("  #D#C#B#A#", data)
+                    addLine("  #D#B#A#C#", data)
+                }
+                addLine(line, data)
             }
         }
     }
 
     override fun computeSolution(data: Data): Solution {
         val queue = PriorityQueue<PuzzleState>(1000) { state1, state2 ->
-            calcMinimumPossibleScore(state1).compareTo(calcMinimumPossibleScore(state2))
+            state1.minumumPossibleCost.compareTo(state2.minumumPossibleCost)
         }
-        queue.add(data.toPuzzleState())
+        val firstState = data.toPuzzleState()
+        queue.add(firstState)
 
         var steps = 0
         while (queue.isNotEmpty() && !queue.peek().solved()) {
             val top = queue.remove()
-            if (top.score == 12521L) {
-                val list = queue.filter { top.score == 12521L }
-                println("Stop!")
-            }
             val newLegalMoves = calcLegalMoves(top)
             queue.addAll(newLegalMoves)
             ++steps
-            if ((steps % 1000) == 0) {
-                println("Step $steps has best score of ${top.score}")
+            if ((steps % 10000) == 0) {
+                println("Step $steps has best score of ${top.score} with miminum possible ${top.minumumPossibleCost}")
             }
         }
-        println(data)
         return queue.peek().score
     }
 
     override fun computeSolution2(data: Data): Solution2 {
-        return 0
+        return computeSolution(data)
     }
 
     fun calcLegalMoves(puzzleState: PuzzleState): List<PuzzleState> {
@@ -107,7 +116,7 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
         // move as many amphipods out to the hall as possible
         val ret = ArrayList<PuzzleState>()
         amphipods.forEach { amphipod ->
-            if (!isAmphipodAllSet(puzzleState, amphipod)) {
+            if (!puzzleState.isAmphipodAllSet(amphipod)) {
                 val pos = amphipod.position
                 if (pos.inRoom) {
                     for (hallPosition in 1..puzzleState.hall.lastHallPos) {
@@ -126,71 +135,14 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
     // clear path to final destination
     private fun moveAmphipodToAllSet(puzzleState: PuzzleState, amphipod: Amphipod): PuzzleState? {
         val homeRoom = puzzleState.findAmphipodHomeRoom(amphipod)
-        val lastPlaceInRoom = Position(1, homeRoom.wantsLetter)
-        val state = puzzleState.moveAmphipodToPosition(amphipod, lastPlaceInRoom)
-        if (state != null) {
-            return state
-        }
-        if (puzzleState.amphipod(lastPlaceInRoom)?.letter == amphipod.letter) {
-            return puzzleState.moveAmphipodToPosition(amphipod, Position(0, homeRoom.wantsLetter))
+        for (roomOrder in homeRoom.height - 1 downTo 0) {
+            val positionInRoom = Position(roomOrder, homeRoom.wantsLetter)
+            val state = puzzleState.moveAmphipodToPosition(amphipod, positionInRoom)
+            if (state != null) {
+                return state
+            }
         }
         return null
     }
-
-    private fun isAmphipodAllSet(puzzleState: PuzzleState, amphipod: Amphipod): Boolean {
-        return when {
-            amphipod.position.inHall -> false
-            amphipod.position.roomLetter != amphipod.letter -> false
-            amphipod.position.roomOrder == 1 -> true
-            else -> {
-                val otherAmphipodInRoom = puzzleState.amphipod(amphipod.position.copy(roomOrder = 1))
-                otherAmphipodInRoom?.letter == amphipod.letter
-            }
-        }
-    }
-
-    private fun calcMinimumPossibleScore(puzzleState: PuzzleState): Solution {
-        var minimumScore = puzzleState.score
-        val notHome = puzzleState.amphipods().filterNot { isAmphipodAllSet(puzzleState, it) }.groupBy { it.letter }
-
-        notHome.forEach { entry ->
-            val list = entry.value
-            if (list.size == 2) {
-                val amphipod1 = list[0]
-                val amphipod2 = list[1]
-                val homeRoom = puzzleState.findAmphipodHomeRoom(amphipod1)
-                val cost1 =
-                    puzzleState.calculateMinimumCost(
-                        amphipod1.position,
-                        Position(roomOrder = 0, roomLetter = homeRoom.wantsLetter),
-                        amphipod1) +
-                    puzzleState.calculateMinimumCost(
-                        amphipod2.position,
-                        Position(roomOrder = 1, roomLetter = homeRoom.wantsLetter),
-                        amphipod2)
-
-                // the cost could depend on starting position
-                val cost2 =
-                    puzzleState.calculateMinimumCost(
-                        amphipod1.position,
-                        Position(roomOrder = 1, roomLetter = homeRoom.wantsLetter),
-                        amphipod1) +
-                    puzzleState.calculateMinimumCost(
-                        amphipod2.position,
-                        Position(roomOrder = 0, roomLetter = homeRoom.wantsLetter),
-                        amphipod2)
-                minimumScore += min(cost1, cost2)
-            } else {
-                val amphipod = list[0]
-                val homeRoom = puzzleState.findAmphipodHomeRoom(amphipod)
-                minimumScore += puzzleState.calculateMinimumCost(
-                    amphipod.position,
-                    Position(roomOrder = 0, roomLetter = homeRoom.wantsLetter),
-                    amphipod)
-            }
-        }
-        return minimumScore
-    }
-
 }
 

@@ -1,6 +1,8 @@
 package com.advent2021.puzzle23
 
 import java.lang.IllegalStateException
+import kotlin.math.max
+import kotlin.math.min
 
 data class Amphipod(
     val letter: Char ,
@@ -37,8 +39,11 @@ data class Room(
     val wantsLetter: Char,
     val amphipods: List<Amphipod?> = ArrayList(2)
 ) {
+    val height: Int
+        get() = amphipods.size
+
     fun solved(): Boolean {
-        return amphipods[0]?.letter == wantsLetter && amphipods[1]?.letter == wantsLetter
+        return amphipods.all { it?.letter == wantsLetter }
     }
 
     fun removeAmphipod(amphipod: Amphipod): Room {
@@ -63,6 +68,10 @@ data class Room(
 
     override fun toString(): String {
         return "$wantsLetter ($position): $amphipods"
+    }
+
+    fun safeToEnter(amphipod: Amphipod): Boolean {
+        return amphipods.all { it == null || it.letter == amphipod.letter }
     }
 }
 
@@ -110,6 +119,11 @@ data class PuzzleState(
     val score: Long = 0L
 ) {
     private val costs: Map<Char, Int> = mapOf('A' to 1, 'B' to 10, 'C' to 100, 'D' to 1000)
+    val minumumPossibleCost: Solution
+
+    init {
+        minumumPossibleCost = calcMinimumPossibleScore()
+    }
 
     fun solved(): Boolean {
         return rooms.all { it.solved() }
@@ -134,12 +148,14 @@ data class PuzzleState(
             buf.append("#${letter}")
         }
         buf.appendLine("###")
-        buf.append("  ")
-        for (r in rooms) {
-            val letter = r.amphipods[1]?.letter ?: '.'
-            buf.append("#${letter}")
+        for (roomPosition in 1 until rooms[0].height) {
+            buf.append("  ")
+            for (r in rooms) {
+                val letter = r.amphipods[roomPosition]?.letter ?: '.'
+                buf.append("#${letter}")
+            }
+            buf.appendLine("#")
         }
-        buf.appendLine("#")
         buf.appendLine("  #########  ")
         return buf.toString()
     }
@@ -154,6 +170,11 @@ data class PuzzleState(
         val startPosition = amphipod.position
         if (startPosition.inRoom && newPosition.inHall && newPosition == getHallPosition(startPosition)) {
             return null
+        }
+        if (newPosition.inRoom) {
+            if (!getRoom(newPosition)!!.safeToEnter(amphipod)) {
+                return null
+            }
         }
         val path = getPath(startPosition, newPosition, true)
         if (path.isEmpty()) {
@@ -220,13 +241,13 @@ data class PuzzleState(
         val linedUp = getHallPosition(pos) == endHallPosition
         return when {
             pos == endPosition -> null
-            pos.roomOrder == 1 && !linedUp -> {
-                // go towards hall
-                pos.copy(roomOrder = 0)
-            }
             pos.roomOrder == 0 && !linedUp -> {
                 // go into hall
                 pos.copy(roomOrder = null, roomLetter = null, hallPosition = getHallPosition(pos).hallPosition)
+            }
+            pos.inRoom && !linedUp -> {
+                // go towards hall
+                pos.copy(roomOrder = pos.roomOrder!! - 1)
             }
             pos.inHall && pos != endHallPosition -> {
                 // move through hall to the end position in the hall
@@ -239,9 +260,15 @@ data class PuzzleState(
                 // move into room
                 pos.copy(roomOrder = 0, roomLetter = getRoom(endPosition)!!.wantsLetter, hallPosition = null)
             }
-            endPosition.inRoom && pos.roomOrder == 0 -> {
-                // move to end position
-                pos.copy(roomOrder = 1, roomLetter = getRoom(endPosition)!!.wantsLetter, hallPosition = null)
+            endPosition.inRoom && pos.inRoom -> {
+                // move towards end position
+                val room = getRoom(endPosition)!!
+                if (pos.roomOrder!! + 1 < room.height) {
+                    pos.copy(roomOrder = pos.roomOrder + 1, roomLetter = room.wantsLetter, hallPosition = null)
+                } else {
+                    // we have reached the terminus
+                    null
+                }
             }
             else -> null
         }
@@ -259,14 +286,9 @@ data class PuzzleState(
         return rooms.find { it.wantsLetter == amphipod.letter }!!
     }
 
-    fun checkLegal(): PuzzleState {
-        val amphipods = amphipods()
-        val counts = amphipods.groupingBy { it.letter }.eachCount().filter { it.value > 1 }
-        if (!(counts.getOrDefault('A', 0) == 2 &&
-                counts.getOrDefault('B', 0) == 2 &&
-                counts.getOrDefault('C', 0) == 2 &&
-                counts.getOrDefault('D', 0) == 2)) {
-            println("Problem")
+    fun checkLegal(): PuzzleState? {
+        if (isImpossibleToSolve()) {
+            return null
         }
         return this
     }
@@ -274,4 +296,133 @@ data class PuzzleState(
     fun getRoom(position: Position): Room? {
         return rooms.find { it.wantsLetter == position.roomLetter }
     }
+
+    private fun calcMinimumPossibleScore(): Solution {
+        var minimumScore = score
+        val notHome = amphipods().filterNot { isAmphipodAllSet(it) }.groupBy { it.letter }
+
+        notHome.forEach { entry ->
+            val list = entry.value
+            val thisCost = when (list.size) {
+                1 -> { sumOfCosts(list) }
+                else -> {
+                    val permutes = permute((0 until list.size).toList())
+                    permutes.maxOfOrNull { listOrder ->
+                        val orderedList = listOrder.map { list[it] }
+                        sumOfCosts(orderedList)
+                    }!!
+                }
+            }
+            minimumScore += thisCost
+        }
+        return minimumScore
+    }
+
+    fun sumOfCosts(amphipods: List<Amphipod>): Int {
+        val homeRoom = findAmphipodHomeRoom(amphipods[0])
+        var sum = 0
+        amphipods.forEachIndexed { index, amphipod ->
+            sum += calculateMinimumCost(
+                amphipod.position,
+                Position(roomOrder = index, roomLetter = homeRoom.wantsLetter),
+                amphipod
+            )
+        }
+        return sum
+    }
+
+    fun permute(num: List<Int>): List<List<Int>> {
+        var result = java.util.ArrayList<java.util.ArrayList<Int>>()
+
+        //start from an empty list
+        result.add(java.util.ArrayList())
+        for (i in num.indices) {
+            //list of list in current iteration of the array num
+            val current = java.util.ArrayList<java.util.ArrayList<Int>>()
+            for (l in result) {
+                // # of locations to insert is largest index + 1
+                for (j in 0 until l.size + 1) {
+                    // + add num[i] to different locations
+                    l.add(j, num[i])
+                    val temp = java.util.ArrayList(l)
+                    current.add(temp)
+                    l.removeAt(j)
+                }
+            }
+            result = java.util.ArrayList(current)
+        }
+        return result
+    }
+
+    fun isAmphipodAllSet(amphipod: Amphipod): Boolean {
+        val height = rooms[0].height
+        return when {
+            amphipod.position.inHall -> false
+            amphipod.position.roomLetter != amphipod.letter -> false
+            else -> {
+                for (roomOrder in amphipod.position.roomOrder!! until height) {
+                    val otherAmphipodInRoom = amphipod(amphipod.position.copy(roomOrder = roomOrder))
+                    if (otherAmphipodInRoom?.letter != amphipod.letter) {
+                        return false
+                    }
+                }
+                true
+            }
+        }
+    }
+
+
+    enum class WantsToMove { Left, Right }
+
+    fun isImpossibleToSolve(): Boolean {
+        val amphipodsInHall = hall.amphipodsInHall().toSet()
+        for (amphipod in amphipods()) {
+            val homeRoom = findAmphipodHomeRoom(amphipod)
+            if (amphipod.position.inHall) {
+                val wantsToMove = wantsToMove(amphipod)
+                val others = amphipodsInHall - amphipod
+                for (other in others) {
+                    if (wantsToMove(other) != wantsToMove) {
+                        val otherHomeRoom = findAmphipodHomeRoom(other)
+                        if (!between(amphipod, homeRoom, other) && !between(amphipod, otherHomeRoom, other)) {
+                            return true
+                        }
+                    }
+                }
+            } else {
+//                val room = getRoom(amphipod.position)!!
+
+                // if we are in the wrong room, say a D in the B and we encounter a B towards our room, we cannot
+                // proceed, because they both want to pass each other
+// this is not quite correct
+//                if (homeRoom.wantsLetter != amphipod.position.roomLetter) {
+//                    var next: Position? = getHallPosition(amphipod.position)
+//                    while (next != null) {
+//                        next = nextPos(next, homeRoom.position)
+//                        if (next != null && amphipod(next)?.letter == room.wantsLetter) {
+//                            return false
+//                        }
+//                    }
+//                }
+            }
+        }
+        return false
+    }
+
+    private fun wantsToMove(amphipod: Amphipod): WantsToMove {
+        val homeRoom = findAmphipodHomeRoom(amphipod)
+        return if (amphipod.position.hallPosition!! < homeRoom.position.hallPosition!!) {
+            WantsToMove.Left
+        } else {
+            WantsToMove.Right
+        }
+    }
+
+    private fun between(amphipod: Amphipod, room: Room, other: Amphipod): Boolean {
+        // can we get to our home room
+        return room.position.hallPosition!! in
+                min(amphipod.position.hallPosition!!, other.position.hallPosition!!) ..
+                max(amphipod.position.hallPosition, other.position.hallPosition)
+    }
+
 }
