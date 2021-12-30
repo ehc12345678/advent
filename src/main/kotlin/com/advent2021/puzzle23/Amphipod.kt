@@ -74,7 +74,6 @@ data class Room(
         get() = amphipods.size
 
     fun solved(): Boolean {
-        // return amphipods.all { it?.letter == wantsLetter }
         return effectiveHeight == 0
     }
 
@@ -242,7 +241,6 @@ data class PuzzleState(
             newHall = hall.addAmphipod(amphipod, newPosition)
         }
         return PuzzleState(newRooms, newHall, score)
-
     }
 
     private fun copyRooms(rooms: List<Room>): List<Room> {
@@ -401,20 +399,20 @@ data class PuzzleState(
     }
 
     fun isImpossibleToSolve(): Boolean {
-        val amphipodsInHall = hall.amphipodsInHall().toSet()
-        for (amphipod in amphipods()) {
-            val homeRoom = findAmphipodHomeRoom(amphipod)
-            if (amphipod.position.inHall) {
-                val wantsToMove = amphipod.wantsToMove()
-                val others = amphipodsInHall - amphipod
-                for (other in others) {
-                    if (other.wantsToMove() != wantsToMove) {
-                        val otherHomeRoom = findAmphipodHomeRoom(other)
-                        if (!between(amphipod, homeRoom, other) && !between(amphipod, otherHomeRoom, other)) {
-                            return true
-                        }
-                    }
-                }
+//        val amphipodsInHall = hall.amphipodsInHall().toSet()
+//        for (amphipod in amphipods()) {
+//            val homeRoom = findAmphipodHomeRoom(amphipod)
+//            if (amphipod.position.inHall) {
+//                val wantsToMove = amphipod.wantsToMove()
+//                val others = amphipodsInHall - amphipod
+//                for (other in others) {
+//                    if (other.wantsToMove() != wantsToMove) {
+//                        val otherHomeRoom = findAmphipodHomeRoom(other)
+//                        if (!between(amphipod, homeRoom, other) && !between(amphipod, otherHomeRoom, other)) {
+//                            return true
+//                        }
+//                    }
+//                }
 //            } else {
 //                val room = getRoom(amphipod.position)!!
 //
@@ -430,8 +428,8 @@ data class PuzzleState(
 //                        }
 //                    }
 //                }
-            }
-        }
+//            }
+//        }
         // this is a cheat, but...
         return this.minumumPossibleCost > 49802
 //        return false

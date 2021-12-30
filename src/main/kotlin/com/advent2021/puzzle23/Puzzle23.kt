@@ -87,13 +87,24 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
         queue.add(firstState)
 
         var steps = 0
+        var filtered = 0
+        val seenStates = HashSet<PuzzleState>()
         while (queue.isNotEmpty() && !queue.peek().solved()) {
             val top = queue.remove()
+            seenStates.add(top)
+
             val newLegalMoves = calcLegalMoves(top)
-            queue.addAll(newLegalMoves)
+            newLegalMoves.forEach {
+                if (!seenStates.contains(it)) {
+                    queue.add(it)
+                } else {
+                    ++filtered
+                }
+            }
+
             ++steps
             if ((steps % 100000) == 0) {
-                println("Step $steps has best score of ${top.score} with miminum possible ${top.minumumPossibleCost}")
+                println("Step $steps has best score of ${top.score} with ${filtered} filtered and miminum possible ${top.minumumPossibleCost} ")
             }
         }
         return queue.peek().score
@@ -103,6 +114,7 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
         return computeSolution(data)
     }
 
+    val hallPositions = listOf(1,2,4,6,8,10,11) // filter out rooms
     fun calcLegalMoves(puzzleState: PuzzleState): List<PuzzleState> {
         val amphipods = puzzleState.amphipods().filter { !puzzleState.isAmphipodAllSet(amphipod = it) }
 
@@ -120,7 +132,7 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
             if (!puzzleState.isAmphipodAllSet(amphipod)) {
                 val pos = amphipod.position
                 if (pos.inRoom) {
-                    for (hallPosition in 1..puzzleState.hall.lastHallPos) {
+                    for (hallPosition in hallPositions) {
                         val newState =
                             puzzleState.moveAmphipodToPosition(amphipod, Position(hallPosition = hallPosition))
                         if (newState != null) {
