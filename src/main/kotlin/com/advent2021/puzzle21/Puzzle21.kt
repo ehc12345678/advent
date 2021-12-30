@@ -52,7 +52,7 @@ fun main() {
 //        val solution1 = puz.solvePuzzle("inputs.txt", Data())
 //        println("Solution1: $solution1")
 
-        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data())
+        val solution2 = puz.solvePuzzle2("inputs.txt", Data())
         println("Solution2: $solution2")
     } catch (t: Throwable) {
         t.printStackTrace()
@@ -89,25 +89,8 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
 
     override fun computeSolution2(data: Data): Solution2 {
         val working = Working()
-
-        var playerOneScore = 20
-        while (playerOneScore >= 0) {
-            for (player1Dice in 1..10) {
-                val thisPlayer = PlayerState(player1Dice, playerOneScore)
-                var playerTwoScore = 20
-                while (playerTwoScore >= 0) {
-                    for (player2Dice in 1..10) {
-                        val otherPlayer = PlayerState(player2Dice, playerTwoScore)
-                        val universe = GameState(thisPlayer, otherPlayer)
-                        playUniverse(universe, working)
-                    }
-                    --playerTwoScore
-                }
-            }
-            --playerOneScore
-        }
-
-        val answer = getState(GameState(data[0].toState(), data[1].toState()), working)!!
+        val initialState = GameState(data[0].toState(), data[1].toState())
+        val answer = playUniverse(initialState, working)
         return if (answer.activePlayer.compareTo(answer.otherPlayer) > 0) {
             answer.activePlayer
         } else {
@@ -116,62 +99,26 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
     }
 
     fun playUniverse(universe: GameState, working: Working): WinsCount {
-        val subUniverses = ArrayList<GameState>()
+        return working.getOrPut(universe) {
+            val thisPlayer: PlayerState = universe.activePlayer
+            var winsCount = WinsCount()
 
-        val thisPlayer: PlayerState = universe.activePlayer
-        val otherPlayer: PlayerState = universe.otherPlayer
-
-        // dice roll 1
-        (1..3).map { Dice(it).add(thisPlayer.diceNumber) }.forEach { total1 ->
-            val subUniverse1 = GameState(PlayerState(total1, thisPlayer.score + total1), otherPlayer)
-            subUniverses.add(subUniverse1)
-
-            if (!subUniverse1.activePlayerWon()) {
-
-                // dice roll 2
-                (1..3).map { Dice(it).add(thisPlayer.diceNumber) }.forEach { total2 ->
-                    val subUniverse2 = GameState(PlayerState(total2, thisPlayer.score + total2), otherPlayer)
-                    subUniverses.add(subUniverse2)
-
-                    if (!subUniverse2.activePlayerWon()) {
-
-                        // dice roll 3
-                        (1..3).map { Dice(it).add(thisPlayer.diceNumber) }.forEach { total3 ->
-                            subUniverses.add(GameState(PlayerState(total3, thisPlayer.score + total3), otherPlayer))
+            (1..3).forEach { dice1 ->
+                (1..3).forEach { dice2 ->
+                    (1..3).forEach { dice3 ->
+                        val newDice = Dice(thisPlayer.diceNumber).add(dice1 + dice2 + dice3)
+                        val score = thisPlayer.score + newDice
+                        if (score >= 21) {
+                            winsCount = winsCount.win()
+                        } else {
+                            val childState = GameState(universe.otherPlayer, PlayerState(newDice, score))
+                            val otherPlayer = playUniverse(childState, working)
+                            winsCount += otherPlayer.flip()
                         }
                     }
                 }
             }
+            winsCount
         }
-
-        // store for the next time
-        val winsCount = calcSubuniversesCount(subUniverses, working)
-        working[universe] = winsCount
-        return winsCount
-    }
-
-    private fun calcSubuniversesCount(
-        subUniverses: ArrayList<GameState>,
-        working: Working
-    ): WinsCount {
-        return subUniverses.fold(WinsCount()) { acc, subUniverse ->
-            val subWinsCount: WinsCount = when {
-                subUniverse.activePlayerWon() -> WinsCount().win()
-                else -> {
-                    val flipped = subUniverse.flip()
-                    var state = getState(flipped, working)
-                    if (state == null) {
-                        state = playUniverse(flipped, working)
-                    }
-                    state
-                }
-            }
-            acc + subWinsCount
-        }
-    }
-
-    fun getState(state: GameState, working: Working): WinsCount? {
-        // it doesn't matter if we have seen our state or the flipped state as long as we add proper counts
-        return working[state] ?: working[state.flip()]?.flip()
     }
 }
