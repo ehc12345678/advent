@@ -18,19 +18,36 @@ open class IntegerRange(minNumber: Value, maxNumber: Value): Range(minNumber, ma
     constructor(min: Int, max: Int): this(Number(min), Number(max))
 }
 
-open class CouldBe(val range: Range) {
+abstract class CouldBe {
+    abstract fun minValue(): Value?
+    abstract fun maxValue(): Value?
+}
+
+class CouldBeExact(val number: Int): CouldBe() {
+    override fun minValue(): Value = Number(number)
+    override fun maxValue(): Value = Number(number)
+}
+
+class CouldBeRange(val min: Value, val max: Value): CouldBe() {
+    override fun minValue(): Value = min
+    override fun maxValue(): Value = max
 }
 
 abstract class Value {
     open fun currentValue(): Value = this
     open fun getNumberValue(): Int? = null
 
+    abstract fun getPossibleRange(): Range
+
     abstract fun add(otherValue: Value): Value
     abstract fun multiply(otherValue: Value): Value
     abstract fun divide(otherValue: Value): Value
     abstract fun mod(otherValue: Value): Value
     abstract fun eql(otherValue: Value): Value
+    abstract fun mustBe(otherValue: Value): Value
 //    override fun toString(): String = getNumberValue()?.toString() ?: getRange().toString()
+
+    abstract fun couldBe(): CouldBe
 }
 
 class Number(val number: Int): Value() {
@@ -39,34 +56,57 @@ class Number(val number: Int): Value() {
         if (numberValue != null) {
             return Number(number + numberValue)
         }
-
-        // work on could be
-
-        TODO()
+        return otherValue.add(this)
     }
 
     override fun multiply(otherValue: Value): Value {
-        TODO("Not yet implemented")
+        val numberValue = otherValue.getNumberValue()
+        if (numberValue != null) {
+            return Number(number * numberValue)
+        }
+        return otherValue.multiply(this)
     }
 
     override fun divide(otherValue: Value): Value {
-        TODO("Not yet implemented")
+        val numberValue = otherValue.getNumberValue()
+        if (numberValue != null) {
+            return Number(number / numberValue)
+        }
+        return otherValue.divide(this)
     }
 
     override fun mod(otherValue: Value): Value {
-        TODO("Not yet implemented")
+        val numberValue = otherValue.getNumberValue()
+        if (numberValue != null) {
+            return Number(number % numberValue)
+        }
+        return otherValue.mod(this)
     }
 
     override fun eql(otherValue: Value): Value {
-        TODO("Not yet implemented")
+        val numberValue = otherValue.getNumberValue()
+        if (numberValue != null) {
+            return Number(if (numberValue == number) 1 else 0)
+        }
+        return otherValue.eql(this)
+    }
+
+    override fun mustBe(otherValue: Value): Value {
+        // not yet
+        return this
     }
 
     override fun getNumberValue(): Int = number
+    override fun getPossibleRange(): Range = Range(this, this)
+
+    override fun couldBe(): CouldBe = CouldBeExact(number)
 }
 
 open class Variable(val name: String): Value() {
     var value: Value = Number(0)
-    var couldBe: CouldBe = CouldBe(IntegerRange(0, 0))
+    var range: Range = value.getPossibleRange()
+    var couldBe: CouldBe = CouldBeExact(0)
+    override fun getPossibleRange(): Range = range
 
     fun assign(avalue: Value): Variable {
         value = avalue
@@ -77,30 +117,41 @@ open class Variable(val name: String): Value() {
 
     override fun add(otherValue: Value): Value {
         val newValue = value.add(otherValue)
-        // work on could be
+        addCouldBe(value.couldBe())
         return newValue
     }
     override fun multiply(otherValue: Value): Value {
         val newValue = value.multiply(otherValue)
-        // work on could be
+        addCouldBe(value.couldBe())
         return newValue
     }
 
     override fun divide(otherValue: Value): Value {
         val newValue = value.multiply(otherValue)
-        // work on could be
+        addCouldBe(value.couldBe())
         return newValue
     }
     override fun mod(otherValue: Value): Value {
         val newValue = value.mod(otherValue)
-        // work on could be
+        addCouldBe(value.couldBe())
         return newValue
     }
     override fun eql(otherValue: Value): Value {
         val newValue = value.eql(otherValue)
-        // work on could be
+        addCouldBe(value.couldBe())
         return newValue
     }
+    override fun mustBe(otherValue: Value): Value {
+        val newValue = value.mustBe(otherValue)
+        addCouldBe(value.couldBe())
+        return newValue
+    }
+
+    private fun addCouldBe(couldBe: CouldBe) {
+        // meh
+    }
+
+    override fun couldBe(): CouldBe = couldBe
 
     //    override fun getRange(): Range = Range(value, value)
     //    override fun toString(): String = "$name=$value"
@@ -109,11 +160,35 @@ open class Variable(val name: String): Value() {
 
 class InputVar(val number: Int): Variable("input$number") {
     init {
-        couldBe = CouldBe(IntegerRange(1, 9))
+        range = IntegerRange(1, 9)
     }
 
-    fun maxCouldBe(): Int {
-        TODO()
+    fun maxCouldBe(): Int? {
+        return couldBe.maxValue()?.getNumberValue()
+    }
+
+    override fun add(otherValue: Value): Value {
+        return super.add(otherValue)
+    }
+
+    override fun multiply(otherValue: Value): Value {
+        return super.multiply(otherValue)
+    }
+
+    override fun divide(otherValue: Value): Value {
+        return super.divide(otherValue)
+    }
+
+    override fun mod(otherValue: Value): Value {
+        return super.mod(otherValue)
+    }
+
+    override fun eql(otherValue: Value): Value {
+        return super.eql(otherValue)
+    }
+
+    override fun mustBe(otherValue: Value): Value {
+        return super.mustBe(otherValue)
     }
 }
 
@@ -187,6 +262,14 @@ class Equal(dest: Variable, value: Value): Instruction(dest, value) {
     }
 
     override fun toString(): String = "eql $dest $value"
+}
+
+class MustBe(dest: Variable, value: Value): Instruction(dest, value) {
+    override fun execute(symbolTable: SymbolTable) {
+        dest.assign(dest.mustBe(value))
+    }
+    override fun toString(): String = "mustBe $dest $value"
+
 }
 
 // --- Symbol table ---

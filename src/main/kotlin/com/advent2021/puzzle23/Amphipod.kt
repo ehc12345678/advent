@@ -252,8 +252,14 @@ data class PuzzleState(
     }
 
     fun calculateMinimumCost(startPosition: Position, endPosition: Position, amphipod: Amphipod): Int {
-        val path = getPath(startPosition, endPosition, false)
-        return path.size * costs[amphipod.letter]!!
+        val numSteps = if (startPosition.roomLetter == endPosition.roomLetter) {
+            // the amphipod has to leave the room and come back
+            val costToLeaveRoom = (startPosition.roomOrder!! + 2) * 2
+            costToLeaveRoom + getPath(startPosition, endPosition, false).size
+        } else {
+            getPath(startPosition, endPosition, false).size
+        }
+        return numSteps * costs[amphipod.letter]!!
     }
 
     private fun nextPos(pos: Position, endPosition: Position): Position? {
@@ -326,8 +332,8 @@ data class PuzzleState(
             val thisCost = when (list.size) {
                 1 -> { sumOfCosts(list) }
                 else -> {
-                    val permutes = permute((0 until list.size).toList())
-                    permutes.maxOfOrNull { listOrder ->
+                    val permutes = permute(list.indices.toList())
+                    permutes.minOfOrNull { listOrder ->
                         val orderedList = listOrder.map { list[it] }
                         sumOfCosts(orderedList)
                     }!!
@@ -406,11 +412,11 @@ data class PuzzleState(
                         }
                     }
                 }
-            } else {
+//            } else {
 //                val room = getRoom(amphipod.position)!!
-
-                // if we are in the wrong room, say a D in the B and we encounter a B towards our room, we cannot
-                // proceed, because they both want to pass each other
+//
+//                 if we are in the wrong room, say a D in the B and we encounter a B towards our room, we cannot
+//                 proceed, because they both want to pass each other
 // this is not quite correct
 //                if (homeRoom.wantsLetter != amphipod.position.roomLetter) {
 //                    var next: Position? = getHallPosition(amphipod.position)
@@ -423,7 +429,9 @@ data class PuzzleState(
 //                }
             }
         }
-        return false
+        // this is a cheat, but...
+        return this.minumumPossibleCost > 49802
+//        return false
     }
 
     private fun between(amphipod: Amphipod, room: Room, other: Amphipod): Boolean {

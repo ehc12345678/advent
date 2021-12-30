@@ -62,6 +62,9 @@ class Puzzle24 : Base<Data, Solution?, Solution2?>() {
             "eql" -> {
                 Equal(dest, value!!)
             }
+            "mustBe" -> {
+                MustBe(dest, value!!)
+            }
             else -> throw IllegalArgumentException("Did not recognize $parts")
         }
         data.instructions.add(instruction)
@@ -74,7 +77,7 @@ class Puzzle24 : Base<Data, Solution?, Solution2?>() {
             instruction.execute(symbolTable)
         }
         // terminates with z = 0
-        Equal(symbolTable.getVar("z"), Number(0)).execute(symbolTable)
+        MustBe(symbolTable.getVar("z"), Number(0)).execute(symbolTable)
 
         // after all the instructions, the max num is the maximum of each digit of the input
         var solution = ""
