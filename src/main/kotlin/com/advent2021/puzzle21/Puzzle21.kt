@@ -49,8 +49,8 @@ typealias Working = HashMap<GameState, WinsCount>
 fun main() {
     try {
         val puz = Puzzle21()
-//        val solution1 = puz.solvePuzzle("inputs.txt", Data())
-//        println("Solution1: $solution1")
+        val solution1 = puz.solvePuzzle("inputs.txt", Data())
+        println("Solution1: $solution1")
 
         val solution2 = puz.solvePuzzle2("inputs.txt", Data())
         println("Solution2: $solution2")

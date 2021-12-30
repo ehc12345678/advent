@@ -59,11 +59,23 @@ data class Room(
     val wantsLetter: Char,
     val amphipods: List<Amphipod?> = ArrayList(2)
 ) {
+    // calculate how much height is left to fill
+    val effectiveHeight: Int
+
+    init {
+        var height = amphipods.size
+        while (height > 0 && amphipods[height - 1]?.letter == wantsLetter) {
+            --height
+        }
+        effectiveHeight = height
+    }
+
     val height: Int
         get() = amphipods.size
 
     fun solved(): Boolean {
-        return amphipods.all { it?.letter == wantsLetter }
+        // return amphipods.all { it?.letter == wantsLetter }
+        return effectiveHeight == 0
     }
 
     fun removeAmphipod(amphipod: Amphipod): Room {
@@ -289,7 +301,7 @@ data class PuzzleState(
             endPosition.inRoom && pos.inRoom -> {
                 // move towards end position
                 val room = getRoom(endPosition)!!
-                if (pos.roomOrder!! + 1 < room.height) {
+                if (pos.roomOrder!! + 1 < room.effectiveHeight) {
                     pos.copy(roomOrder = pos.roomOrder + 1, roomLetter = room.wantsLetter, hallPosition = null)
                 } else {
                     // we have reached the terminus
@@ -381,19 +393,10 @@ data class PuzzleState(
     }
 
     fun isAmphipodAllSet(amphipod: Amphipod): Boolean {
-        val height = rooms[0].height
         return when {
             amphipod.position.inHall -> false
             amphipod.position.roomLetter != amphipod.letter -> false
-            else -> {
-                for (roomOrder in amphipod.position.roomOrder!! until height) {
-                    val otherAmphipodInRoom = amphipod(amphipod.position.copy(roomOrder = roomOrder))
-                    if (otherAmphipodInRoom?.letter != amphipod.letter) {
-                        return false
-                    }
-                }
-                true
-            }
+            else -> amphipod.position.roomOrder!! >= getRoom(amphipod.position)!!.effectiveHeight - 1
         }
     }
 

@@ -104,8 +104,9 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
     }
 
     fun calcLegalMoves(puzzleState: PuzzleState): List<PuzzleState> {
+        val amphipods = puzzleState.amphipods().filter { !puzzleState.isAmphipodAllSet(amphipod = it) }
+
         // if we can move an amphipod to its ultimate destinate, do that.  It is the best move
-        val amphipods = puzzleState.amphipods()
         amphipods.forEach { amphipod ->
             val homePuzzleState = moveAmphipodToAllSet(puzzleState, amphipod)
             if (homePuzzleState != null) {
@@ -135,14 +136,10 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
     // clear path to final destination
     private fun moveAmphipodToAllSet(puzzleState: PuzzleState, amphipod: Amphipod): PuzzleState? {
         val homeRoom = puzzleState.findAmphipodHomeRoom(amphipod)
-        for (roomOrder in homeRoom.height - 1 downTo 0) {
-            val positionInRoom = Position(roomOrder, homeRoom.wantsLetter)
-            val state = puzzleState.moveAmphipodToPosition(amphipod, positionInRoom)
-            if (state != null) {
-                return state
-            }
-        }
-        return null
+        return puzzleState.moveAmphipodToPosition(
+            amphipod,
+            Position(roomLetter = homeRoom.wantsLetter, roomOrder = homeRoom.effectiveHeight - 1)
+        )
     }
 }
 
