@@ -51,7 +51,7 @@ class Position2(
 }
 
 
-class Puzzle2 : Base<Data, Solution?, Solution2?>() {
+class Puzzle2 : Base<Data, Solution, Solution2>() {
     override fun parseLine(line: String, data: Data) {
         val parts = line.split(" ")
         data.add(InputLine(Direction.valueOf(parts[0]), parts[1].toInt()))
