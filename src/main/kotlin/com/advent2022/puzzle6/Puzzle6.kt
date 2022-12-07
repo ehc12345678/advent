@@ -6,7 +6,7 @@ typealias Data = ArrayList<String>
 typealias Solution = Int
 typealias Solution2 = Solution
 
-// https://adventofcode.com/2022/day/3
+// https://adventofcode.com/2022/day/6
 fun main() {
     try {
         val puz = Puzzle6()
