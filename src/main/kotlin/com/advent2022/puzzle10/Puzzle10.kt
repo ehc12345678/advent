@@ -4,7 +4,7 @@ import com.advent2021.base.Base
 
 class Cpu(var x: Int = 1, var tick: Int = 1) {
     var part1Acc: Long = 0
-    val part2Acc = ArrayList<String>()
+    var part2Acc = StringBuffer()
 
     fun doTick() {
         if (((tick - 20) % 40) == 0) {
@@ -13,12 +13,10 @@ class Cpu(var x: Int = 1, var tick: Int = 1) {
         
         val posInRow = (tick - 1) % 40
         if (posInRow == 0) {
-            part2Acc.add("")
+            part2Acc.append("\n")
         }
 
-        var str = part2Acc.removeLast()
-        str += if (x in (posInRow - 1)..(posInRow + 1)) "#" else " "
-        part2Acc.add(str)
+        part2Acc.append(if (x in (posInRow - 1)..(posInRow + 1)) "#" else " ")
         ++tick
     }
 
@@ -65,7 +63,7 @@ class Puzzle10 : Base<Data, Solution?, Solution2?>() {
 
     override fun computeSolution2(data: Data): Solution2 {
         val cpu = runInstuctions(data)
-        return cpu.part2Acc.joinToString("\n")
+        return cpu.part2Acc.toString()
     }
 
     private fun runInstuctions(data: Data): Cpu {
