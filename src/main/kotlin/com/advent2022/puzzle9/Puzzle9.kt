@@ -36,6 +36,7 @@ class Graph(val tailNum: Int) {
         get() = getItem(0)
     val tail: Item
         get() = getItem(tailNum)
+
     fun getItem(num: Int) = items[num]!!
 
     init {
@@ -44,10 +45,9 @@ class Graph(val tailNum: Int) {
             items[i] = item
             start.addItem(item)
         }
-        addNode(start)
+        nodes[start.pos] = start
     }
 
-    fun addNode(node: Node) = nodes.put(node.pos, node)
     fun addNodeIfNeeded(pos: Point): Node = nodes.computeIfAbsent(pos) { Node(pos) }
 
     fun moveUp() = moveHead(Point(head.pos.x, head.pos.y + 1))
