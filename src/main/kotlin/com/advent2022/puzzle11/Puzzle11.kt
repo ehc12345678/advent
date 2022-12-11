@@ -1,29 +1,42 @@
 package com.advent2022.puzzle11
 
 import com.advent2021.base.Base
-import java.math.BigInteger
 
-typealias ItemOp = (old: BigInteger) -> BigInteger
+typealias ItemOp = (old: Long) -> Long
+data class ModItem(val item: Long, val mod: Int)
+typealias ModItemMap = HashMap<Int, ModItem>
+typealias ModItemOp = (old: ModItemMap) -> ModItemMap
+
 class Monkey {
     var numItemsInspected = 0
 
-    val items = ArrayList<BigInteger>()
+    var items = ArrayList<Long>()
+    var modItems = ArrayList<ModItemMap>()
     var op: ItemOp = { it }
-    var divisibleBy = 1L
+    var modOp: ModItemOp = { it }
+    var divisibleBy = 1
     var trueIndex = 0
     var falseIndex = 0
 
-    fun inspectItem(item: BigInteger, data: Data, worryReduction: Boolean = true) {
-        var afterOp = op(item)
-        if (worryReduction) {
-            afterOp /= BigInteger.valueOf(3)
-        }
+    fun inspectItem(data: Data) {
+        var item = items.removeFirst()
+        item = op(item) / 3
         ++numItemsInspected
 
-        val index = if ((afterOp % divisibleBy.toBigInteger()) == BigInteger.ZERO) trueIndex else falseIndex
-        data.monkies[index].items.add(afterOp)
+        val index = if ((item % divisibleBy) == 0L) trueIndex else falseIndex
+        val nextMonkey = data.monkies[index]
+        nextMonkey.items.add(item)
     }
 
+    fun inspectItemTwo(data: Data) {
+        val modItem = modItems.removeFirst()
+        val opedModItem = modOp(modItem)
+        ++numItemsInspected
+
+        val modIndex = if (opedModItem[divisibleBy]?.item!! % divisibleBy == 0L) trueIndex else falseIndex
+        val nextMonkey = data.monkies[modIndex]
+        nextMonkey.modItems.add(opedModItem)
+    }
 }
 class Data {
     val monkies = ArrayList<Monkey>()
@@ -34,8 +47,8 @@ class Data {
 
     fun last() = monkies.last()
 }
-typealias Solution = Int
-typealias Solution2 = Solution
+typealias Solution = Long
+typealias Solution2 = Long
 
 fun main() {
     try {
@@ -43,7 +56,7 @@ fun main() {
         val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
-        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data())
+        val solution2 = puz.solvePuzzle2("inputs.txt", Data())
         println("Solution2: $solution2")
     } catch (t: Throwable) {
         t.printStackTrace()
@@ -56,28 +69,62 @@ class Puzzle11 : Base<Data, Solution?, Solution2?>() {
         when {
             trimmed.startsWith("Monkey") -> data.addMonkey()
             trimmed.startsWith("Starting items:") -> {
-                val items = trimmed.substringAfter("Starting items: ").split(", ").map { it.toBigInteger() }
-                data.last().items.addAll(items)
+                val monkey = data.last()
+                val items = trimmed.substringAfter("Starting items: ").split(", ").map { it.toLong() }
+                monkey.items.addAll(items)
             }
             trimmed.startsWith("Operation:") -> {
+                val monkey = data.last()
                 val parts = trimmed.substringAfter("new = old ").split(" ")
-                data.last().op = when (parts[0]) {
-                    "*" -> if (parts[1] == "old") { item -> item * item } else { item -> item * parts[1].toBigInteger() }
-                    "+" -> if (parts[1] == "old") { item -> item + item } else { item -> item + parts[1].toBigInteger() }
+                monkey.op = when (parts[0]) {
+                    "*" -> { item -> mult(item, if (parts[1] == "old") item else parts[1].toLong(), monkey.divisibleBy) }
+                    "+" -> { item -> add(item, if (parts[1] == "old") item else parts[1].toLong(), monkey.divisibleBy) }
+                    else -> throw IllegalArgumentException("Don't know op ${parts[0]}")
+                }
+                monkey.modOp = when (parts[0]) {
+                    "*" -> { item -> multMods(item, parts[1]) }
+                    "+" -> { item -> addMods(item, parts[1]) }
                     else -> throw IllegalArgumentException("Don't know op ${parts[0]}")
                 }
             }
             trimmed.startsWith("Test:") -> {
-                data.last().divisibleBy = trimmed.substringAfter("divisible by ").toLong()
+                val monkey = data.last()
+                monkey.divisibleBy = trimmed.substringAfter("divisible by ").toInt()
             }
             trimmed.startsWith("If true: ") -> {
-                data.last().trueIndex = trimmed.substringAfter("throw to monkey ").toInt()
+                val monkey = data.last()
+                monkey.trueIndex = trimmed.substringAfter("throw to monkey ").toInt()
             }
             trimmed.startsWith("If false: ") -> {
-                data.last().falseIndex = trimmed.substringAfter("throw to monkey ").toInt()
+                val monkey = data.last()
+                monkey.falseIndex = trimmed.substringAfter("throw to monkey ").toInt()
             }
         }
     }
+
+    private fun multMods(item: ModItemMap, str: String): ModItemMap {
+        var ret = ModItemMap()
+        item.forEach { mod, value ->
+            val factor = if (str == "old") value.item else str.toLong()
+            val modFactor = factor % mod
+            val multMods = (value.item * modFactor) % mod
+            ret[mod] = ModItem(multMods, mod)
+        }
+        return ret
+    }
+
+    private fun addMods(item: ModItemMap, str: String): ModItemMap {
+        var ret = ModItemMap()
+        item.forEach { mod, value ->
+            val factor = if (str == "old") value.item else str.toLong()
+            val multMods = (value.item + factor) % mod
+            ret[mod] = ModItem(multMods, mod)
+        }
+        return ret
+    }
+
+    private fun mult(item: Long, factor: Long, mod: Int): Long = item * factor
+    private fun add(item: Long, factor: Long, mod: Int): Long = item + factor
 
     override fun computeSolution(data: Data): Solution {
         return compute(data, true, 20)
@@ -87,25 +134,45 @@ class Puzzle11 : Base<Data, Solution?, Solution2?>() {
         return compute(data, false, 10000)
     }
 
-    private fun compute(data: Data, worryReduction: Boolean, numTimes: Int): Int {
+    private fun compute(data: Data, worryReduction: Boolean, numTimes: Int): Long {
+        val divisors = data.monkies.map { it.divisibleBy }
+
+        // track all the items with all the mods
+        data.monkies.forEach { monkey ->
+            monkey.modItems = ArrayList(monkey.items.map { item ->
+                ModItemMap().also { modItem ->
+                    divisors.forEach { mod ->
+                        modItem.put(mod, ModItem(item % mod, mod))
+                    }
+                }
+            })
+        }
+
         repeat(numTimes) {
-            if ((it % 1000) == 0) {
-                println("== After round $it")
-                data.monkies.forEachIndexed { index, monkey -> println("Monkey $index inspected ${monkey.numItemsInspected} times.")}
-                println()
-            }
             data.monkies.forEach { monkey ->
                 doRoundWithMonkey(data, monkey, worryReduction)
             }
+
+            val num = it + 1
+            if ((num % 1000) == 0 || num == 1 || num == 20) {
+                println("== After round $num")
+                data.monkies.forEachIndexed { index, monkey -> println("Monkey $index inspected ${monkey.numItemsInspected} times.")}
+                println()
+            }
         }
         val sorted = data.monkies.sortedByDescending { it.numItemsInspected }
-        return sorted[0].numItemsInspected * sorted[1].numItemsInspected
+        return sorted[0].numItemsInspected.toLong() * sorted[1].numItemsInspected.toLong()
     }
 
     private fun doRoundWithMonkey(data: Data, monkey: Monkey, worryReduction: Boolean) {
-        while (monkey.items.isNotEmpty()) {
-            val item = monkey.items.removeFirst()
-            monkey.inspectItem(item, data, worryReduction)
+        if (worryReduction) {
+            while (monkey.items.isNotEmpty()) {
+                monkey.inspectItem(data)
+            }
+        } else {
+            while (monkey.modItems.isNotEmpty()) {
+                monkey.inspectItemTwo(data)
+            }
         }
     }
 }
