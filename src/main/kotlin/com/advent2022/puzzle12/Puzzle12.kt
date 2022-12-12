@@ -97,16 +97,14 @@ class Puzzle12 : Base<Data, Solution?, Solution2?>() {
 
         var solution: Path? = null
         var tries = 0
-        while (queue.isNotEmpty()) {
+        while (queue.isNotEmpty() && solution != null) {
             val head = queue.remove()
 
             if ((tries++ % 1000) == 0) {
                 println("Try $tries with queue size of ${queue.size}")
             }
             if (head.last.pos == data.end!!.pos) {
-                if (solution == null || solution.visited.size > head.visited.size) {
-                    solution = head
-                }
+                solution = head
             } else {
                 val neighbors = data.neighbors(head.last)
                 val added = HashSet<Pos>()
