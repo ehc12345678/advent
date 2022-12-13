@@ -6,8 +6,7 @@ typealias Solution = Int
 typealias Solution2 = Solution
 
 data class Pos(val r: Int, val c: Int) {
-    fun rowInc(inc: Int) = Pos(r + inc, c)
-    fun colInc(inc: Int) = Pos(r, c + inc)
+    fun inc(rInc: Int, cInc: Int) = Pos(rInc + r, cInc + c)
 }
 data class Cell(val pos: Pos, val ch: Char, var visited: Boolean = false, var shortestDistance: Int = Int.MAX_VALUE)
 
@@ -20,15 +19,12 @@ class Data {
     fun neighbors(cell: Cell) = neighbors(cell.pos)
     fun neighbors(pos: Pos): List<Cell> {
         return listOfNotNull(
-            value(pos.rowInc(-1)),
-            value(pos.rowInc(1)),
-            value(pos.colInc(-1)),
-            value(pos.colInc(1)),
+            value(pos.inc(-1, 0)),
+            value(pos.inc(1, 0)),
+            value(pos.inc(0, -1)),
+            value(pos.inc(0, 1)),
         )
     }
-
-    fun rows() = grid.size
-    fun cols() = grid[0].size
 }
 
 fun main() {
@@ -58,25 +54,31 @@ class Puzzle12 : Base<Data, Solution?, Solution2?>() {
         }))
     }
 
-    override fun computeSolution(data: Data): Solution {
-        val start = data.start!!.also {
+    override fun computeSolution(data: Data): Solution = computeSolutionTo(data, data.start!!.ch)
+
+    fun computeSolutionTo(data: Data, end: Char): Solution {
+        val start = data.end!!.also {
             it.shortestDistance = 0
             it.visited = true
         }
-        val end = data.end!!
 
         var queue: List<Cell> = ArrayList<Cell>(getNeighbors(start, data))
 
         var iteration = 0
-        while (!end.visited) {
-            if ((iteration++ % 1000) == 0) {
-                println("Iteration $iteration queue=${queue.size}")
+        var found: Cell? = null
+        while (found == null) {
+            val allNeighbors = ArrayList<Cell>()
+            for (i in queue.indices) {
+                val cell = queue[i]
+                if (cell.ch == end) {
+                    found = cell
+                    break
+                }
+                allNeighbors.addAll(getNeighbors(cell, data).sortedBy { it.shortestDistance })
             }
-
-            val allNeighbors = queue.map { getNeighbors(it, data) }.flatten().sortedBy { it.shortestDistance }
             queue = allNeighbors
         }
-        return end.shortestDistance
+        return found.shortestDistance
     }
 
     private fun getNeighbors(cell: Cell, data: Data): List<Cell> {
@@ -91,7 +93,7 @@ class Puzzle12 : Base<Data, Solution?, Solution2?>() {
     private fun canStep(last: Cell, next: Cell): Boolean {
         val start = elevation(last.ch)
         val end = elevation(next.ch)
-        return end - start <= 1
+        return start - end <= 1
     }
 
     private fun elevation(ch: Char): Int {
@@ -102,8 +104,6 @@ class Puzzle12 : Base<Data, Solution?, Solution2?>() {
         }
     }
 
-    override fun computeSolution2(data: Data): Solution2 {
-        return 0
-    }
+    override fun computeSolution2(data: Data): Solution2 = computeSolutionTo(data, 'a')
 }
 
