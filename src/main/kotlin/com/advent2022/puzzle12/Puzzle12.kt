@@ -1,9 +1,6 @@
 package com.advent2022.puzzle12
 
 import com.advent2021.base.Base
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.math.abs
 
 typealias Solution = Int
 typealias Solution2 = Solution
@@ -12,25 +9,7 @@ data class Pos(val r: Int, val c: Int) {
     fun rowInc(inc: Int) = Pos(r + inc, c)
     fun colInc(inc: Int) = Pos(r, c + inc)
 }
-data class Cell(val pos: Pos, val ch: Char)
-class Path(initVisited: ArrayList<Cell>? = ArrayList()) {
-    val visited = ArrayList(initVisited ?: emptyList())
-
-    val last: Cell
-        get() = visited.last()
-
-    fun add(cell: Cell): Path {
-        return Path(visited).also { it.visited.add(cell) }
-    }
-
-    fun contains(cell: Cell): Boolean {
-        return visited.contains(cell)
-    }
-
-    override fun toString(): String {
-        return visited.joinToString { it.ch.toString() }
-    }
-}
+data class Cell(val pos: Pos, val ch: Char, var visited: Boolean = false, var shortestDistance: Int = Int.MAX_VALUE)
 
 class Data {
     val grid: ArrayList<ArrayList<Cell>> = ArrayList()
@@ -45,11 +24,6 @@ class Data {
             value(pos.rowInc(1)),
             value(pos.colInc(-1)),
             value(pos.colInc(1)),
-// diagnoals
-//            value(r - 1, c - 1),
-//            value (r - 1, c + 1),
-//            value(r + 1, c - 1),
-//            value (r + 1, c + 1)
         )
     }
 
@@ -85,40 +59,33 @@ class Puzzle12 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-        val queue = PriorityQueue<Path>(1000) { path1, path2 ->
-            val bestPath1 = bestCanDo(path1, data)
-            val bestPath2 = bestCanDo(path2, data)
-            bestPath1.compareTo(bestPath2)
+        val start = data.start!!.also {
+            it.shortestDistance = 0
+            it.visited = true
         }
-        val seen = HashSet<Pos>()
-        val startPath = Path().also { it.visited.add(data.start!!) }
-        queue.add(startPath)
-        seen.add(data.start!!.pos)
+        val end = data.end!!
 
-        var solution: Path? = null
-        var tries = 0
-        while (queue.isNotEmpty() && solution != null) {
-            val head = queue.remove()
+        var queue: List<Cell> = ArrayList<Cell>(getNeighbors(start, data))
 
-            if ((tries++ % 1000) == 0) {
-                println("Try $tries with queue size of ${queue.size}")
+        var iteration = 0
+        while (!end.visited) {
+            if ((iteration++ % 1000) == 0) {
+                println("Iteration $iteration queue=${queue.size}")
             }
-            if (head.last.pos == data.end!!.pos) {
-                solution = head
-            } else {
-                val neighbors = data.neighbors(head.last)
-                val added = HashSet<Pos>()
-                neighbors.forEach {
-                    if (!head.contains(it) && !seen.contains(it.pos) && canStep(head.last, it)) {
-                        queue.add(head.add(it))
-                        added.add(it.pos)
-                    }
-                }
-                // add all the positions that we have seen
-                seen.addAll(added)
-            }
+
+            val allNeighbors = queue.map { getNeighbors(it, data) }.flatten().sortedBy { it.shortestDistance }
+            queue = allNeighbors
         }
-        return solution!!.visited.size - 1
+        return end.shortestDistance
+    }
+
+    private fun getNeighbors(cell: Cell, data: Data): List<Cell> {
+        val ret = data.neighbors(cell).filter { !it.visited && canStep(cell, it) }
+        ret.forEach {
+            it.visited = true
+            it.shortestDistance = cell.shortestDistance + 1
+        }
+        return ret
     }
 
     private fun canStep(last: Cell, next: Cell): Boolean {
@@ -137,12 +104,6 @@ class Puzzle12 : Base<Data, Solution?, Solution2?>() {
 
     override fun computeSolution2(data: Data): Solution2 {
         return 0
-    }
-
-    private fun bestCanDo(path: Path, data: Data): Int {
-        val endPos = data.end!!.pos
-        val lastInPath = path.last.pos
-        return path.visited.size + abs(endPos.r - lastInPath.r) + abs(endPos.c - lastInPath.c)
     }
 }
 
