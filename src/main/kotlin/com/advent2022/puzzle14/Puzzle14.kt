@@ -92,7 +92,7 @@ fun String.toPoint(): Point {
 fun main() {
     try {
         val puz = Puzzle16()
-        val solution1 = puz.solvePuzzle("inputsTest.txt", Data())
+        val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
         val solution2 = puz.solvePuzzle2("inputs.txt", Data())
@@ -122,28 +122,40 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
                 done = true
             } else {
                 data.addSand(sand)
-                println(data)
+//                println(data)
             }
         }
         return data.sand.size
     }
 
     override fun computeSolution2(data: Data): Solution2 {
-        return 0
+        var done = false
+
+        val start = Point(500, 0)
+
+        // add a floor
+        data.add(Line(Point(Int.MIN_VALUE, data.maxY + 2), Point(Int.MAX_VALUE, data.maxY + 2)))
+        while (!done) {
+            val sand = dropSand(start, data)
+            data.addSand(sand!!)
+            done = sand == start
+        }
+        return data.sand.size
     }
 
     fun dropSand(pt: Point, data: Data): Point? {
-        val nextPossible = listOf(Point(0, 1), Point(-1, 1), Point(1, 1)).map { it.add(pt) }
-        if (nextPossible.any { !data.inBounds(it) }) {
-            return null
+        var prev: Point = pt
+        var next: Point? = pt
+        while (next != null) {
+            prev = next
+            val nextPossible = listOf(Point(0, 1), Point(-1, 1), Point(1, 1)).map { it.add(prev) }
+            if (nextPossible.any { !data.inBounds(it) }) {
+                return null
+            }
+            // find the first place that is not occupied
+            next = nextPossible.find { !data.pointOccupied(it) }
         }
-        // find the first place that is not occupied
-        var next = nextPossible.find { !data.pointOccupied(it) }
-        return if (next == null) {
-            return pt // at rest
-        } else {
-            dropSand(next, data)
-        }
+        return prev
     }
 }
 
