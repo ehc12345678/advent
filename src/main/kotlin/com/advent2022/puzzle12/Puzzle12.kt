@@ -74,9 +74,9 @@ class Puzzle12 : Base<Data, Solution?, Solution2?>() {
                     found = cell
                     break
                 }
-                allNeighbors.addAll(getNeighbors(cell, data).sortedBy { it.shortestDistance })
+                allNeighbors.addAll(getNeighbors(cell, data))
             }
-            queue = allNeighbors
+            queue = allNeighbors.sortedBy { it.shortestDistance }
         }
         return found.shortestDistance
     }
