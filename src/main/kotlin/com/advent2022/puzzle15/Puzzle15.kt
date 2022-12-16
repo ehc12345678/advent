@@ -12,7 +12,7 @@ data class SensorBeacon(val sensor: Pos, val beacon: Pos)
 
 typealias Data = ArrayList<SensorBeacon>
 typealias Solution = Int
-typealias Solution2 = Solution
+typealias Solution2 = Long
 
 fun main() {
     try {
@@ -35,20 +35,41 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-        var ranges: List<IntRange> = ArrayList()
         val gridY = 2000000
-        data.forEach {
-            var range = getRangeThatCannotBeBeaconAtY(gridY, it.sensor, it.beacon)
-            ranges = addRange(range, ranges)
-        }
+        val ranges = findNotPossibleBeacons(data, emptyList(), gridY)
         var answer = ranges.sumOf { it.count() }
         val beaconsOnLine =
             data.map { it.beacon }.filter { pos -> pos.y == gridY && ranges.any { it.contains(pos.x) } }.toSet()
         answer -= beaconsOnLine.size
         return answer
     }
+
+
     override fun computeSolution2(data: Data): Solution2 {
+        val maxCoordinate = 4000000
+
+        for (y in 0..maxCoordinate) {
+            val ranges = findNotPossibleBeacons(data, emptyList(), y)
+            val clipped = simplifyAndClipRanges(ranges, 0, maxCoordinate)
+            if (clipped.size > 1) {
+                val x = clipped.first().last + 1
+                return (x * 4000000L) + y
+            }
+        }
         return 0
+    }
+
+    private fun findNotPossibleBeacons(
+        data: Data,
+        ranges: List<IntRange>,
+        gridY: Int
+    ): List<IntRange> {
+        var ret = ranges
+        data.forEach {
+            val range = getRangeThatCannotBeBeaconAtY(gridY, it.sensor, it.beacon)
+            ret = addRange(range, ret)
+        }
+        return ret
     }
 
     private fun getRangeThatCannotBeBeaconAtY(gridY: Int, sensor: Pos, beacon: Pos): IntRange {
@@ -73,7 +94,7 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
         // --aaaaaa
         // --aaaaaaaaaa--
 
-        val overlappingRanges = existing.filter { overlap(it, newRange) }
+        val overlappingRanges = existing.filter { overlap(it, newRange) || touchingRanges(it, newRange)}
         val nonOverlappingNewRanges = existing.filter { !overlap(it, newRange) }
         val newRanges = ArrayList(nonOverlappingNewRanges)
         if (overlappingRanges.isNotEmpty()) {
@@ -83,7 +104,11 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
         } else {
             newRanges.add(newRange)
         }
-        return newRanges
+        return newRanges.sortedBy { it.first }
+    }
+
+    private fun touchingRanges(range1: IntRange, range2: IntRange): Boolean {
+        return range1.last + 1 == range2.first || range2.last + 1 == range1.first
     }
 
     private fun toPos(str: String): Pos {
@@ -101,6 +126,18 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
         range2: IntRange
     ): Boolean {
         return range1.first in range2 || range1.last in range2 || range2.first in range1 || range2.last in range1
+    }
+
+    fun simplifyAndClipRanges(ranges: List<IntRange>, minVal: Int, maxVal: Int): List<IntRange> {
+        var newRanges: List<IntRange> = emptyList()
+        ranges.forEach {
+            newRanges = addRange(clipRange(it, minVal, maxVal), newRanges)
+        }
+        return newRanges
+    }
+
+    fun clipRange(range: IntRange, minVal: Int, maxVal: Int): IntRange {
+        return max(range.first, minVal) .. min(range.last, maxVal)
     }
 }
 
