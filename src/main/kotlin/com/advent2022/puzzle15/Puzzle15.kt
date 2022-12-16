@@ -17,7 +17,7 @@ typealias Solution2 = Solution
 fun main() {
     try {
         val puz = Puzzle15()
-        val solution1 = puz.solvePuzzle("inputsTest.txt", Data())
+        val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
         val solution2 = puz.solvePuzzle2("inputs.txt", Data())
@@ -35,12 +35,17 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-        val ranges = ArrayList<IntRange>()
+        var ranges: List<IntRange> = ArrayList()
+        val gridY = 2000000
         data.forEach {
-            var range = getRangeThatCannotBeBeaconAtY(10, it.sensor, it.beacon)
-            addRange(range, ranges)
+            var range = getRangeThatCannotBeBeaconAtY(gridY, it.sensor, it.beacon)
+            ranges = addRange(range, ranges)
         }
-        return ranges.sumOf { it.count() }
+        var answer = ranges.sumOf { it.count() }
+        val beaconsOnLine =
+            data.map { it.beacon }.filter { pos -> pos.y == gridY && ranges.any { it.contains(pos.x) } }.toSet()
+        answer -= beaconsOnLine.size
+        return answer
     }
     override fun computeSolution2(data: Data): Solution2 {
         return 0
@@ -49,7 +54,7 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
     private fun getRangeThatCannotBeBeaconAtY(gridY: Int, sensor: Pos, beacon: Pos): IntRange {
         val sensorBeaconDiff = manhanttanDistance(sensor, beacon)
         val intercept = manhanttanDistance(Pos(sensor.x, gridY), sensor)
-        val diff = intercept - sensorBeaconDiff
+        val diff = sensorBeaconDiff - intercept
         return if (diff >= 0) {
             // the beacon cannot be anywhere in this because the sensor would have detected it as closer
             (sensor.x - diff)..(sensor.x + diff)
@@ -58,40 +63,27 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
         }
     }
 
-    private fun addRange(newRange: IntRange, existing: MutableList<IntRange>) {
+    private fun addRange(newRange: IntRange, existing: List<IntRange>): List<IntRange> {
         if (newRange.isEmpty()) {
-            return
+            return existing
         }
 
-        //12345678901234567891
-        //-----xxxx----------- // existing
-        //---yyyyyyyyy-------- // new
-        //---zzxxxxzzz-------- // split the ranges
+        // -----xxxxx----yyyyy----zzzzz----
+        // --aaa---------------------------
+        // --aaaaaa
+        // --aaaaaaaaaa--
 
-        //----xxxxxxxx--------- // existing
-        //------yyy------------ // new
-        //
-
-        //----xxxxxxxx--------- // existing
-        //--yyyyyyyy----------- // new
-        //--zzxxxxxxxx--------- // split only front
-
-        //----xxxxxxxx--------- // existing
-        //-------yyyyyyyy------ // new
-        //----xxxxxxxxzzz------ // split only end
-
-        var clippedRange = newRange
-        existing.forEach {
-            // if they overlap, clip it
-            val clipStart = clippedRange.start .. min(it.start, clippedRange.endInclusive)
-            if (!clipStart.isEmpty()) {
-                existing.add(clipStart)
-            }
-            val clipEnd = it.endInclusive + 1 .. max(clippedRange.endInclusive, it.endInclusive + 1)
-            if (!clipEnd.isEmpty()) {
-                existing.add(clippedRange)
-            }
+        val overlappingRanges = existing.filter { overlap(it, newRange) }
+        val nonOverlappingNewRanges = existing.filter { !overlap(it, newRange) }
+        val newRanges = ArrayList(nonOverlappingNewRanges)
+        if (overlappingRanges.isNotEmpty()) {
+            newRanges.add(overlappingRanges.fold(newRange) { acc, intRange ->
+                min(acc.first, intRange.first) .. max(acc.last, intRange.last)
+            })
+        } else {
+            newRanges.add(newRange)
         }
+        return newRanges
     }
 
     private fun toPos(str: String): Pos {
@@ -103,6 +95,12 @@ class Puzzle15 : Base<Data, Solution?, Solution2?>() {
     private fun manhanttanDistance(pos1: Pos, pos2: Pos): Int {
         val diff = pos1 - pos2
         return abs(diff.x) + abs(diff.y)
+    }
+    fun overlap(
+        range1: IntRange,
+        range2: IntRange
+    ): Boolean {
+        return range1.first in range2 || range1.last in range2 || range2.first in range1 || range2.last in range1
     }
 }
 
