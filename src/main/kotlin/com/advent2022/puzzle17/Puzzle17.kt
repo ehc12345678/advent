@@ -3,7 +3,7 @@ package com.advent2022.puzzle17
 import com.advent2021.base.Base
 import kotlin.math.max
 
-data class Point(val x: Int, var y: Int) {
+data class Point(val x: Long, var y: Long) {
     operator fun plus(other: Point) = Point(x + other.x, y + other.y)
     operator fun minus(other: Point) = Point(x - other.x, y - other.y)
 }
@@ -13,7 +13,7 @@ class RockShape(str: String) {
     init {
         val lines = str.split("\n").mapIndexed { row, line ->
             line.mapIndexed { col, ch ->
-                if (ch == '#') Point(col, row) else null
+                if (ch == '#') Point(col.toLong(), row.toLong()) else null
             }.filterNotNull()
         }
         height = lines.size
@@ -34,8 +34,8 @@ val ALL_SHAPES = listOf(LINE, CROSS, ELBOW, DOWN_LINE, BLOCK)
 
 enum class DIR { LEFT, RIGHT }
 typealias Data = ArrayList<DIR>
-typealias Solution = Int
-typealias Solution2 = Solution
+typealias Solution = Long
+typealias Solution2 = Long
 
 class State {
     var fallingRock: Rock? = null
@@ -45,9 +45,9 @@ class State {
 
     fun overlaps(rock: Rock) = atRest.intersect(rock.pieces).isNotEmpty()
 
-    val currentHeight: Int
-        get() = atRest.maxOfOrNull { it.y + 1 } ?: 0
-    val maxHeight: Int
+    val currentHeight: Long
+        get() = atRest.maxOfOrNull { it.y + 1 } ?: 0L
+    val maxHeight: Long
         get() = max(currentHeight, fallingRock?.upperLeft?.y ?: 0)
 }
 
@@ -76,10 +76,22 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
         for (turn in 0 until numTurns) {
             doTurn(state, data)
         }
+        val repeat = detectRepeats(state, 10, 20)
+        if (repeat != null) {
+            println("Maybe a repeat")
+        } else {
+            println("Sadness")
+        }
         return state.currentHeight
     }
 
     override fun computeSolution2(data: Data): Solution2 {
+//        val state = State()
+//        val numTurns = 1,000,000,000,000L
+//        for (turn in 0 until numTurns) {
+//            doTurn(state, data)
+//        }
+//        return state.currentHeight
         return 0
     }
 
@@ -139,10 +151,10 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
         
         println(label)
         val maxHeight = state.maxHeight
-        for (y in maxHeight downTo 0) {
+        for (y in maxHeight downTo 0L) {
             print("|")
             for (x in 0 until 7) {
-                val pos = Point(x, y)
+                val pos = Point(x.toLong(), y)
                 if (state.fallingRock?.pieces?.contains(pos) == true) {
                     print("@")
                 } else if (state.atRest.contains(pos)) {
@@ -154,6 +166,27 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
             println("|")
         }
         println()
+    }
+
+    fun detectRepeats(state: State, firstRepeat: Long, floor: Long): Pair<LongRange, LongRange>? {
+        var repeat = firstRepeat
+        while (repeat < state.maxHeight / 2) {
+            val yRangeFirst = floor..floor + repeat
+            val yRangeNext = floor + repeat + 1..floor + repeat * 2
+            if (yRangeNext.last > state.maxHeight) {
+                null
+            }
+            val firstCells = state.atRest.filter { it.y in yRangeFirst }
+            var nextCells = state.atRest.filter { it.y in yRangeNext }
+            if (firstCells.size == nextCells.size) {
+                nextCells = nextCells.map { it + Point(0, -repeat - 1) }
+                if (firstCells == nextCells) {
+                    return Pair(yRangeFirst, yRangeNext)
+                }
+            }
+            ++repeat
+        }
+        return null
     }
 }
 
