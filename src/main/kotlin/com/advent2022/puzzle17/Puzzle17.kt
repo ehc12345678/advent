@@ -85,26 +85,33 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
     override fun computeSolution2(data: Data): Solution2 {
         val state = State()
         var numTurns = 0L
-        var findTheFloor: Long
-        while (true) {
+        var findTheRepeat: Pair<Int, Int>? = null
+        val added = ArrayList<Long>()
+        var lastHeight = 0L
+        while (findTheRepeat == null) {
             doTurn(state, data)
+            added.add(state.currentHeight - lastHeight)
+            lastHeight = state.currentHeight
             ++numTurns
-            if ((numTurns % 10000L) == 0L) {
-                findTheFloor = whichRowIsFull(state)
-                println("Find the floor at $numTurns is $findTheFloor")
-                if (findTheFloor > 0) {
-                    break
-                }
+
+            if ((numTurns % 5000L) == 0L) {
+                findTheRepeat = findRepeat(added, 500)
+                println("Find the floor at $numTurns is $findTheRepeat")
             }
         }
-        println("Repeat at $findTheFloor")
-//        val state = State()
-//        val numTurns = 1,000,000,000,000L
-//        for (turn in 0 until numTurns) {
-//            doTurn(state, data)
-//        }
-//        return state.currentHeight
-        return 0
+
+        val totalTurnsToCalc = 1000000000000L
+        val repeatStart = findTheRepeat.first
+        val repeatLen = findTheRepeat.second
+        val repeats = (totalTurnsToCalc - repeatStart) / repeatLen.toLong()
+
+        val firstList = added.subList(0, repeatStart)
+        val repeatList = added.subList(repeatStart, repeatStart + repeatLen)
+
+        val leftOver = (totalTurnsToCalc - repeatStart - repeats * repeatLen).toInt()
+        val endList = added.subList(repeatStart, repeatStart + leftOver)
+
+        return firstList.sum() + (repeats * repeatList.sum()) + endList.sum()
     }
 
     fun doTurn(state: State, data: Data) {
@@ -178,14 +185,33 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
         println()
     }
 
-    // check if the top row is full
-    fun whichRowIsFull(state: State): Long {
-        for (y in state.currentHeight downTo state.currentHeight / 2) {
-            if (state.atRest.filter { it.y == state.currentHeight }.size == 7) {
-                return y
+    fun findRepeat(added: ArrayList<Long>, tryLen: Int): Pair<Int, Int> {
+        var len = tryLen
+        while (len < added.size / 2) {
+            var start = 0
+            while (start + len * 2 <= added.size) {
+                if (compareSubLists(added, start, len + start, len + start, start + len * 2)) {
+                    return Pair(start, len)
+                }
+                ++start
+            }
+            ++len
+        }
+        return Pair(-1, len)
+    }
+
+    fun compareSubLists(added: ArrayList<Long>, low1: Int, high1: Int, low2: Int, high2: Int): Boolean {
+        if (high1 - low1 != high2 - low2) {
+            throw IllegalArgumentException()
+        }
+        var i1 = low1
+        var i2 = low2
+        while (i1 < high1) {
+            if (added[i1++] != added[i2++]) {
+                return false
             }
         }
-        return -1
+        return true
     }
 }
 
