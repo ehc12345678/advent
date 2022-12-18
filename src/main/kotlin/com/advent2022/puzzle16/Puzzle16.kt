@@ -27,7 +27,20 @@ fun main() {
     }
 }
 
-data class State(val time: Int, val valveName: String, val score: Int, val opened: Set<String> = HashSet())
+data class CacheKey(val time: Int, val valveName: String, val elephantValve: String)
+data class State(
+    val key: CacheKey,
+    val score: Int,
+    val opened: Set<String> = HashSet()
+) {
+    val time: Int
+        get() = key.time
+    val valveName: String
+        get() = key.valveName
+    val elephantValve: String
+        get() = key.elephantValve
+}
+
 class Puzzle16 : Base<Data, Solution?, Solution2?>() {
     override fun parseLine(line: String, data: Data) {
         val valve = line.substringAfter("Valve ").substringBefore(" has")
@@ -37,8 +50,16 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-        val rootState = State(1, "AA", 0)
-        val cache = HashMap<Pair<Int, String>, Int>()
+        return solve(data, 30, false)
+    }
+
+    override fun computeSolution2(data: Data): Solution2 {
+        return solve(data, 26, true)
+    }
+
+    private fun solve(data: Data, numTurns: Int, elephantHelper: Boolean): Int {
+        val rootState = State(CacheKey(1, "AA", "AA"), 0)
+        val cache = HashMap<CacheKey, Int>()
 
         val stack = ArrayDeque<State>()
         stack.add(rootState)
@@ -47,35 +68,42 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
         while (stack.isNotEmpty()) {
             val current = stack.removeFirst()
 
-            val cacheKey = Pair(current.time, current.valveName)
-            if (cache.getOrDefault(cacheKey, -1) >= current.score) {
-                // we cannot do any better, so skip it
+            if (cache.getOrDefault(current.key, -1) >= current.score) {
+                // if we have seen this valve before and that time we were already better, we cannot do better
                 continue
             }
-            cache[cacheKey] = current.score
+            cache[current.key] = current.score
 
-            if (current.time == 30) {
-                best = max(best, current.score)
-                continue
-            }
+            best = max(best, current.score)
+            if (current.time < numTurns) {
+                val valve = data[current.valveName]!!
+                if (valve.flowRate > 0 && !current.opened.contains(current.valveName)) {
+                    val newOpened = current.opened + current.valveName
+                    val newScore = current.score + newOpened.sumOf { data[it]!!.flowRate }
+                    stack.add(State(CacheKey(current.time + 1, current.valveName, current.elephantValve), newScore, newOpened))
+                }
 
-            val valve = data[current.valveName]!!
-            if (valve.flowRate > 0 && !current.opened.contains(current.valveName)) {
-                val newOpened = current.opened + current.valveName
-                val newScore = current.score + newOpened.sumOf { data[it]!!.flowRate }
-                stack.add(State(current.time + 1, current.valveName, newScore, newOpened))
-            }
+                val newScore = current.score + current.opened.sumOf { data[it]!!.flowRate }
+                valve.children.forEach { child ->
+                    stack.add(State(CacheKey(current.time + 1, child, current.elephantValve), newScore, current.opened))
+                }
 
-            val newScore = current.score + current.opened.sumOf { data[it]!!.flowRate }
-            valve.children.forEach { child ->
-                stack.add(State(current.time + 1, child, newScore, current.opened))
+                if (elephantHelper) {
+                    val elephantValve = data[current.elephantValve]!!
+                    if (elephantValve.flowRate > 0 && !current.opened.contains(current.elephantValve)) {
+                        val newOpened = current.opened + current.elephantValve
+                        val newScore = current.score + newOpened.sumOf { data[it]!!.flowRate }
+                        stack.add(State(CacheKey(current.time + 1, current.valveName, current.elephantValve), newScore, newOpened))
+                    }
+
+                    val newElephantScore = current.score + current.opened.sumOf { data[it]!!.flowRate }
+                    valve.children.forEach { child ->
+                        stack.add(State(CacheKey(current.time + 1, current.valveName, child), newElephantScore, current.opened))
+                    }
+                }
             }
         }
         return best
-    }
-
-    override fun computeSolution2(data: Data): Solution2 {
-        return 0
     }
 }
 
