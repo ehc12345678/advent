@@ -42,13 +42,16 @@ class State {
     val atRest = HashSet<Point>()
     var currentShape = 0
     var pushPosition = 0
+    var floor = 0
+    var currentHeight = 0L
+    var maxHeight = 0L
 
     fun overlaps(rock: Rock) = atRest.intersect(rock.pieces).isNotEmpty()
-
-    val currentHeight: Long
-        get() = atRest.maxOfOrNull { it.y + 1 } ?: 0L
-    val maxHeight: Long
-        get() = max(currentHeight, fallingRock?.upperLeft?.y ?: 0)
+    fun addAll(rock: Rock) {
+        atRest.addAll(rock.pieces)
+        currentHeight = max(currentHeight, rock.pieces.maxOf { it.y + 1 })
+        maxHeight = max(currentHeight, fallingRock?.upperLeft?.y ?: 0)
+    }
 }
 
 fun main() {
@@ -76,16 +79,25 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
         for (turn in 0 until numTurns) {
             doTurn(state, data)
         }
-        val repeat = detectRepeats(state, 10, 20)
-        if (repeat != null) {
-            println("Maybe a repeat")
-        } else {
-            println("Sadness")
-        }
         return state.currentHeight
     }
 
     override fun computeSolution2(data: Data): Solution2 {
+        val state = State()
+        var numTurns = 0L
+        var findTheFloor: Long
+        while (true) {
+            doTurn(state, data)
+            ++numTurns
+            if ((numTurns % 10000L) == 0L) {
+                findTheFloor = whichRowIsFull(state)
+                println("Find the floor at $numTurns is $findTheFloor")
+                if (findTheFloor > 0) {
+                    break
+                }
+            }
+        }
+        println("Repeat at $findTheFloor")
 //        val state = State()
 //        val numTurns = 1,000,000,000,000L
 //        for (turn in 0 until numTurns) {
@@ -97,8 +109,6 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
 
     fun doTurn(state: State, data: Data) {
         dropRock(state)
-
-        var x = 0
         while (state.fallingRock != null) {
             pushFalling(data[state.pushPosition], state)
             state.pushPosition = (state.pushPosition + 1) % data.size
@@ -135,7 +145,7 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
             state.fallingRock = rockPush
             printState("Rock falls 1 unit:", state)
         } else {
-            state.atRest.addAll(state.fallingRock!!.pieces)
+            state.addAll(state.fallingRock!!)
             state.fallingRock = null
             printState("Rock falls 1 unit, causing it to come to rest:", state)
         }
@@ -143,7 +153,7 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
 
     private fun canPlace(rock: Rock, state: State): Boolean {
         val pieces = rock.pieces
-        return !(pieces.any { it.y < 0 || it.x !in 0 until 7 } || state.overlaps(rock))
+        return !(pieces.any { it.y < state.floor || it.x !in 0 until 7 } || state.overlaps(rock))
     }
 
     fun printState(label: String, state: State) {
@@ -168,25 +178,14 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
         println()
     }
 
-    fun detectRepeats(state: State, firstRepeat: Long, floor: Long): Pair<LongRange, LongRange>? {
-        var repeat = firstRepeat
-        while (repeat < state.maxHeight / 2) {
-            val yRangeFirst = floor..floor + repeat
-            val yRangeNext = floor + repeat + 1..floor + repeat * 2
-            if (yRangeNext.last > state.maxHeight) {
-                null
+    // check if the top row is full
+    fun whichRowIsFull(state: State): Long {
+        for (y in state.currentHeight downTo state.currentHeight / 2) {
+            if (state.atRest.filter { it.y == state.currentHeight }.size == 7) {
+                return y
             }
-            val firstCells = state.atRest.filter { it.y in yRangeFirst }
-            var nextCells = state.atRest.filter { it.y in yRangeNext }
-            if (firstCells.size == nextCells.size) {
-                nextCells = nextCells.map { it + Point(0, -repeat - 1) }
-                if (firstCells == nextCells) {
-                    return Pair(yRangeFirst, yRangeNext)
-                }
-            }
-            ++repeat
         }
-        return null
+        return -1
     }
 }
 

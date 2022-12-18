@@ -46,33 +46,29 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
         var best = 0
         while (stack.isNotEmpty()) {
             val current = stack.removeFirst()
-            val time = current.time
-            val name = current.valveName
-            val score = current.score
-            val opened = current.opened
 
-            val cacheKey = Pair(time, name)
-            if (cache.getOrDefault(cacheKey, -1) >= score) {
+            val cacheKey = Pair(current.time, current.valveName)
+            if (cache.getOrDefault(cacheKey, -1) >= current.score) {
                 // we cannot do any better, so skip it
                 continue
             }
-            cache[cacheKey] = score
+            cache[cacheKey] = current.score
 
-            if (time == 30) {
-                best = max(best, score)
+            if (current.time == 30) {
+                best = max(best, current.score)
                 continue
             }
 
-            val valve = data[name]!!
-            if (valve.flowRate > 0 && !opened.contains(name)) {
-                val newOpened = opened + name
-                val newScore = score + newOpened.sumOf { data[it]!!.flowRate }
-                stack.add(State(time + 1, name, newScore, newOpened))
+            val valve = data[current.valveName]!!
+            if (valve.flowRate > 0 && !current.opened.contains(current.valveName)) {
+                val newOpened = current.opened + current.valveName
+                val newScore = current.score + newOpened.sumOf { data[it]!!.flowRate }
+                stack.add(State(current.time + 1, current.valveName, newScore, newOpened))
             }
 
-            val newScore = score + opened.sumOf { data[it]!!.flowRate }
+            val newScore = current.score + current.opened.sumOf { data[it]!!.flowRate }
             valve.children.forEach { child ->
-                stack.add(State(time + 1, child, newScore, opened))
+                stack.add(State(current.time + 1, child, newScore, current.opened))
             }
         }
         return best
