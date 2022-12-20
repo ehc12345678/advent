@@ -98,7 +98,8 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
                     if (current.canOpen(elephantValve)) {
                         val newOpened = current.opened + elephantValve.name
                         val newScore = current.score + newOpened.totalFlow(data)
-                        stack.add(State(CacheKey(current.time + 1, current.valveName, elephantValve.name), newScore, newOpened))
+                        val state = State(CacheKey(current.time + 1, current.valveName, elephantValve.name), newScore, newOpened)
+                        stack.add(state)
                     }
 
                     valve.children.forEach { child ->
