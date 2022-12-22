@@ -53,12 +53,18 @@ class Node(val num: Int, var next: Node? = null, var prev: Node? = null) {
 }
 
 class Data {
-    val items = ArrayList<Int>()
-    val nodes = HashMap<Int, Node>()
+    fun find(num: Int): Node {
+        // start from first and try to find num
+        var go = first!!
+        while (go.num != num && go.next != first) {
+            go = go.nextNode
+        }
+        return go
+    }
+
+    val items = ArrayList<Node>()
     var first: Node? = null
     var prev: Node? = null
-
-    fun node(num: Int) = nodes[num]!!
 }
 typealias Solution = Int
 typealias Solution2 = Solution
@@ -79,13 +85,11 @@ fun main() {
 class Puzzle20 : Base<Data, Solution?, Solution2?>() {
     override fun parseLine(line: String, data: Data) {
         val node = Node(line.toInt())
-        data.items.add(node.num)
+        data.items.add(node)
 
         data.first = data.first ?: node // assign first if we have not seen it
         data.prev?.addNodeAfter(node)
         data.prev = node
-
-        data.nodes[node.num] = node
     }
 
     override fun readInput(filename: String, data: Data, parseLineFunc: (String, Data) -> Unit): Data {
@@ -96,16 +100,20 @@ class Puzzle20 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-        printNodeList(data.first!!)
-        data.items.forEach { num ->
-            println("Move $num")
+        data.items.forEach { node ->
+            val num = node.num
             if (num != 0) {
-                moveNodeByNumSpaces(data.node(num), num)
+                moveNodeByNumSpaces(node, num)
+                sanityCheckNode(node, data)
             }
         }
 
-        val zeroeth = data.node(0)
-        return listOf(1000, 2000, 3000).sumOf { zeroeth.nodeFromOffset(it).num }
+        val zeroeth = data.find(0)
+        return listOf(1000, 2000, 3000).sumOf {
+            val num = zeroeth.nodeFromOffset(it).num
+            println(num)
+            num
+        }
     }
 
     fun moveNodeByNumSpaces(node: Node, num: Int) {
@@ -127,6 +135,30 @@ class Puzzle20 : Base<Data, Solution?, Solution2?>() {
             r = r.nextNode
         } while (r != node)
         println()
+    }
+
+    fun sanityCheckNode(node: Node, data: Data) {
+        val allNums = ArrayList<Int>()
+        var go = node
+        do {
+            allNums.add(go.num)
+            if (go.prevNode.nextNode != go) {
+                throw IllegalArgumentException("Something bad linked in prev node")
+            }
+            if (go.nextNode.prevNode != go) {
+                throw IllegalArgumentException("Something bad linked in next node")
+            }
+            go = go.nextNode
+        } while (go != node)
+
+        val dataItems = data.items.map { it.num }.toSet()
+        val allItemSet = allNums.toSet()
+        if (allItemSet != dataItems) {
+            println(allItemSet - dataItems)
+            println(dataItems - allItemSet)
+            printNodeList(node)
+            throw IllegalArgumentException("Did not see all the items in the data")
+        }
     }
 }
 
