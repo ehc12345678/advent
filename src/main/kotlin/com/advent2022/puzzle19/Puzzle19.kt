@@ -31,6 +31,8 @@ fun main() {
 }
 
 class Puzzle19 : Base<Data, Solution?, Solution2?>() {
+    var verbose = true
+
     override fun parseLine(line: String, data: Data) {
         val recipe = Ingrediant.values().map {
             CostToMake(it, line.substringAfter("Each $it robot costs ").substringBefore(".").toCosts())
@@ -41,8 +43,10 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
 
     override fun computeSolution(data: Data): Solution {
         val numTurns = 24
-        return data.maxOf { maxForRecipe(it, numTurns) }
+        val repipeValues = data.mapIndexed { index, map -> (index + 1) * maxForRecipe(map, numTurns) }
+        return repipeValues.sum()
     }
+
     override fun computeSolution2(data: Data): Solution2 {
         return 0
     }
@@ -55,11 +59,14 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         currentRobots[clayBot] = 1
 
         for (turn in 1 ..numTurns) {
+            log("== Minute $turn ==")
             val robot = maybeBuildRobot(currentMaterials, recipe, numTurns - turn, currentRobots)
-            collectMaterials(currentMaterials, currentRobots)
+            collectMaterials(currentMaterials, currentRobots, true)
             if (robot != null) {
                 currentRobots[robot] = currentRobots.getOrDefault(robot, 0) + 1
+                log("The new ${robot}-collecting robot is ready; you now have ${currentRobots[robot]} of them.")
             }
+            log("")
         }
         return currentMaterials[Ingrediant.geode] ?: 0
     }
@@ -73,7 +80,7 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         for (ingrediant in listOf(Ingrediant.geode, Ingrediant.obsidian, Ingrediant.clay, Ingrediant.ore)) {
             if (canBuild(recipe, currentMaterials, ingrediant)) {
                 if (shouldBuild(recipe, ingrediant, currentMaterials, currentRobots, turnsLeft)) {
-                    return buildRobot(recipe, currentMaterials, ingrediant)
+                    return buildRobot(recipe, currentMaterials, ingrediant, true)
                 }
             }
         }
@@ -88,17 +95,26 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         }
     }
 
-    private fun buildRobot(recipe: Recipe, currentMaterials: HashMap<Ingrediant, Int>, ingrediant: Ingrediant): Ingrediant {
+    private fun buildRobot(recipe: Recipe, currentMaterials: HashMap<Ingrediant, Int>, ingrediant: Ingrediant,
+                           forReal: Boolean): Ingrediant {
         val costs = recipe[ingrediant]!!.costs
         costs.forEach { (key, value) ->
             currentMaterials[key] = currentMaterials[key]!! - value
         }
+        val costsStr = costs.entries.joinToString(" and ") { (key, value) -> "$value $key" }
+        if (forReal) {
+            log("Spend $costsStr to start building an $ingrediant-collecting robot.")
+        }
         return ingrediant
     }
 
-    private fun collectMaterials(currentMaterials: HashMap<Ingrediant, Int>, currentRobots: HashMap<Ingrediant, Int>) {
+    private fun collectMaterials(currentMaterials: HashMap<Ingrediant, Int>, currentRobots: HashMap<Ingrediant, Int>,
+                                 forReal: Boolean = false) {
         currentRobots.forEach { (key, value) ->
             currentMaterials[key] = currentMaterials.getOrDefault(key, 0) + value
+            if (forReal) {
+                log("$value $key-collecting robots collect $value $key; you now have ${currentMaterials[key]} $key.")
+            }
         }
     }
 
@@ -113,7 +129,7 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
 
         val buildIt = HashMap(currentMaterials)
         val dontBuildIt = HashMap(currentMaterials)
-        buildRobot(recipe, buildIt, ingrediant)
+        buildRobot(recipe, buildIt, ingrediant, false)
 
         var turn = turnsLeft
         while (turn-- > 0) {
@@ -130,6 +146,12 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
             }
         }
         return true
+    }
+
+    fun log(str: String) {
+        if (verbose) {
+            println(str)
+        }
     }
 }
 
