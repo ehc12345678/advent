@@ -100,17 +100,20 @@ class Puzzle20 : Base<Data, Solution?, Solution2?>() {
         data.items.forEach { num ->
             println("Move $num")
             if (num != 0) {
-                val node = data.node(num)
-                node.removeThisNode()
-
-                val insertAfter = node.nodeFromOffset(num)
-                insertAfter.addNodeAfter(node)
-                // printNodeList(node.prevNode)
+                moveNodeByNumSpaces(data.node(num), num)
             }
         }
 
         val zeroeth = data.node(0)
         return listOf(1000, 2000, 3000).sumOf { zeroeth.nodeFromOffset(it).num }
+    }
+
+    fun moveNodeByNumSpaces(node: Node, num: Int) {
+        node.removeThisNode()
+
+        val insertAfter = node.nodeFromOffset(num)
+        insertAfter.addNodeAfter(node)
+        // printNodeList(node.prevNode)
     }
 
     override fun computeSolution2(data: Data): Solution2 {

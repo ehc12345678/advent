@@ -45,6 +45,11 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
+        resolveAllWeCan(data)
+        return data.resolved["root"]!!
+    }
+
+    private fun resolveAllWeCan(data: Data) {
         while (data.unresolved.isNotEmpty()) {
             val resolvedThisTime = ArrayList<String>()
             data.unresolved.forEach { (key, value) ->
@@ -53,7 +58,7 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
                 if (left != null && right != null) {
                     val calc = performOp(left, right, value.op)
                     resolvedThisTime.add(key)
-                    data.resolved[key]  = calc
+                    data.resolved[key] = calc
                     if (key == "root") {
                         println("Solved!")
                     }
@@ -61,15 +66,65 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
             }
 
             if (resolvedThisTime.isEmpty()) {
-                println("We are stuck!")
+                break
             }
             resolvedThisTime.forEach { data.unresolved.remove(it) }
         }
-        return data.resolved["root"]!!
     }
 
     override fun computeSolution2(data: Data): Solution2 {
-        return 0
+        data.resolved.remove("humn")
+        resolveAllWeCan(data)
+
+        val root = data.unresolved["root"]!!
+        var currentTotal = data.resolved[root.leftOperand] ?: data.resolved[root.rightOperand]
+        var unresolved = if (data.resolved.containsKey(root.leftOperand)) root.rightOperand else root.leftOperand
+
+        // as an example, we can have
+        //    root: xnzx = 123213
+        // so, our goal is to make xnzx equal to that number
+        while (data.unresolved.containsKey(unresolved)) {
+            val solveIt = data.unresolved.remove(unresolved)!!
+
+            // to continue our example, we have
+            //     xnzx = abcd + 1232
+            // or
+            //     xnzx = 1232 + abcd
+
+            var inverseOp = inverseOp(solveIt.op)
+            val resolvedLeft = data.resolved[solveIt.leftOperand]
+            val resolvedRight = data.resolved[solveIt.rightOperand]
+            if (resolvedLeft != null) {
+                //     1232 + abcd = 123213      abcd = 123213 - 1232
+                //     1232 * abcd = 123213       abcd = 123213 / 1232
+                //     1232 / abcd = 123213       1/abcd = 123213 / 1232  abcd = 1232 / 123213
+                //     1232 - abcd = 123213       abcd = -123213 + 1232
+                val left = when (solveIt.op) {
+                    Operator.ADD, Operator.MULT -> currentTotal!!
+                    Operator.MINUS -> -currentTotal!!
+                    Operator.DIV -> resolvedLeft
+                }
+                val right = when (solveIt.op) {
+                    Operator.ADD, Operator.MULT -> resolvedLeft
+                    Operator.MINUS -> resolvedLeft
+                    Operator.DIV -> {
+                        inverseOp = Operator.DIV
+                        currentTotal
+                    }
+                }
+                currentTotal = performOp(left, right!!, inverseOp)
+                unresolved = solveIt.rightOperand
+            } else {
+                //     abcd + 1232 = 123213      abcd = 123213 - 1232
+                //     abcd * 1232 = 123213       abcd = 123213 / 1232
+                //     abcd / 1232 = 123213       abcd = 123213 / 1232
+                //     abcd - 1232 = 123213       abcd = 123213 + 1232
+                currentTotal = performOp(currentTotal!!, resolvedRight!!, inverseOp)
+                unresolved = solveIt.leftOperand
+            }
+        }
+
+        return currentTotal!!
     }
 
     fun performOp(left: Long, right: Long, op: Operator): Long {
@@ -78,6 +133,15 @@ class Puzzle21 : Base<Data, Solution?, Solution2?>() {
             Operator.MINUS -> left - right
             Operator.MULT -> left * right
             Operator.DIV -> left / right
+        }
+    }
+
+    fun inverseOp(op: Operator): Operator {
+        return when(op) {
+            Operator.ADD -> Operator.MINUS
+            Operator.MINUS -> Operator.ADD
+            Operator.MULT -> Operator.DIV
+            Operator.DIV -> Operator.MULT
         }
     }
 }
