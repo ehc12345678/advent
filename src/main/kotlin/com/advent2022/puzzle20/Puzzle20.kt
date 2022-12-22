@@ -1,9 +1,65 @@
 package com.advent2022.puzzle20
 
 import com.advent2021.base.Base
-import kotlin.math.abs
 
-typealias Data = ArrayList<Int>
+class Node(val num: Int, var next: Node? = null, var prev: Node? = null) {
+    val nextNode: Node
+        get() = next ?: throw IllegalArgumentException("Something went wrong")
+
+    val prevNode: Node
+        get() = prev ?: throw IllegalArgumentException("Something went wrong")
+
+    // this remove this node from the circular chain, but does not forget what it did point to
+    fun removeThisNode() {
+        nextNode.prev = prev
+        prevNode.next = next
+    }
+
+    // -----
+    // before:   prev -> this -> next
+    // after:    prev -> this -> node -> next
+    // before:   prev <- this <- next
+    // after:    prev <- this <- node <- next
+    fun addNodeAfter(node: Node) {
+        if (node != this) {
+            node.next = next
+            next?.prev = node
+            next = node
+            node.prev = this
+        } else {
+            throw IllegalArgumentException("Shouldn't happen")
+        }
+    }
+
+    fun nodeFromOffset(offset: Int): Node {
+        return when {
+            offset == 0 -> this
+            offset > 0 -> {
+                var ret = this
+                repeat (offset) {
+                    ret = ret.nextNode
+                }
+                ret
+            }
+            else -> {
+                var ret = this
+                repeat (-offset) {
+                    ret = ret.prevNode
+                }
+                ret.prevNode
+            }
+        }
+    }
+}
+
+class Data {
+    val items = ArrayList<Int>()
+    val nodes = HashMap<Int, Node>()
+    var first: Node? = null
+    var prev: Node? = null
+
+    fun node(num: Int) = nodes[num]!!
+}
 typealias Solution = Int
 typealias Solution2 = Solution
 
@@ -20,114 +76,54 @@ fun main() {
     }
 }
 
-fun Data.wrapped(index: Int): Int {
-    return this[wrappedIndex(index)]
-}
-
-private fun Data.wrappedIndex(index: Int): Int {
-    var fixedIndex = (index % size)
-    if (fixedIndex < 0) {
-        fixedIndex += size
-    }
-    return fixedIndex
-}
-
-fun Data.swap(firstIndex: Int, secondIndex: Int) {
-    val tmp = wrapped(firstIndex)
-    this[wrappedIndex(firstIndex)] = wrapped(secondIndex)
-    this[wrappedIndex(secondIndex)] = tmp
-}
-
 class Puzzle20 : Base<Data, Solution?, Solution2?>() {
     override fun parseLine(line: String, data: Data) {
-        data.add(line.toInt())
+        val node = Node(line.toInt())
+        data.items.add(node.num)
+
+        data.first = data.first ?: node // assign first if we have not seen it
+        data.prev?.addNodeAfter(node)
+        data.prev = node
+
+        data.nodes[node.num] = node
+    }
+
+    override fun readInput(filename: String, data: Data, parseLineFunc: (String, Data) -> Unit): Data {
+        val ret = super.readInput(filename, data, parseLineFunc)
+        data.first!!.prev = ret.prev // have to close the loop
+        data.prev!!.next = data.first
+        return ret
     }
 
     override fun computeSolution(data: Data): Solution {
-        val ret = Data(data)
-        val swapMethod = Data(data)
-        data.forEach { num ->
-            println(ret)
-            println("$num moves")
-            moveViaIndexMethod(num, ret)
-            moveViaSwapMethod(num, swapMethod)
-            if (ret != swapMethod) {
-                println("ret: $ret")
-                println("swap: $swapMethod")
+        printNodeList(data.first!!)
+        data.items.forEach { num ->
+            println("Move $num")
+            if (num != 0) {
+                val node = data.node(num)
+                node.removeThisNode()
+
+                val insertAfter = node.nodeFromOffset(num)
+                insertAfter.addNodeAfter(node)
+                // printNodeList(node.prevNode)
             }
         }
 
-        val zeroIndex = swapMethod.indexOf(0)
-        return listOf(1000, 2000, 3000).sumOf {
-            val wrappedIndex = swapMethod.wrappedIndex(it + zeroIndex)
-            val addend = swapMethod[wrappedIndex]
-            println(addend)
-            addend
-        }
-    }
-
-    private fun moveViaSwapMethod(num: Int, ret: Data) {
-        val index = ret.indexOf(num)
-        val inc = if (num > 0) { 1 } else if (num < 0) { -1 } else return
-        var pos = index
-        var times = abs(num)
-        repeat(times) {
-            var newPos = pos + inc
-            if (newPos in ret.indices) {
-                ret.swap(pos, newPos)
-            } else if (newPos < 0) {
-                // remove it from the beginning, add it to the end
-                ret.removeAt(pos)
-                ret.add(ret.size - 1, num)
-                newPos = ret.size - 2
-            } else {
-                ret.removeAt(pos)
-                ret.add(1, num)
-                newPos = 1
-            }
-            pos = newPos
-        }
-    }
-
-    private fun moveViaIndexMethod(num: Int, ret: Data) {
-        val index = ret.indexOf(num)
-        val newUnwrappedIndex = index + num
-
-        var destIndex = when {
-            newUnwrappedIndex >= ret.size -> {
-                var wrappedIndex = newUnwrappedIndex - ret.size
-                if (wrappedIndex > index) {
-                    // we passed the spot where the number was removed
-                    ++wrappedIndex
-                }
-                ret.wrappedIndex(wrappedIndex)
-            }
-
-            newUnwrappedIndex < 0 -> {
-                var wrappedIndex = newUnwrappedIndex + ret.size - 1
-                if (wrappedIndex < index) {
-                    // we passed the spot where the number was remove
-                    --wrappedIndex
-                }
-                ret.wrappedIndex(wrappedIndex)
-            }
-
-            else -> newUnwrappedIndex
-        }
-
-        // certainly don't need to remove it and readd it if it's already there
-        if (index != destIndex) {
-            ret.removeAt(index)
-            if (index > destIndex) {
-                destIndex++
-            }
-            ret.add(destIndex, num)
-        }
-        //            println(ret)
+        val zeroeth = data.node(0)
+        return listOf(1000, 2000, 3000).sumOf { zeroeth.nodeFromOffset(it).num }
     }
 
     override fun computeSolution2(data: Data): Solution2 {
         return 0
+    }
+
+    fun printNodeList(node: Node) {
+        var r = node
+        do {
+            print("${r.prevNode.num}<-(${r.num})->${r.nextNode.num}, ")
+            r = r.nextNode
+        } while (r != node)
+        println()
     }
 }
 
