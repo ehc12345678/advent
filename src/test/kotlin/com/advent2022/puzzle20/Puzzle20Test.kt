@@ -46,7 +46,7 @@ class Puzzle20Test {
 
     @Test
     fun testAddNode() {
-        puz.moveNodeByNumSpaces(one, 1)
+        puz.moveNodeByNumSpaces(one, 1, data.items.size)
         assertThat(one.next, equalTo(three))
         assertThat(three.prev, equalTo(one))
         assertThat(one.prev, equalTo(two))
@@ -57,7 +57,7 @@ class Puzzle20Test {
 
     @Test
     fun testAddNodeTwo() {
-        puz.moveNodeByNumSpaces(two, 2)
+        puz.moveNodeByNumSpaces(two, 2, data.items.size)
         assertThat(one.next, equalTo(three))
         assertThat(two.next, equalTo(four))
         assertThat(two.prev, equalTo(seven))
@@ -67,7 +67,7 @@ class Puzzle20Test {
 
     @Test
     fun testAddNodeSeven() {
-        puz.moveNodeByNumSpaces(two, 2)
+        puz.moveNodeByNumSpaces(two, 2, data.items.size)
         // 1,2,3,7,4 -> 1,3,7,2,4
         assertThat(one.next, equalTo(three))
         assertThat(two.next, equalTo(one))
@@ -78,7 +78,7 @@ class Puzzle20Test {
 
     @Test
     fun testAddNodeThree() {
-        puz.moveNodeByNumSpaces(three, 3)
+        puz.moveNodeByNumSpaces(three, 3, data.items.size)
         // 1,2,3,7,4 -> 3,1,2,7,4
         assertThat(three.nextNode.num, equalTo(two.num))
         assertThat(three.prevNode.num, equalTo(one.num))

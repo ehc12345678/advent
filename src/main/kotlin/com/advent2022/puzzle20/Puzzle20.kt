@@ -2,7 +2,7 @@ package com.advent2022.puzzle20
 
 import com.advent2021.base.Base
 
-class Node(val num: Int, var next: Node? = null, var prev: Node? = null) {
+class Node(var num: Long, var next: Node? = null, var prev: Node? = null) {
     val nextNode: Node
         get() = next ?: throw IllegalArgumentException("Something went wrong")
 
@@ -31,19 +31,20 @@ class Node(val num: Int, var next: Node? = null, var prev: Node? = null) {
         }
     }
 
-    fun nodeFromOffset(offset: Int): Node {
+    fun nodeFromOffset(offset: Long, modulus: Int): Node {
+        val mod = if (offset > 0) (offset % modulus).toInt() else (-offset % modulus).toInt()
         return when {
-            offset == 0 -> this
+            mod == 0 -> this
             offset > 0 -> {
                 var ret = this
-                repeat (offset) {
+                repeat (mod) {
                     ret = ret.nextNode
                 }
                 ret
             }
             else -> {
                 var ret = this
-                repeat (-offset) {
+                repeat (mod) {
                     ret = ret.prevNode
                 }
                 ret.prevNode
@@ -53,7 +54,7 @@ class Node(val num: Int, var next: Node? = null, var prev: Node? = null) {
 }
 
 class Data {
-    fun find(num: Int): Node {
+    fun find(num: Long): Node {
         // start from first and try to find num
         var go = first!!
         while (go.num != num && go.next != first) {
@@ -66,7 +67,7 @@ class Data {
     var first: Node? = null
     var prev: Node? = null
 }
-typealias Solution = Int
+typealias Solution = Long
 typealias Solution2 = Solution
 
 fun main() {
@@ -84,7 +85,7 @@ fun main() {
 
 class Puzzle20 : Base<Data, Solution?, Solution2?>() {
     override fun parseLine(line: String, data: Data) {
-        val node = Node(line.toInt())
+        val node = Node(line.toLong())
         data.items.add(node)
 
         data.first = data.first ?: node // assign first if we have not seen it
@@ -102,43 +103,59 @@ class Puzzle20 : Base<Data, Solution?, Solution2?>() {
     override fun computeSolution(data: Data): Solution {
         data.items.forEach { node ->
             val num = node.num
-            if (num != 0) {
-                moveNodeByNumSpaces(node, num)
-                sanityCheckNode(node, data)
+            if (num != 0L) {
+                moveNodeByNumSpaces(node, num, data.items.size)
             }
         }
 
         val zeroeth = data.find(0)
-        return listOf(1000, 2000, 3000).sumOf {
-            val num = zeroeth.nodeFromOffset(it).num
+        return listOf(1000L, 2000L, 3000L).sumOf {
+            val num = zeroeth.nodeFromOffset(it, data.items.size).num
             println(num)
             num
         }
     }
 
-    fun moveNodeByNumSpaces(node: Node, num: Int) {
-        node.removeThisNode()
+    override fun computeSolution2(data: Data): Solution2 {
+        data.items.forEach { node -> node.num *= 811589153 }
 
-        val insertAfter = node.nodeFromOffset(num)
-        insertAfter.addNodeAfter(node)
-        // printNodeList(node.prevNode)
+        repeat(10) {
+            data.items.forEach { node ->
+                node.num = node.num
+                if (node.num != 0L) {
+                    moveNodeByNumSpaces(node, node.num, data.items.size)
+                }
+            }
+        }
+
+        val zeroeth = data.find(0)
+        return listOf(1000L, 2000L, 3000L).sumOf {
+            val num = zeroeth.nodeFromOffset(it, data.items.size).num
+            println(num)
+            num
+        }
     }
 
-    override fun computeSolution2(data: Data): Solution2 {
-        return 0
+    fun moveNodeByNumSpaces(node: Node, num: Long, size: Int) {
+        node.removeThisNode()
+
+        val insertAfter = node.nodeFromOffset(num, size - 1)
+        insertAfter.addNodeAfter(node)
+        // printNodeList(node.prevNode)
     }
 
     fun printNodeList(node: Node) {
         var r = node
         do {
-            print("${r.prevNode.num}<-(${r.num})->${r.nextNode.num}, ")
+//            print("${r.prevNode.num}<-(${r.num})->${r.nextNode.num}, ")
+            print("${r.num}, ")
             r = r.nextNode
         } while (r != node)
         println()
     }
 
     fun sanityCheckNode(node: Node, data: Data) {
-        val allNums = ArrayList<Int>()
+        val allNums = ArrayList<Long>()
         var go = node
         do {
             allNums.add(go.num)
