@@ -2,11 +2,51 @@ package com.advent2022.puzzle23
 
 import com.advent2021.base.Base
 
-data class Line(val str: String, val charsIn: IntRange) {
+data class Line(val str: String, val colsRange: IntRange) {
     fun getCh(col: Int) = if (col <= str.length && col > 0) str[col - 1] else ' '
 }
 data class Pos(val row: Int, val col: Int) {
     operator fun plus(pos: Pos) = Pos(row + pos.row, col + pos.col)
+}
+enum class FaceSide { TOP, BOTTOM, LEFT, RIGHT, BACK, FRONT }
+typealias PosTransform = (pos: Pos, destFace: Face) -> Pos
+data class FaceConnection(val face: Face, val posTransform: PosTransform)
+class Face(val side: FaceSide, var lines: ArrayList<Line> = ArrayList()) {
+    var connections = HashMap<Dir, FaceConnection>()
+    val rowRange: IntRange
+        get() = 1 .. lines.size
+    val colRange: IntRange
+        get() = getLine(1).colsRange
+
+    fun getLine(row: Int) = lines[row - 1]
+    fun getCh(pos: Pos): Char {
+        if (pos.row !in rowRange || pos.col !in colRange) {
+            return ' '
+        }
+        return getLine(pos.row).getCh(pos.col)
+    }
+
+    fun addLine(str: String) {
+        var trimmed = str.trim()
+        lines.add(Line(trimmed, 1 .. trimmed.length))
+    }
+
+    // returns the direction the position is out of bounds, null if it is in bounds
+    fun outOfBounds(pos: Pos): Dir? {
+        return when {
+            pos.col < colRange.first -> Dir.LEFT
+            pos.col > colRange.last -> Dir.RIGHT
+            pos.row < colRange.first -> Dir.UP
+            pos.row > colRange.last -> Dir.DOWN
+            else -> null
+        }
+    }
+
+    val height: Int
+        get() = rowRange.last - rowRange.first + 1
+    val width: Int
+        get() = colRange.last - colRange.first + 1
+
 }
 data class Instruction(val move: Int?, val rotate: Rotate?)
 enum class Rotate { L, R }
@@ -42,7 +82,8 @@ class Data {
         repeat(steps) {
             val newPos = getPos(robot.pos, robot.direction)
             if (canStep(newPos)) {
-                robot.pos = newPos
+                robot.pos = newPos.first
+                robot.face = newPos.second
             } else {
                 // once we cannot move, we are done
                 return
@@ -52,14 +93,16 @@ class Data {
 
     fun getLine(row: Int) = lines[row - 1]
 
-    fun getPos(pos: Pos, direction: Dir): Pos {
+    fun getPos(pos: Pos, direction: Dir): Pair<Pos, Face> {
         var newPos = getPosUnwrapped(pos, direction)
-
-        if (!inBounds(newPos)) {
-            newPos = findWrappedPos(newPos, direction)
+        var face = robot.face!!
+        val outBoundsDir = face.outOfBounds(newPos)
+        if (outBoundsDir != null) {
+            val connection = robot.face!!.connections[outBoundsDir]!!
+            face = connection.face
+            newPos = connection.posTransform(pos, connection.face)
         }
-
-        return newPos
+        return Pair(newPos, face)
     }
 
     private fun getPosUnwrapped(pos: Pos, direction: Dir): Pos {
@@ -71,40 +114,8 @@ class Data {
         }
     }
 
-    fun inBounds(newPos: Pos): Boolean {
-        // not in the bounds of the entire board
-        if (newPos.row !in rowRange) {
-            return false
-        }
-
-        // in bounds if the position is a non space character
-        val line = getLine(newPos.row)
-        if (newPos.col in line.charsIn) {
-            return true
-        }
-        return line.getCh(newPos.col) != ' '
-    }
-
-    fun findWrappedPos(pos: Pos, direction: Dir): Pos {
-        val oppositeDir = when (direction) {
-            Dir.UP -> Dir.DOWN
-            Dir.DOWN -> Dir.UP
-            Dir.LEFT -> Dir.RIGHT
-            Dir.RIGHT -> Dir.LEFT
-        }
-        var trailingPos: Pos = pos
-        var nextPos: Pos = getPosUnwrapped(trailingPos, oppositeDir)
-        while (inBounds(nextPos)) {
-            trailingPos = nextPos
-            nextPos = getPosUnwrapped(trailingPos, oppositeDir)
-        }
-
-        return trailingPos
-    }
-
-    fun canStep(newPos: Pos): Boolean {
-        val line = getLine(newPos.row)
-        return when (line.getCh(newPos.col)) {
+    fun canStep(newPos: Pair<Pos, Face>): Boolean {
+        return when (newPos.second.getCh(newPos.first)) {
             '#' -> false
             '.' -> true
             else -> throw IllegalArgumentException("Something went wrong $newPos")
@@ -137,18 +148,21 @@ class Data {
     }
 }
 enum class Dir { UP, DOWN, LEFT, RIGHT }
-data class Robot(var pos: Pos = Pos(1, 1), var direction: Dir = Dir.RIGHT)
+data class Robot(var pos: Pos = Pos(1, 1), var direction: Dir = Dir.RIGHT, var face: Face? = null)
 
 typealias Solution = Int
 typealias Solution2 = Solution
 
+val isTest = false
+
 fun main() {
     try {
         val puz = Puzzle23()
-        val solution1 = puz.solvePuzzle("inputs.txt", Data())
+        val file = if (isTest) "inputsTest.txt" else "inputs.txt"
+        val solution1 = puz.solvePuzzle(file, Data())
         println("Solution1: $solution1")
 
-        val solution2 = puz.solvePuzzle2("inputs.txt", Data())
+        val solution2 = puz.solvePuzzle2(file, Data())
         println("Solution2: $solution2")
     } catch (t: Throwable) {
         t.printStackTrace()
@@ -180,19 +194,24 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
 
     override fun computeSolution(data: Data): Solution {
         // start the robot in the upper left
-        data.robot.pos = Pos(1, data.getLine(1).charsIn.first)
+
+        val setup: FileSetup = if (isTest) { TestFileSetup() } else { RealFileSetup() }
+        setup.setup(data)
+
         data.instructions.forEach {
             data.doInstruction(it)
         }
-        return password(data.robot)
+        return password(data.robot, setup)
     }
 
     override fun computeSolution2(data: Data): Solution2 {
         return 0
     }
 
-    fun password(robot: Robot): Solution {
-        return robot.pos.row * 1000 + robot.pos.col * 4 + when (robot.direction) {
+    fun password(robot: Robot, setup: FileSetup): Solution {
+        val face = robot.face!!
+        val pos = setup.adjustPos(robot.pos, face)
+        return pos.row * 1000 + pos.col * 4 + when (robot.direction) {
             Dir.UP -> 3
             Dir.DOWN -> 1
             Dir.LEFT -> 2
