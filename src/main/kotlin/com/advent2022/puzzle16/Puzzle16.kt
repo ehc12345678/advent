@@ -59,6 +59,7 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution2(data: Data): Solution2 {
+        println("Doing it myself: ${solve(data, 26, false)}")
         return solve(data, 26, true)
     }
 
@@ -97,13 +98,14 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
                     val elephantValve = data[current.elephantValve]!!
                     if (current.canOpen(elephantValve)) {
                         val newOpened = current.opened + elephantValve.name
-                        val newScore = current.score + newOpened.totalFlow(data)
-                        val state = State(CacheKey(current.time + 1, current.valveName, elephantValve.name), newScore, newOpened)
+                        val newElephantScore = current.score + newOpened.totalFlow(data)
+                        val state = State(CacheKey(current.time + 1, current.valveName, elephantValve.name), newElephantScore, newOpened)
                         stack.add(state)
                     }
 
+                    val newElephantScore = current.score + current.totalFlow(data)
                     valve.children.forEach { child ->
-                        stack.add(State(CacheKey(current.time + 1, current.valveName, child), newScore, current.opened))
+                        stack.add(State(CacheKey(current.time + 1, current.valveName, child), newElephantScore, current.opened))
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package com.advent2022.puzzle19
 
 import com.advent2021.base.Base
+import kotlin.math.ceil
 
 typealias Solution = Int
 typealias Solution2 = Solution
@@ -120,6 +121,16 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
 
     private fun shouldBuild(recipe: Recipe, ingrediant: Ingrediant, currentMaterials: HashMap<Ingrediant, Int>,
                             currentRobots: HashMap<Ingrediant, Int>, turnsLeft: Int): Boolean {
+        // always build the first of its kind
+        if (!currentRobots.containsKey(ingrediant)) {
+            return true
+        }
+
+        val geode = recipe[Ingrediant.geode]!!
+        val turnsForGeodeNoBuild = geode.costs.entries.minOf { (key, value) ->
+            ceil((value - currentMaterials.getOrDefault(key, 0)) / currentRobots.getOrDefault(key, 0).toDouble()).toInt()
+        }
+
         val nextLevel = when (ingrediant) {
             Ingrediant.obsidian -> Ingrediant.geode
             Ingrediant.clay -> Ingrediant.obsidian

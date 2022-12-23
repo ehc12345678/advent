@@ -1,0 +1,203 @@
+package com.advent2022.puzzle23
+
+import com.advent2021.base.Base
+
+data class Line(val str: String, val charsIn: IntRange) {
+    fun getCh(col: Int) = if (col <= str.length && col > 0) str[col - 1] else ' '
+}
+data class Pos(val row: Int, val col: Int) {
+    operator fun plus(pos: Pos) = Pos(row + pos.row, col + pos.col)
+}
+data class Instruction(val move: Int?, val rotate: Rotate?)
+enum class Rotate { L, R }
+class Data {
+    val lines = ArrayList<Line>()
+    val robot = Robot()
+    val instructions = ArrayList<Instruction>()
+
+    val rowRange: IntRange
+        get() = 1 .. lines.size
+
+    fun addLine(str: String) {
+        var begin = 0
+        while (str[begin] == ' ') {
+            ++begin
+        }
+        var end = str.indexOf(' ', begin)
+        if (end < 0) {
+            end = str.length
+        }
+        lines.add(Line(str, begin + 1 .. end))
+    }
+
+    fun doInstruction(instruction: Instruction) {
+        if (instruction.move != null) {
+            moveRobot(instruction.move)
+        } else if (instruction.rotate != null) {
+            rotateRobot(instruction.rotate)
+        }
+    }
+
+    fun moveRobot(steps: Int) {
+        repeat(steps) {
+            val newPos = getPos(robot.pos, robot.direction)
+            if (canStep(newPos)) {
+                robot.pos = newPos
+            } else {
+                // once we cannot move, we are done
+                return
+            }
+        }
+    }
+
+    fun getLine(row: Int) = lines[row - 1]
+
+    fun getPos(pos: Pos, direction: Dir): Pos {
+        var newPos = getPosUnwrapped(pos, direction)
+
+        if (!inBounds(newPos)) {
+            newPos = findWrappedPos(newPos, direction)
+        }
+
+        return newPos
+    }
+
+    private fun getPosUnwrapped(pos: Pos, direction: Dir): Pos {
+        return when (direction) {
+            Dir.UP -> pos + Pos(-1, 0)
+            Dir.DOWN -> pos + Pos(1, 0)
+            Dir.LEFT -> pos + Pos(0, -1)
+            Dir.RIGHT -> pos + Pos(0, 1)
+        }
+    }
+
+    fun inBounds(newPos: Pos): Boolean {
+        // not in the bounds of the entire board
+        if (newPos.row !in rowRange) {
+            return false
+        }
+
+        // in bounds if the position is a non space character
+        val line = getLine(newPos.row)
+        if (newPos.col in line.charsIn) {
+            return true
+        }
+        return line.getCh(newPos.col) != ' '
+    }
+
+    fun findWrappedPos(pos: Pos, direction: Dir): Pos {
+        val oppositeDir = when (direction) {
+            Dir.UP -> Dir.DOWN
+            Dir.DOWN -> Dir.UP
+            Dir.LEFT -> Dir.RIGHT
+            Dir.RIGHT -> Dir.LEFT
+        }
+        var trailingPos: Pos = pos
+        var nextPos: Pos = getPosUnwrapped(trailingPos, oppositeDir)
+        while (inBounds(nextPos)) {
+            trailingPos = nextPos
+            nextPos = getPosUnwrapped(trailingPos, oppositeDir)
+        }
+
+        return trailingPos
+    }
+
+    fun canStep(newPos: Pos): Boolean {
+        val line = getLine(newPos.row)
+        return when (line.getCh(newPos.col)) {
+            '#' -> false
+            '.' -> true
+            else -> throw IllegalArgumentException("Something went wrong $newPos")
+        }
+    }
+
+    fun rotateRobot(rotate: Rotate) {
+        robot.direction = if (rotate == Rotate.L)
+            rotateClockwise(robot.direction)
+        else
+            rotateCounterClockwise(robot.direction)
+    }
+
+    fun rotateClockwise(direction: Dir): Dir {
+        return when (direction) {
+            Dir.UP -> Dir.LEFT
+            Dir.DOWN -> Dir.RIGHT
+            Dir.LEFT -> Dir.DOWN
+            Dir.RIGHT -> Dir.UP
+        }
+    }
+
+    fun rotateCounterClockwise(direction: Dir): Dir {
+        return when (direction) {
+            Dir.UP -> Dir.RIGHT
+            Dir.DOWN -> Dir.LEFT
+            Dir.LEFT -> Dir.UP
+            Dir.RIGHT -> Dir.DOWN
+        }
+    }
+}
+enum class Dir { UP, DOWN, LEFT, RIGHT }
+data class Robot(var pos: Pos = Pos(1, 1), var direction: Dir = Dir.RIGHT)
+
+typealias Solution = Int
+typealias Solution2 = Solution
+
+fun main() {
+    try {
+        val puz = Puzzle23()
+        val solution1 = puz.solvePuzzle("inputs.txt", Data())
+        println("Solution1: $solution1")
+
+        val solution2 = puz.solvePuzzle2("inputs.txt", Data())
+        println("Solution2: $solution2")
+    } catch (t: Throwable) {
+        t.printStackTrace()
+    }
+}
+
+class Puzzle23 : Base<Data, Solution?, Solution2?>() {
+    override fun parseLine(line: String, data: Data) {
+        if (line.contains(".") || line.contains("#")) {
+            data.addLine(line)
+        } else if (line.isNotEmpty()) {
+            var startNumber = 0
+            while (startNumber < line.length) {
+                var endNumber = startNumber
+                while (endNumber < line.length && line[endNumber].isDigit()) {
+                    ++endNumber
+                }
+                val moves = line.substring(startNumber, endNumber).toInt()
+                data.instructions.add(Instruction(moves, null))
+
+                startNumber = endNumber
+                if (startNumber < line.length) {
+                    val dir = if (line[startNumber++] == 'L') Rotate.L else Rotate.R
+                    data.instructions.add(Instruction(null, dir))
+                }
+            }
+        }
+    }
+
+    override fun computeSolution(data: Data): Solution {
+        // start the robot in the upper left
+        data.robot.pos = Pos(1, data.getLine(1).charsIn.first)
+        data.instructions.forEach {
+            data.doInstruction(it)
+        }
+        return password(data.robot)
+    }
+
+    override fun computeSolution2(data: Data): Solution2 {
+        return 0
+    }
+
+    fun password(robot: Robot): Solution {
+        return robot.pos.row * 1000 + robot.pos.col * 4 + when (robot.direction) {
+            Dir.UP -> 3
+            Dir.DOWN -> 1
+            Dir.LEFT -> 2
+            Dir.RIGHT -> 0
+        }
+    }
+}
+
