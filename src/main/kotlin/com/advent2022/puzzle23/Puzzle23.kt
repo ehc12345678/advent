@@ -132,7 +132,17 @@ class Puzzle23 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution2(data: Data): Solution2 {
-        return 0
+        // start and end position
+        val dirs = mutableListOf(Compass.N, Compass.S, Compass.W, Compass.E)
+        var round = 0
+        while (doOneRound(data, dirs)) {
+            // do a round... go nuts
+            // printState(data)
+            round++
+        }
+
+        // empty spots are the total area minus the elves
+        return round + 1
     }
 
     fun printState(data: Data) {
