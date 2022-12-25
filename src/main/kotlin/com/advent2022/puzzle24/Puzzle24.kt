@@ -58,6 +58,7 @@ class Data {
     var exitPos: Pos? = null
     var xRange: IntRange = IntRange.EMPTY
     var yRange: IntRange = IntRange.EMPTY
+    var destPos: Pos = entrance
 
     var exit: Pos
         get() = exitPos!!
@@ -71,19 +72,9 @@ class Data {
         blizzards.add(Blizzard(Pos(x, y), compass))
     }
 
-//    fun wrap(pos: Pos): Pos {
-//        return when {
-//            pos.x < xRange.first -> Pos(xRange.last, pos.y)
-//            pos.x > xRange.last -> Pos(xRange.first, pos.y)
-//            pos.y < yRange.first -> Pos(pos.x, yRange.last)
-//            pos.y > yRange.last -> Pos(pos.x, yRange.first)
-//            else -> pos
-//        }
-//    }
-
     fun neighbors(pos: Pos): List<Pos> {
         return Compass.values().map { pos.inDirection(it) }.filter {
-            it == exit || (it.x in xRange && it.y in yRange)
+            it == exit || it == entrance || (it.x in xRange && it.y in yRange)
         }
     }
 }
@@ -93,9 +84,10 @@ private fun manhattanDistance(pt1: Pos, pt2: Pos): Int {
     return abs(diff.x) + abs(diff.y)
 }
 
-data class State(val pos: Pos, val endPos: Pos, val minute: Int = 0,
-                 val distance: Int = manhattanDistance(pos, endPos),
-                 val score: Int = minute + distance) {
+data class State(val pos: Pos, val endPos: Pos, val minute: Int = 0) {
+    val distance: Int = manhattanDistance(pos, endPos)
+    val score: Int = minute + distance
+
     fun compare(other: State): Int {
         var cmp = -score.compareTo(other.score)
         if (cmp == 0) {
@@ -137,15 +129,23 @@ class Puzzle24 : Base<Data, Solution?, Solution2?>() {
     override fun computeSolution(data: Data): Solution {
         val exit = Pos(data.blizzards.maxOf { it.pos.x }, data.blizzards.maxOf { it.pos.y + 1 })
         data.exit = exit
+        return goToPos(State(data.entrance, exit, 0), data, exit).minute
+    }
 
-        val initial = State(data.entrance, exit, 0)
-        val queue = PriorityQueue<State>(1000) { score1, score2 -> -score1.compare(score2) }
-        queue.add(initial)
+    private fun goToPos(
+        initial: State,
+        data: Data,
+        destPos: Pos
+    ): State {
+        var iteration = 0
+        data.destPos = destPos
 
         val seen = HashSet<State>()
 
-        var iteration = 0
-        while (queue.isNotEmpty() && queue.peek().pos != exit) {
+        val queue = PriorityQueue<State>(1000) { score1, score2 -> -score1.compare(score2) }
+        queue.add(initial)
+
+        while (queue.isNotEmpty() && queue.peek().pos != destPos) {
             val top = queue.remove()
 
             val next = nextStates(top, data)
@@ -173,10 +173,18 @@ class Puzzle24 : Base<Data, Solution?, Solution2?>() {
                 println("Iteration $iteration top=${top} queue=${queue.size}")
             }
         }
-        return queue.peek().minute
+        return queue.peek()
     }
+
     override fun computeSolution2(data: Data): Solution2 {
-        return 0
+        val exit = Pos(data.blizzards.maxOf { it.pos.x }, data.blizzards.maxOf { it.pos.y + 1 })
+        data.exit = exit
+
+        val initial = State(data.entrance, exit, 0)
+        val stateToExit = goToPos(initial, data, exit)
+        val stateToStart = goToPos(State(stateToExit.pos, data.entrance, stateToExit.minute), data, data.entrance)
+        val stateToExitAgain = goToPos(State(stateToStart.pos, exit, stateToStart.minute), data, exit)
+        return stateToExitAgain.minute
     }
 
     fun nextStates(state: State, data: Data): List<State> {
