@@ -1,45 +1,85 @@
 package com.advent2022.puzzle24
 
 import com.advent2021.base.Base
-import com.advent2022.puzzle23.Compass
-import com.advent2022.puzzle23.Pos
 import java.util.*
 import kotlin.math.abs
-import kotlin.math.min
 
 typealias Solution = Int
 typealias Solution2 = Solution
 
-data class Blizzard(var pos: Pos, val compass: Compass) {
-    fun move(data: Data): Blizzard {
-        val newPos = data.wrap(pos.inDirection(compass))
-        return Blizzard(newPos, compass)
+data class Pos(var x: Int, var y: Int) {
+    operator fun plus(p: Pos) = Pos(x + p.x, y + p.y)
+    operator fun minus(p: Pos) = Pos(x - p.x, y - p.y)
+    fun N() = this + Pos(0, -1)
+    fun S() = this + Pos(0, 1)
+    fun E() = this + Pos(1, 0)
+    fun W() = this + Pos(-1, 0)
+
+    fun inDirection(compass: Compass) = when (compass) {
+        Compass.N -> N()
+        Compass.S -> S()
+        Compass.W -> W()
+        Compass.E -> E()
+    }
+}
+enum class Compass { N, S, W, E }
+data class Blizzard(val pos: Pos, val compass: Compass) {
+    fun posAtTurn(turn: Int, data: Data): Pos {
+        val xMod = data.xRange.last
+        val yMod = data.yRange.last
+
+        var x = pos.x
+        var y = pos.y
+        when (compass) {
+            Compass.N -> y -= (turn % yMod)
+            Compass.S -> y += (turn % yMod)
+            Compass.W -> x -= (turn % xMod)
+            Compass.E -> x += (turn % xMod)
+        }
+        if (x < 1) {
+            x += xMod
+        }
+        if (x > xMod) {
+            x -= xMod
+        }
+        if (y < 1) {
+            y += yMod
+        }
+        if (y > yMod) {
+            y -= yMod
+        }
+        return Pos(x, y)
     }
 }
 class Data {
     var yPos = 0
     val blizzards = ArrayList<Blizzard>()
     val entrance = Pos(1,0)
-    var exit: Pos? = null
+    var exitPos: Pos? = null
+    var xRange: IntRange = IntRange.EMPTY
+    var yRange: IntRange = IntRange.EMPTY
 
-    val xRange: IntRange
-        get() = 1..exit!!.x
-    val yRange: IntRange
-        get() = 1..(exit!!.y - 1)
+    var exit: Pos
+        get() = exitPos!!
+        set(pos) {
+            exitPos = pos
+            xRange = 1..pos.x
+            yRange = 1..pos.y - 1
+        }
 
     fun addBlizzard(x: Int, y: Int, compass: Compass) {
         blizzards.add(Blizzard(Pos(x, y), compass))
     }
 
-    fun wrap(pos: Pos): Pos {
-        return when {
-            pos.x < xRange.first -> Pos(xRange.last, pos.y)
-            pos.x > xRange.last -> Pos(xRange.first, pos.y)
-            pos.y < yRange.first -> Pos(pos.x, yRange.last)
-            pos.y > yRange.last -> Pos(pos.x, yRange.first)
-            else -> pos
-        }
-    }
+//    fun wrap(pos: Pos): Pos {
+//        return when {
+//            pos.x < xRange.first -> Pos(xRange.last, pos.y)
+//            pos.x > xRange.last -> Pos(xRange.first, pos.y)
+//            pos.y < yRange.first -> Pos(pos.x, yRange.last)
+//            pos.y > yRange.last -> Pos(pos.x, yRange.first)
+//            else -> pos
+//        }
+//    }
 
     fun neighbors(pos: Pos): List<Pos> {
         return Compass.values().map { pos.inDirection(it) }.filter {
@@ -53,23 +93,19 @@ private fun manhattanDistance(pt1: Pos, pt2: Pos): Int {
     return abs(diff.x) + abs(diff.y)
 }
 
-data class State(val pos: Pos, val endPos: Pos, val blizzards: List<Blizzard> = ArrayList(), val minute: Int = 0) {
-    fun blizzardsMove(blizzards: List<Blizzard>, data: Data): List<Blizzard> {
-        return blizzards.map { blizzard -> blizzard.move(data) }
-    }
+data class State(val pos: Pos, val endPos: Pos, val minute: Int = 0,
+                 val distance: Int = manhattanDistance(pos, endPos),
+                 val score: Int = minute + distance) {
     fun compare(other: State): Int {
         var cmp = -score.compareTo(other.score)
         if (cmp == 0) {
             // favor the one that is further along
-            cmp = minute.compareTo(other.minute)
+            cmp = -distance.compareTo(other.distance)
         }
         return cmp
     }
-    fun wait(newBlizzards: List<Blizzard>) = State(pos, endPos, newBlizzards, minute + 1)
-    fun moveTo(neighbor: Pos, newBlizzards: List<Blizzard>) = State(neighbor, endPos, newBlizzards, minute + 1)
-
-    val score: Int
-        get() = minute + manhattanDistance(pos, endPos)
+    fun wait() = State(pos, endPos, minute + 1)
+    fun moveTo(neighbor: Pos) = State(neighbor, endPos, minute + 1)
 }
 
 fun main() {
@@ -102,38 +138,56 @@ class Puzzle24 : Base<Data, Solution?, Solution2?>() {
         val exit = Pos(data.blizzards.maxOf { it.pos.x }, data.blizzards.maxOf { it.pos.y + 1 })
         data.exit = exit
 
-        val initial = State(data.entrance, exit, data.blizzards, 0)
+        val initial = State(data.entrance, exit, 0)
         val queue = PriorityQueue<State>(1000) { score1, score2 -> -score1.compare(score2) }
         queue.add(initial)
 
+        val seen = HashSet<State>()
+
         var iteration = 0
-        while (queue.peek().pos != exit) {
+        while (queue.isNotEmpty() && queue.peek().pos != exit) {
             val top = queue.remove()
-            val topPos = top.pos
 
-            val blizzards =  top.blizzardsMove(ArrayList(top.blizzards), data)
-            val points = blizzards.map { it.pos }.toSet()
+            val next = nextStates(top, data)
+            next.forEach { nextState ->
+                // look one ahead.. if there are no states for that one, don't add it
+                // and add the best looking ones
+                if (!seen.contains(nextState)) {
+                    seen.add(nextState)
 
-            // cannot step into a blizzard
-            val neighbors = data.neighbors(topPos).filter { !points.contains(it) }
-            neighbors.forEach { neighbor ->
-                queue.add(top.moveTo(neighbor, blizzards))
-            }
-
-            // cannot wait if the blizzard is going to kill us
-            if (!points.contains(topPos)) {
-                queue.add(top.wait(blizzards))
+                    val afterNext = nextStates(nextState, data)
+                    if (afterNext.isNotEmpty()) {
+                        queue.add(nextState)
+                        val decentNeightbors = afterNext.filter { it.distance < top.distance }
+                        decentNeightbors.forEach { nextNextState ->
+                            if (!seen.contains(nextNextState)) {
+                                queue.add(nextNextState)
+                            }
+                        }
+                    }
+                }
             }
 
             ++iteration
             if ((iteration % 1000) == 0) {
-                println("Iteration $iteration top=$topPos score=${top.score} queue=${queue.size}")
+                println("Iteration $iteration top=${top} queue=${queue.size}")
             }
         }
         return queue.peek().minute
     }
     override fun computeSolution2(data: Data): Solution2 {
         return 0
+    }
+
+    fun nextStates(state: State, data: Data): List<State> {
+        val points = data.blizzards.map { it.posAtTurn(state.minute + 1, data) }.toSet()
+        val neighbors = data.neighbors(state.pos).filter { !points.contains(it) }
+
+        val ret = neighbors.map { neighbor -> state.moveTo(neighbor) }
+        if (!points.contains(state.pos)) {
+            return ret + state.wait()
+        }
+        return ret
     }
 }
 
