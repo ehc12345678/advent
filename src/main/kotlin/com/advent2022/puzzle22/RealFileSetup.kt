@@ -42,103 +42,58 @@ class RealFileSetup: FileSetup() {
     }
 
     override fun connectFacesPart1(faces: Map<FaceSide, Face>) {
-        val top = faces[FaceSide.TOP]!!
-        val bottom = faces[FaceSide.BOTTOM]!!
-        val left = faces[FaceSide.LEFT]!!
-        val right = faces[FaceSide.RIGHT]!!
-        val front = faces[FaceSide.FRONT]!!
-        val back = faces[FaceSide.BACK]!!
+        connect("Tl->Rr", faces)
+        connect("Tr->Rl", faces)
+        connect("Tu->Bd", faces)
+        connect("Td->Fu", faces)
 
-        top.run {
-            connections[Dir.LEFT] = FaceConnection(right, wrapToEndLine)
-            connections[Dir.RIGHT] = FaceConnection(right, wrapToBeginLine)
-            connections[Dir.UP] = FaceConnection(bottom, wrapToBottomLine)
-            connections[Dir.DOWN] = FaceConnection(front, wrapToTopLine)
-        }
-        right.run {
-            connections[Dir.LEFT] = FaceConnection(top, wrapToEndLine)
-            connections[Dir.RIGHT] = FaceConnection(top, wrapToBeginLine)
-            connections[Dir.UP] = FaceConnection(this, wrapToBottomLine)
-            connections[Dir.DOWN] = FaceConnection(this, wrapToTopLine)
-        }
-        front.run {
-            connections[Dir.LEFT] = FaceConnection(this, wrapToEndLine)
-            connections[Dir.RIGHT] = FaceConnection(this, wrapToBeginLine)
-            connections[Dir.UP] = FaceConnection(top, wrapToBottomLine)
-            connections[Dir.DOWN] = FaceConnection(bottom, wrapToTopLine)
-        }
-        bottom.run {
-            connections[Dir.LEFT] = FaceConnection(left, wrapToEndLine)
-            connections[Dir.RIGHT] = FaceConnection(left, wrapToBeginLine)
-            connections[Dir.UP] = FaceConnection(front, wrapToBottomLine)
-            connections[Dir.DOWN] = FaceConnection(top, wrapToTopLine)
-        }
-        left.run {
-            connections[Dir.LEFT] = FaceConnection(bottom, wrapToEndLine)
-            connections[Dir.RIGHT] = FaceConnection(bottom, wrapToBeginLine)
-            connections[Dir.UP] = FaceConnection(back, wrapToBottomLine)
-            connections[Dir.DOWN] = FaceConnection(back, wrapToTopLine)
-        }
-        back.run {
-            connections[Dir.LEFT] = FaceConnection(this, wrapToEndLine)
-            connections[Dir.RIGHT] = FaceConnection(this, wrapToBeginLine)
-            connections[Dir.UP] = FaceConnection(left, wrapToBottomLine)
-            connections[Dir.DOWN] = FaceConnection(left, wrapToTopLine)
-        }
+        connect("Ru->Rd", faces)
+
+        connect("Fl->Fr", faces)
+        connect("Fd->Bu", faces)
+
+        connect("Bl->Lr", faces)
+        connect("Br->Ll", faces)
+
+        connect("Ll->Br", faces)
+        connect("Lr->Bl", faces)
+        connect("Lu->Kd", faces)
+        connect("Ld->Ku", faces)
+
+        connect("Kl->Kr", faces)
+        connect("Ku->Ld", faces)
+        connect("Kd->Lu", faces)
     }
 
     override fun connectFacesPart2(faces: Map<FaceSide, Face>) {
+        // connect all of the top edges (symmetric connections)
+        connect("Td->Fu", faces)
+        connect("Tu->Kl", faces)    // ?    u -> l *
+        connect("Tr->Rl", faces)
+        connect("Tl->Ll", faces)    // ?    l -> l *
 
-        // flip the row, but go to the beginning of the row
-        val flipRowWrapToBeginLine = { pos: Pos, face: Face ->
-            Pos(face.height - pos.row + 1, face.colRange.first)
-        }
-        val flipRowWrapToEndLine = { pos: Pos, face: Face ->
-            Pos(face.height - pos.row + 1, face.colRange.last)
-        }
+        // only have to connect three of front edges because top already connected
+        connect("Fd->Bu", faces)
+        connect("Fr->Rd", faces)    // ?    r -> d *
+        connect("Fl->Lu", faces)
 
-        val top = faces[FaceSide.TOP]!!
-        val bottom = faces[FaceSide.BOTTOM]!!
-        val left = faces[FaceSide.LEFT]!!
-        val right = faces[FaceSide.RIGHT]!!
-        val front = faces[FaceSide.FRONT]!!
-        val back = faces[FaceSide.BACK]!!
+        // only have to connect three back edges because top already connected
+        connect("Ku->Ld", faces)
+        connect("Kr->Bd", faces)
+        connect("Kd->Ru", faces)
 
-        top.run {
-            connections[Dir.LEFT] = FaceConnection(left, flipRowWrapToBeginLine, returnThis(Dir.RIGHT))
-            connections[Dir.RIGHT] = FaceConnection(right, wrapToBeginLine)
-            connections[Dir.UP] = FaceConnection(back, wrapFlipRowCol, returnThis(Dir.RIGHT))
-            connections[Dir.DOWN] = FaceConnection(front, wrapToTopLine)
-        }
-        right.run {
-            connections[Dir.LEFT] = FaceConnection(top, wrapToEndLine)
-            connections[Dir.RIGHT] = FaceConnection(bottom, flipRowWrapToEndLine, returnThis(Dir.LEFT))
-            connections[Dir.UP] = FaceConnection(back, wrapToBottomLine)
-            connections[Dir.DOWN] = FaceConnection(front, wrapFlipRowCol, returnThis(Dir.LEFT))
-        }
-        front.run {
-            connections[Dir.LEFT] = FaceConnection(left, wrapFlipRowCol, returnThis(Dir.DOWN))
-            connections[Dir.RIGHT] = FaceConnection(right, wrapFlipRowCol, returnThis(Dir.UP))
-            connections[Dir.UP] = FaceConnection(top, wrapToBottomLine)
-            connections[Dir.DOWN] = FaceConnection(bottom, wrapToTopLine)
-        }
-        bottom.run {
-            connections[Dir.LEFT] = FaceConnection(left, wrapToEndLine)
-            connections[Dir.RIGHT] = FaceConnection(right, flipRowWrapToEndLine, returnThis(Dir.LEFT))
-            connections[Dir.UP] = FaceConnection(front, wrapToBottomLine)
-            connections[Dir.DOWN] = FaceConnection(back, wrapFlipRowCol, returnThis(Dir.LEFT))
-        }
-        left.run {
-            connections[Dir.LEFT] = FaceConnection(top, flipRowWrapToBeginLine, returnThis(Dir.RIGHT))
-            connections[Dir.RIGHT] = FaceConnection(bottom, wrapToBeginLine)
-            connections[Dir.UP] = FaceConnection(front, wrapFlipRowCol, returnThis(Dir.RIGHT))
-            connections[Dir.DOWN] = FaceConnection(back, wrapToTopLine)
-        }
-        back.run {
-            connections[Dir.LEFT] = FaceConnection(top, wrapFlipRowCol, returnThis(Dir.DOWN))
-            connections[Dir.RIGHT] = FaceConnection(bottom, wrapFlipRowCol, returnThis(Dir.UP))
-            connections[Dir.UP] = FaceConnection(left, wrapToBottomLine)
-            connections[Dir.DOWN] = FaceConnection(right, wrapToTopLine)
+        // Only one connection now
+        connect("Rr->Br", faces)   // ?     r -> r
+
+        // Only one connection now
+        connect("Bl->Lr", faces)
+
+        faces.values.forEach { face ->
+            Dir.values().forEach { dir ->
+                if (!face.connections.containsKey(dir)) {
+                    println("Missing $dir for ${face.side}")
+                }
+            }
         }
     }
 
@@ -152,6 +107,4 @@ class RealFileSetup: FileSetup() {
             FaceSide.BACK -> Pos(face.height * 3, 0)
         }
     }
-
-
 }

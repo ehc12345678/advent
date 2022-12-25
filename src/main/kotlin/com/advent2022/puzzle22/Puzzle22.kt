@@ -167,7 +167,7 @@ data class Robot(var pos: Pos = Pos(1, 1), var direction: Dir = Dir.RIGHT, var f
 typealias Solution = Int
 typealias Solution2 = Solution
 
-val isTest = false
+val isTest = true
 
 fun main() {
     try {
@@ -223,7 +223,7 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
         data.instructions.forEach {
             data.doInstruction(it)
         }
-        return password2(data, setup)
+        return password(data.robot, setup)
     }
 
     fun password(robot: Robot, setup: FileSetup): Solution {
@@ -236,13 +236,5 @@ class Puzzle22 : Base<Data, Solution?, Solution2?>() {
             Dir.RIGHT -> 0
         }
     }
-
-    private fun password2(data: Data, setup: FileSetup): Solution2 {
-        val robot = data.robot
-        val face = robot.face!!
-        val pos = setup.adjustPos(robot.pos, face)
-        return pos.row * 1000 + pos.col * 4 + face.index
-    }
-
 }
 
