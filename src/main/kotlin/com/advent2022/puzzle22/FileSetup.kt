@@ -6,9 +6,7 @@ abstract class FileSetup() {
     val wrapToTopLine = { pos: Pos, face: Face -> Pos(face.rowRange.first, pos.col) }
     val wrapToBottomLine = { pos: Pos, face: Face -> Pos(face.rowRange.last, pos.col) }
     val flipRowCol = { pos: Pos, _: Face -> Pos(pos.col, pos.row) }
-    val wrapRowFlipRowCol = { pos: Pos, face: Face -> Pos(face.height - pos.row + 1, face.colRange.first) }
     val rowStayColWrap = { pos: Pos, face: Face -> Pos(pos.row, face.width - pos.col + 1) }
-    val rowStayColFlip = { pos: Pos, face: Face -> Pos(pos.row, face.width - pos.col + 1) }
     val colStayRowFlip = { pos: Pos, face: Face -> Pos(face.height - pos.row + 1, pos.col) }
     val colToEndWrapRow = { pos: Pos, face: Face -> Pos(face.height - pos.col + 1, face.colRange.last) }
     val colToBeginWrapRow = { pos: Pos, face: Face -> Pos(face.height - pos.col + 1, face.colRange.first) }
@@ -38,11 +36,11 @@ abstract class FileSetup() {
         when (dir1) {
             Dir.UP -> {
                 when (dir2) {
-                    Dir.UP -> {
-                        face1.addConnection(dir1, FaceConnection(face2, colStayRowFlip, returnThis(Dir.RIGHT)))
+                    Dir.UP -> {     // check
+                        face1.addConnection(dir1, FaceConnection(face2, colStayRowFlip, returnThis(Dir.DOWN)))
                         face2.addConnection(dir2, FaceConnection(face1, colStayRowFlip, returnThis(Dir.DOWN)))
                     }
-                    Dir.DOWN -> {
+                    Dir.DOWN -> {   // check
                         face1.addConnection(dir1, FaceConnection(face2, wrapToBottomLine))
                         face2.addConnection(dir2, FaceConnection(face1, wrapToTopLine))
                     }
@@ -50,7 +48,7 @@ abstract class FileSetup() {
                         face1.addConnection(dir1, FaceConnection(face2, flipRowCol, returnThis(Dir.RIGHT)))
                         face2.addConnection(dir2, FaceConnection(face1, flipRowCol, returnThis(Dir.DOWN)))
                     }
-                    Dir.RIGHT -> {  // no change to test
+                    Dir.RIGHT -> {  // check
                         face1.addConnection(dir1, FaceConnection(face2, colToEndWrapRow, returnThis(Dir.LEFT)))
                         face2.addConnection(dir2, FaceConnection(face1, rowToBeginWrapCol, returnThis(Dir.DOWN)))
                     }
@@ -59,15 +57,15 @@ abstract class FileSetup() {
             Dir.DOWN -> {
                 when (dir2) {
                     Dir.UP -> connectFaceToFace(face2, dir2, face1, dir1)
-                    Dir.DOWN -> { // no change test
+                    Dir.DOWN -> { // check
                         face1.addConnection(dir1, FaceConnection(face2, rowStayColWrap, returnThis(Dir.UP)))
                         face2.addConnection(dir2, FaceConnection(face1, rowStayColWrap, returnThis(Dir.UP)))
                     }
-                    Dir.LEFT -> { // no change test
+                    Dir.LEFT -> { // check
                         face1.addConnection(dir1, FaceConnection(face2, colToBeginWrapRow, returnThis(Dir.RIGHT)))
                         face2.addConnection(dir2, FaceConnection(face1, rowToEndWrapCol, returnThis(Dir.UP)))
                     }
-                    Dir.RIGHT -> { // no change test
+                    Dir.RIGHT -> { //
                         face1.addConnection(dir1, FaceConnection(face2, flipRowCol, returnThis(Dir.LEFT)))
                         face2.addConnection(dir2, FaceConnection(face1, flipRowCol, returnThis(Dir.UP)))
                     }
@@ -77,11 +75,11 @@ abstract class FileSetup() {
                 when (dir2) {
                     Dir.UP -> connectFaceToFace(face2, dir2, face1, dir1)
                     Dir.DOWN -> connectFaceToFace(face2, dir2, face1, dir1)
-                    Dir.LEFT -> { // no change test
-                        face1.addConnection(dir1, FaceConnection(face2, rowToBeginWrapCol, returnThis(Dir.RIGHT)))
-                        face2.addConnection(dir2, FaceConnection(face1, colToBeginWrapRow, returnThis(Dir.RIGHT)))
+                    Dir.LEFT -> { //
+                        face1.addConnection(dir1, FaceConnection(face2, colStayRowFlip, returnThis(Dir.RIGHT)))
+                        face2.addConnection(dir2, FaceConnection(face1, colStayRowFlip, returnThis(Dir.RIGHT)))
                     }
-                    Dir.RIGHT -> {
+                    Dir.RIGHT -> { // check
                         face1.addConnection(dir1, FaceConnection(face2, wrapToEndLine))
                         face2.addConnection(dir2, FaceConnection(face1, wrapToBeginLine))
                     }
@@ -92,7 +90,7 @@ abstract class FileSetup() {
                     Dir.UP -> connectFaceToFace(face2, dir2, face1, dir1)
                     Dir.DOWN -> connectFaceToFace(face2, dir2, face1, dir1)
                     Dir.LEFT -> connectFaceToFace(face2, dir2, face1, dir1)
-                    Dir.RIGHT -> {
+                    Dir.RIGHT -> { // check
                         face1.addConnection(dir1, FaceConnection(face2, colStayRowFlip, returnThis(Dir.LEFT)))
                         face2.addConnection(dir2, FaceConnection(face1, colStayRowFlip, returnThis(Dir.LEFT)))
                     }
