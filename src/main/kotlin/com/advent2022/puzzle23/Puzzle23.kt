@@ -7,6 +7,7 @@ typealias Solution2 = Solution
 
 data class Pos(var x: Int, var y: Int) {
     operator fun plus(p: Pos) = Pos(x + p.x, y + p.y)
+    operator fun minus(p: Pos) = Pos(x - p.x, y - p.y)
     fun N() = this + Pos(0, -1)
     fun S() = this + Pos(0, 1)
     fun E() = this + Pos(1, 0)
