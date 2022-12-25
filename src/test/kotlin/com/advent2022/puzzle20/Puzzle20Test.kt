@@ -21,11 +21,11 @@ class Puzzle20Test {
         puz.parseLine("3", data)
         puz.parseLine("7", data)
         puz.parseLine("4", data)
-        one = data.nodes[1]!!
-        two = data.nodes[2]!!
-        three = data.nodes[3]!!
-        seven = data.nodes[7]!!
-        four = data.nodes[4]!!
+//        one = data.nodes[1]!!
+//        two = data.nodes[2]!!
+//        three = data.nodes[3]!!
+//        seven = data.nodes[7]!!
+//        four = data.nodes[4]!!
         four.next = one
         one.prev = four
     }

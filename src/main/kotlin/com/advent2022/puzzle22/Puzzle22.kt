@@ -167,7 +167,7 @@ data class Robot(var pos: Pos = Pos(1, 1), var direction: Dir = Dir.RIGHT, var f
 typealias Solution = Int
 typealias Solution2 = Solution
 
-val isTest = true
+val isTest = false
 
 fun main() {
     try {
