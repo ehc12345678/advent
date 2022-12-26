@@ -44,6 +44,12 @@ data class State(
     fun totalFlow(data: Data) = opened.totalFlow(data)
 }
 
+data class DftState(val time: Int, val valveName: String, val helper: Boolean, val opened: Set<String> = HashSet()) {
+    fun canOpen(valve: Valve) = valve.flowRate > 0 && !opened.contains(valveName)
+    fun totalFlow(data: Data) = opened.totalFlow(data) * (time - 1)
+}
+typealias DftCache = HashMap<DftState, Int>
+
 fun Set<String>.totalFlow(data: Data) = sumOf { data[it]!!.flowRate }
 
 class Puzzle16 : Base<Data, Solution?, Solution2?>() {
@@ -55,22 +61,26 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-        return solve(data, 30, false)
+//        val rootState = State(CacheKey(1, "AA", "AA"), 0)
+//        return solve(data, rootState, 30, false).score
+        val rootState = DftState(30, "AA")
+        return dftSolve(rootState, DftCache(), data, false)
     }
 
     override fun computeSolution2(data: Data): Solution2 {
-        println("Doing it myself: ${solve(data, 26, false)}")
-        return solve(data, 26, true)
+        val rootState = State(CacheKey(1, "AA", "AA"), 0)
+        val firstState = solve(data, rootState, 30, false)
+        val secondState = solve(data, State(CacheKey(1, "AA", "AA"), firstState.score, firstState.opened), 26, false)
+        return secondState.score
     }
 
-    private fun solve(data: Data, numTurns: Int, elephantHelper: Boolean): Int {
-        val rootState = State(CacheKey(1, "AA", "AA"), 0)
+    private fun solve(data: Data, rootState: State, numTurns: Int, elephantHelper: Boolean): State {
         val cache = HashMap<CacheKey, Int>()
 
         val stack = ArrayDeque<State>()
         stack.add(rootState)
 
-        var best = 0
+        var best: State? = rootState
         while (stack.isNotEmpty()) {
             val current = stack.removeFirst()
 
@@ -80,7 +90,10 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
             }
             cache[current.key] = current.score
 
-            best = max(best, current.score)
+            if (best == null || current.score > best.score) {
+                best = current
+            }
+
             if (current.time < numTurns) {
                 val valve = data[current.valveName]!!
                 if (current.canOpen(valve)) {
@@ -110,7 +123,31 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
                 }
             }
         }
-        return best
+        return best!!
+    }
+
+    fun dftSolve(state: DftState, cache: DftCache, data: Data, elephantHelper: Boolean): Int {
+        if (state.time == 0 && elephantHelper) {
+            val beginState = DftState(26, "AA", false, state.opened)
+            return dftSolve(beginState, cache, data, false)
+        }
+        return cache.getOrPut(state) {
+            val valve = data[state.valveName]!!
+            var best = 0
+            if (state.canOpen(valve)) {
+                // open the valve
+                val openValveState = DftState(state.time - 1, valve.name, elephantHelper, state.opened + valve.name)
+                best = openValveState.totalFlow(data) + dftSolve(openValveState, cache, data, elephantHelper)
+            }
+            // don't open the valve, go to neighbors
+            val bestChild = valve.children.maxOf { child ->
+                val moveState = DftState(state.time - 1, child, elephantHelper, state.opened)
+                dftSolve(moveState, cache, data, elephantHelper)
+            }
+            best = max(best, bestChild)
+            cache[state] = best
+            return best
+        }
     }
 }
 
