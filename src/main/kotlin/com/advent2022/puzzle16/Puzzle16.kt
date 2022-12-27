@@ -20,7 +20,7 @@ fun main() {
         val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
-        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data())
+        val solution2 = puz.solvePuzzle2("inputs.txt", Data())
         println("Solution2: $solution2")
     } catch (t: Throwable) {
         t.printStackTrace()
@@ -63,15 +63,13 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
     override fun computeSolution(data: Data): Solution {
 //        val rootState = State(CacheKey(1, "AA", "AA"), 0)
 //        return solve(data, rootState, 30, false).score
-        val rootState = DftState(30, "AA")
-        return dftSolve(rootState, DftCache(), data, false)
+        val rootState = DftState(30, "AA", false)
+        return dftSolve(rootState, DftCache(), data, 0)
     }
 
     override fun computeSolution2(data: Data): Solution2 {
-        val rootState = State(CacheKey(1, "AA", "AA"), 0)
-        val firstState = solve(data, rootState, 30, false)
-        val secondState = solve(data, State(CacheKey(1, "AA", "AA"), firstState.score, firstState.opened), 26, false)
-        return secondState.score
+        val rootState = DftState(26, "AA", true)
+        return dftSolve(rootState, DftCache(), data, 0)
     }
 
     private fun solve(data: Data, rootState: State, numTurns: Int, elephantHelper: Boolean): State {
@@ -126,28 +124,35 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
         return best!!
     }
 
-    fun dftSolve(state: DftState, cache: DftCache, data: Data, elephantHelper: Boolean): Int {
-        if (state.time == 0 && elephantHelper) {
-            val beginState = DftState(26, "AA", false, state.opened)
-            return dftSolve(beginState, cache, data, false)
-        }
-        return cache.getOrPut(state) {
-            val valve = data[state.valveName]!!
-            var best = 0
-            if (state.canOpen(valve)) {
-                // open the valve
-                val openValveState = DftState(state.time - 1, valve.name, elephantHelper, state.opened + valve.name)
-                best = openValveState.totalFlow(data) + dftSolve(openValveState, cache, data, elephantHelper)
+    fun dftSolve(state: DftState, cache: DftCache, data: Data, depth: Int): Int {
+        if (state.time == 0) {
+            if (state.helper) {
+                val beginState = DftState(26, "AA", false, state.opened)
+                return dftSolve(beginState, cache, data, depth + 1)
+            } else {
+                return 0
             }
-            // don't open the valve, go to neighbors
-            val bestChild = valve.children.maxOf { child ->
-                val moveState = DftState(state.time - 1, child, elephantHelper, state.opened)
-                dftSolve(moveState, cache, data, elephantHelper)
-            }
-            best = max(best, bestChild)
-            cache[state] = best
-            return best
         }
+
+        if (cache.containsKey(state)) {
+            return cache[state]!!
+        }
+
+        val valve = data[state.valveName]!!
+        var best = 0
+        if (state.canOpen(valve)) {
+            // open the valve
+            val openValveState = DftState(state.time - 1, valve.name, state.helper, state.opened + valve.name)
+            best = (valve.flowRate * openValveState.time) + dftSolve(openValveState, cache, data, depth + 1)
+        }
+        // don't open the valve, go to neighbors
+        val bestChild = valve.children.maxOf { child ->
+            val moveState = DftState(state.time - 1, child, state.helper, state.opened)
+            dftSolve(moveState, cache, data, depth + 1)
+        }
+        best = max(best, bestChild)
+        cache[state] = best
+        return best
     }
 }
 
