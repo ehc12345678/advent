@@ -46,7 +46,6 @@ data class State(
 
 data class DftState(val time: Int, val valveName: String, val helper: Boolean, val opened: Set<String> = HashSet()) {
     fun canOpen(valve: Valve) = valve.flowRate > 0 && !opened.contains(valveName)
-    fun totalFlow(data: Data) = opened.totalFlow(data) * (time - 1)
 }
 typealias DftCache = HashMap<DftState, Int>
 
@@ -61,10 +60,8 @@ class Puzzle16 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
-//        val rootState = State(CacheKey(1, "AA", "AA"), 0)
-//        return solve(data, rootState, 30, false).score
-        val rootState = DftState(30, "AA", false)
-        return dftSolve(rootState, DftCache(), data, 0)
+        val rootState = State(CacheKey(1, "AA", "AA"), 0)
+        return solve(data, rootState, 30, false).score
     }
 
     override fun computeSolution2(data: Data): Solution2 {
