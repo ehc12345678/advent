@@ -55,12 +55,19 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
     private fun maxForRecipe(recipe: Recipe, numTurns: Int): Int {
         val currentMaterials = HashMap<Ingrediant, Int>()
         val currentRobots = HashMap<Ingrediant, Int>()
-
         val clayBot = Ingrediant.ore
         currentRobots[clayBot] = 1
+        return maxForMaterialsAndRobots(currentRobots, numTurns, currentMaterials, recipe)
+    }
 
-        for (turn in 1 ..numTurns) {
-            log("== Minute $turn ==")
+    private fun maxForMaterialsAndRobots(
+        currentRobots: HashMap<Ingrediant, Int>,
+        numTurns: Int,
+        currentMaterials: HashMap<Ingrediant, Int>,
+        recipe: Recipe
+    ): Int {
+        for (turn in 1..numTurns) {
+            log("== Minute $turn of $numTurns ==")
             val robot = maybeBuildRobot(currentMaterials, recipe, numTurns - turn, currentRobots)
             collectMaterials(currentMaterials, currentRobots, true)
             if (robot != null) {
@@ -89,7 +96,7 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
     }
 
     // we can build it if we have the materials
-    private fun canBuild(recipe: Recipe, currentMaterials: HashMap<Ingrediant, Int>, ingrediant: Ingrediant): Boolean {
+    private fun canBuild(recipe: Recipe, currentMaterials: Map<Ingrediant, Int>, ingrediant: Ingrediant): Boolean {
         val costs = recipe[ingrediant]!!.costs
         return costs.entries.all { cost ->
             currentMaterials.getOrDefault(cost.key, 0) >= cost.value
@@ -109,7 +116,7 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         return ingrediant
     }
 
-    private fun collectMaterials(currentMaterials: HashMap<Ingrediant, Int>, currentRobots: HashMap<Ingrediant, Int>,
+    private fun collectMaterials(currentMaterials: HashMap<Ingrediant, Int>, currentRobots: Map<Ingrediant, Int>,
                                  forReal: Boolean = false) {
         currentRobots.forEach { (key, value) ->
             currentMaterials[key] = currentMaterials.getOrDefault(key, 0) + value
@@ -119,44 +126,49 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         }
     }
 
-    private fun shouldBuild(recipe: Recipe, ingrediant: Ingrediant, currentMaterials: HashMap<Ingrediant, Int>,
-                            currentRobots: HashMap<Ingrediant, Int>, turnsLeft: Int): Boolean {
+    private fun shouldBuild(recipe: Recipe, ingrediant: Ingrediant, currentMaterials: Map<Ingrediant, Int>,
+                            currentRobots: Map<Ingrediant, Int>, turnsLeft: Int): Boolean {
         // always build the first of its kind
         if (!currentRobots.containsKey(ingrediant)) {
             return true
         }
 
-        val geode = recipe[Ingrediant.geode]!!
-        val turnsForGeodeNoBuild = geode.costs.entries.minOf { (key, value) ->
-            ceil((value - currentMaterials.getOrDefault(key, 0)) / currentRobots.getOrDefault(key, 0).toDouble()).toInt()
+        if (ingrediant == Ingrediant.geode) {
+            return true
         }
 
-        val nextLevel = when (ingrediant) {
-            Ingrediant.obsidian -> Ingrediant.geode
-            Ingrediant.clay -> Ingrediant.obsidian
-            Ingrediant.ore -> Ingrediant.clay
-            else -> return true
+        if (turnsLeft <= 1) {
+            return false
         }
 
-        val buildIt = HashMap(currentMaterials)
         val dontBuildIt = HashMap(currentMaterials)
+        val buildIt = HashMap(currentMaterials)
         buildRobot(recipe, buildIt, ingrediant, false)
 
-        var turn = turnsLeft
-        while (turn-- > 0) {
-            collectMaterials(dontBuildIt, currentRobots)
-            if (canBuild(recipe, dontBuildIt, nextLevel)) {
-                // if we can build the next level up before we can build another of these, say no
-                return false
-            }
+        val geodesDont = maxForMaterialsAndRobots(
+            HashMap(currentRobots),
+            turnsLeft - 1, dontBuildIt, recipe)
+        val geodesDo = maxForMaterialsAndRobots(
+            HashMap(currentRobots).also { it[ingrediant] = it[ingrediant]!! + 1 },
+            turnsLeft - 1, buildIt, recipe)
+        return geodesDo > geodesDont
 
-            collectMaterials(buildIt, currentRobots)
-            if (canBuild(recipe, buildIt, ingrediant)) {
-                // we can build two of this type before the next one is built, so do it
-                return true
-            }
-        }
-        return true
+//        var turn = turnsLeft
+//        while (turn-- > 0) {
+//            collectMaterials(dontBuildIt, currentRobots)
+//            if (canBuild(recipe, dontBuildIt, nextLevel)) {
+//                // if we can build the next level up before we can build another of these, say no
+//                return false
+//            }
+//
+//            collectMaterials(buildIt, currentRobots)
+//            if (canBuild(recipe, buildIt, ingrediant)) {
+//                // we can build two of this type before the next one is built, so do it
+//                return true
+//            }
+//        }
+//        return true
+
     }
 
     fun log(str: String) {
