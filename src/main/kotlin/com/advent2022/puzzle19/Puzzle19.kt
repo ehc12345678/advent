@@ -1,7 +1,9 @@
 package com.advent2022.puzzle19
 
 import com.advent2021.base.Base
-import kotlin.math.ceil
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 typealias Solution = Int
 typealias Solution2 = Solution
@@ -10,6 +12,31 @@ enum class Ingrediant { ore, clay, obsidian, geode }
 data class CostToMake(var make: Ingrediant, val costs: Map<Ingrediant, Int>)
 typealias Recipe = Map<Ingrediant, CostToMake>
 typealias Data = ArrayList<Recipe>
+
+var numStates = 0
+data class State(
+    val recipe: Recipe,
+    var numTurns: Int,
+    val materials: MutableMap<Ingrediant, Int> = EnumMap(Ingrediant::class.java),
+    val robots: MutableMap<Ingrediant, Int> = EnumMap(Ingrediant::class.java)
+) {
+    init {
+       ++numStates
+       if (numStates % 1000000 == 0) {
+           println("$numStates: $score")
+       }
+    }
+
+    fun numMaterials(ingrediant: Ingrediant) = materials.getOrDefault(ingrediant, 0)
+    fun numRobots(ingrediant: Ingrediant) = robots.getOrDefault(ingrediant, 0)
+    val score: Int
+        get() = numMaterials(Ingrediant.geode)
+    val bestPossible: Int
+        get() = leastPossible + ((numTurns * (numTurns - 1)) / 2)
+
+    val leastPossible: Int
+        get() = score + (numTurns * numRobots(Ingrediant.geode))
+}
 
 fun String.toCosts(): Map<Ingrediant, Int> {
     return split(" and ").map {
@@ -44,7 +71,11 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
 
     override fun computeSolution(data: Data): Solution {
         val numTurns = 24
-        val repipeValues = data.mapIndexed { index, map -> (index + 1) * maxForRecipe(map, numTurns) }
+        val initialRobots = mutableMapOf(Ingrediant.ore to 1)
+        val recipeMax = data.map {
+            maxForRecipe(State(it, numTurns, robots = initialRobots))
+        }
+        val repipeValues = recipeMax.mapIndexed { index, it -> (index + 1) * it.score }
         return repipeValues.sum()
     }
 
@@ -52,124 +83,69 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         return 0
     }
 
-    private fun maxForRecipe(recipe: Recipe, numTurns: Int): Int {
-        val currentMaterials = HashMap<Ingrediant, Int>()
-        val currentRobots = HashMap<Ingrediant, Int>()
-        val clayBot = Ingrediant.ore
-        currentRobots[clayBot] = 1
-        return maxForMaterialsAndRobots(currentRobots, numTurns, currentMaterials, recipe)
-    }
+    private fun maxForRecipe(state: State): State {
+        var bestState = state
+        while (bestState.numTurns > 0) {
+            val buildARobot = Ingrediant.values().filter { canBuild(it, bestState) }.map { buildRobot(it, bestState) }
 
-    private fun maxForMaterialsAndRobots(
-        currentRobots: HashMap<Ingrediant, Int>,
-        numTurns: Int,
-        currentMaterials: HashMap<Ingrediant, Int>,
-        recipe: Recipe
-    ): Int {
-        for (turn in 1..numTurns) {
-            log("== Minute $turn of $numTurns ==")
-            val robot = maybeBuildRobot(currentMaterials, recipe, numTurns - turn, currentRobots)
-            collectMaterials(currentMaterials, currentRobots, true)
-            if (robot != null) {
-                currentRobots[robot] = currentRobots.getOrDefault(robot, 0) + 1
-                log("The new ${robot}-collecting robot is ready; you now have ${currentRobots[robot]} of them.")
-            }
-            log("")
-        }
-        return currentMaterials[Ingrediant.geode] ?: 0
-    }
-
-    private fun maybeBuildRobot(
-        currentMaterials: HashMap<Ingrediant, Int>,
-        recipe: Recipe,
-        turnsLeft: Int,
-        currentRobots: HashMap<Ingrediant, Int>
-    ): Ingrediant? {
-        for (ingrediant in listOf(Ingrediant.geode, Ingrediant.obsidian, Ingrediant.clay, Ingrediant.ore)) {
-            if (canBuild(recipe, currentMaterials, ingrediant)) {
-                if (shouldBuild(recipe, ingrediant, currentMaterials, currentRobots, turnsLeft)) {
-                    return buildRobot(recipe, currentMaterials, ingrediant, true)
+            if (buildARobot.isEmpty()) {
+                // optimization... if we cannot build a robot, just keep going (no recursion)
+                bestState = collectMaterials(bestState)
+            } else if (buildARobot.size == 1 && bestState.robots.size == 1) {
+                // optimizaiton... if we can build a robot, and we don' thave robots, do that (no recursion)
+                bestState = collectMaterials(buildARobot[0])
+            } else {
+                val buildPossibilities =
+                    (buildARobot + bestState)
+                        .filter { canPossiblyBeat(it, bestState)}
+                        .map { maxForRecipe(collectMaterials(it)) }
+                if (buildPossibilities.isEmpty()) {
+                    // nothing good can happen from here, so the best state is the one we have
+                    break
                 }
+
+                val bestNextState = buildPossibilities.reduce { acc, it -> if (acc.score > it.score) acc else it }
+                bestState = bestNextState
             }
         }
-        return null
+
+        return bestState
     }
 
     // we can build it if we have the materials
-    private fun canBuild(recipe: Recipe, currentMaterials: Map<Ingrediant, Int>, ingrediant: Ingrediant): Boolean {
-        val costs = recipe[ingrediant]!!.costs
-        return costs.entries.all { cost ->
-            currentMaterials.getOrDefault(cost.key, 0) >= cost.value
+    private fun canBuild(ingrediant: Ingrediant, state: State): Boolean {
+        val costs = state.recipe[ingrediant]!!.costs
+        val haveMaterials = costs.entries.all { cost -> state.materials.getOrDefault(cost.key, 0) >= cost.value }
+        return when (state.numTurns) {
+            0, 1 -> false
+            2 -> ingrediant == Ingrediant.obsidian && haveMaterials
+            3 -> ingrediant == Ingrediant.clay || ingrediant == Ingrediant.obsidian && haveMaterials
+            else -> haveMaterials
         }
     }
 
-    private fun buildRobot(recipe: Recipe, currentMaterials: HashMap<Ingrediant, Int>, ingrediant: Ingrediant,
-                           forReal: Boolean): Ingrediant {
-        val costs = recipe[ingrediant]!!.costs
+    private fun buildRobot(ingrediant: Ingrediant, state: State): State {
+        val costs = state.recipe[ingrediant]!!.costs
+        val newState = State(state.recipe, state.numTurns, HashMap(state.materials), HashMap(state.robots))
         costs.forEach { (key, value) ->
-            currentMaterials[key] = currentMaterials[key]!! - value
+            newState.materials[key] = newState.numMaterials(key) - value
         }
-        val costsStr = costs.entries.joinToString(" and ") { (key, value) -> "$value $key" }
-        if (forReal) {
-            log("Spend $costsStr to start building an $ingrediant-collecting robot.")
-        }
-        return ingrediant
+        newState.robots[ingrediant] = newState.numRobots(ingrediant) + 1
+        return newState
     }
 
-    private fun collectMaterials(currentMaterials: HashMap<Ingrediant, Int>, currentRobots: Map<Ingrediant, Int>,
-                                 forReal: Boolean = false) {
-        currentRobots.forEach { (key, value) ->
-            currentMaterials[key] = currentMaterials.getOrDefault(key, 0) + value
-            if (forReal) {
-                log("$value $key-collecting robots collect $value $key; you now have ${currentMaterials[key]} $key.")
-            }
+    private fun collectMaterials(state: State): State {
+        // optimization... we reuse the state here for mutation... *caution*
+        state.numTurns--
+        state.robots.forEach { (key, value) ->
+            state.materials[key] = state.numMaterials(key) + value
         }
+        return state
     }
 
-    private fun shouldBuild(recipe: Recipe, ingrediant: Ingrediant, currentMaterials: Map<Ingrediant, Int>,
-                            currentRobots: Map<Ingrediant, Int>, turnsLeft: Int): Boolean {
-        // always build the first of its kind
-        if (!currentRobots.containsKey(ingrediant)) {
-            return true
-        }
-
-        if (ingrediant == Ingrediant.geode) {
-            return true
-        }
-
-        if (turnsLeft <= 1) {
-            return false
-        }
-
-        val dontBuildIt = HashMap(currentMaterials)
-        val buildIt = HashMap(currentMaterials)
-        buildRobot(recipe, buildIt, ingrediant, false)
-
-        val geodesDont = maxForMaterialsAndRobots(
-            HashMap(currentRobots),
-            turnsLeft - 1, dontBuildIt, recipe)
-        val geodesDo = maxForMaterialsAndRobots(
-            HashMap(currentRobots).also { it[ingrediant] = it[ingrediant]!! + 1 },
-            turnsLeft - 1, buildIt, recipe)
-        return geodesDo > geodesDont
-
-//        var turn = turnsLeft
-//        while (turn-- > 0) {
-//            collectMaterials(dontBuildIt, currentRobots)
-//            if (canBuild(recipe, dontBuildIt, nextLevel)) {
-//                // if we can build the next level up before we can build another of these, say no
-//                return false
-//            }
-//
-//            collectMaterials(buildIt, currentRobots)
-//            if (canBuild(recipe, buildIt, ingrediant)) {
-//                // we can build two of this type before the next one is built, so do it
-//                return true
-//            }
-//        }
-//        return true
-
-    }
+    private fun canPossiblyBeat(newState: State, state: State): Boolean =
+        // if we cannot generate enough geodes to possibly beat the best score, then we should give up
+        newState.bestPossible > state.leastPossible
 
     fun log(str: String) {
         if (verbose) {
