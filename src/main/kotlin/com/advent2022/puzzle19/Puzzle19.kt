@@ -38,12 +38,14 @@ data class State(
     val robots: MutableMap<Ingrediant, Int> = EnumMap(Ingrediant::class.java),
     var score: Int = 0
 ) {
+    fun copy() = State(recipe, numTurns, HashMap(materials), HashMap(robots), score)
+
     fun numMaterials(ingrediant: Ingrediant) = materials.getOrDefault(ingrediant, 0)
     fun numRobots(ingrediant: Ingrediant) = robots.getOrDefault(ingrediant, 0)
 
     fun buildRobot(ingrediant: Ingrediant) {
         if (ingrediant == Ingrediant.geode) {
-            score += (numTurns - 1)
+            score += numTurns
         }
         robots[ingrediant] = numRobots(ingrediant) + 1
     }
@@ -73,7 +75,7 @@ fun String.toCosts(): Map<Ingrediant, Int> {
 fun main() {
     try {
         val puz = Puzzle19()
-        val solution1 = puz.solvePuzzle("inputsTest.txt", Data())
+        val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
         val solution2 = puz.solvePuzzle2("inputs.txt", Data())
@@ -97,8 +99,10 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
     override fun computeSolution(data: Data): Solution {
         val numTurns = 24
         val initialRobots = mutableMapOf(Ingrediant.ore to 1)
-        val recipeMax = data.map {
-            maxForRecipe(State(it, numTurns, robots = initialRobots))
+        val recipeMax = data.mapIndexed { index, it ->
+            val recipeMax = maxForRecipe(State(it, numTurns, robots = initialRobots))
+            println("$index=$recipeMax")
+            recipeMax
         }
         val repipeValues = recipeMax.mapIndexed { index, it -> (index + 1) * it.score }
         return repipeValues.sum()
@@ -115,10 +119,10 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
             val dontBuild = collectMaterials(bestState)
             val buildableRobots = Ingrediant.values()
                 .filter { ingrediant -> canBuild(bestState, bestState.recipe.costs(ingrediant)) }
+
             val build = buildableRobots
                 .filter { ingrediant -> shouldBuild(ingrediant, bestState) }
-                .map { ingrediant -> buildRobot(ingrediant, bestState) }
-                .map { collectMaterials(it) }
+                .map { ingrediant -> buildRobot(ingrediant, collectMaterials(bestState)) }
 
             val allPossibilities = build + dontBuild
 
@@ -157,9 +161,9 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         }
 
         val ret = when (state.numTurns) {
-            0 -> false
-            1 -> ingrediant == Ingrediant.geode
-            2 -> TURN_BEFORE_LAST.contains(ingrediant)
+            0, 1 -> false
+            2 -> ingrediant == Ingrediant.geode
+            3 -> TURN_BEFORE_LAST.contains(ingrediant)
             else -> true
         }
         if (!ret) {
@@ -168,24 +172,20 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         return ret
     }
 
-    private fun filterOutDontBuild(dontBuild: State, buildable: List<Ingrediant>): Boolean {
-        return buildable.isNotEmpty() // if we cannot build anything, sure, don't build
-    }
-
     private fun buildRobot(ingrediant: Ingrediant, state: State): State {
-        val newState = State(state.recipe, state.numTurns, HashMap(state.materials), HashMap(state.robots))
-        newState.payCosts(state.recipe[ingrediant]!!.costs)
+        val newState = state.copy()
         newState.buildRobot(ingrediant)
+        newState.payCosts(state.recipe.costs(ingrediant))
         return newState
     }
 
     private fun collectMaterials(state: State): State {
-        // optimization... we reuse the state here for mutation... *caution*
-        state.numTurns--
-        state.robots.forEach { (key, value) ->
-            state.materials[key] = state.numMaterials(key) + value
+        val newState = state.copy()
+        newState.numTurns--
+        newState.robots.forEach { (key, value) ->
+            newState.materials[key] = newState.numMaterials(key) + value
         }
-        return state
+        return newState
     }
 
     private fun canPossiblyBeat(newState: State, state: State): Boolean {
