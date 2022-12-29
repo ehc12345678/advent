@@ -6,7 +6,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 typealias Solution = Int
-typealias Solution2 = Solution
+typealias Solution2 = Int
 
 enum class Ingrediant(val rank: Int) { ore(1), clay(2), obsidian(3), geode(4) }
 data class CostToMake(var make: Ingrediant, val costs: Map<Ingrediant, Int>)
@@ -16,6 +16,9 @@ typealias Data = ArrayList<Recipe>
 fun Recipe.costs(ingrediant: Ingrediant) = this[ingrediant]!!.costs
 fun Recipe.twiceCosts(ingrediant: Ingrediant) =
     costs(ingrediant).map { (ingrediant, cost) -> ingrediant to cost * 2 }.toMap()
+fun Recipe.maxToMake(ingrediant: Ingrediant) =
+    // we should only ever make the maximum number robots less to or equal to the max ingrediants in any recipe
+    Ingrediant.values().mapNotNull { costs(it)[ingrediant] }.maxOrNull() ?: Int.MAX_VALUE
 
 data class Tracker(var iteration: Int, var savings: Int = 0) {
     fun inc() {
@@ -27,6 +30,11 @@ data class Tracker(var iteration: Int, var savings: Int = 0) {
 
     fun save() {
         savings++
+    }
+
+    fun reset() {
+        iteration = 0
+        savings = 0
     }
 }
 var gTracker = Tracker(0)
@@ -100,16 +108,25 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         val numTurns = 24
         val initialRobots = mutableMapOf(Ingrediant.ore to 1)
         val recipeMax = data.mapIndexed { index, it ->
-            val recipeMax = maxForRecipe(State(it, numTurns, robots = initialRobots))
-            println("$index=$recipeMax")
-            recipeMax
+            val max = maxForRecipe(State(it, numTurns, robots = initialRobots))
+            println("$index=${max.score}")
+            max
         }
         val repipeValues = recipeMax.mapIndexed { index, it -> (index + 1) * it.score }
         return repipeValues.sum()
     }
 
     override fun computeSolution2(data: Data): Solution2 {
-        return 0
+        val numTurns = 32
+        val initialRobots = mutableMapOf(Ingrediant.ore to 1)
+        val firstThree = data.subList(0, 3)
+        val recipeMax = firstThree.mapIndexed { index, it ->
+            gTracker.reset()
+            val max = maxForRecipe(State(it, numTurns, robots = initialRobots))
+            println("$index=${max.score}")
+            max
+        }
+        return recipeMax.map { it.score }.reduce(Int::times)
     }
 
     private fun maxForRecipe(state: State): State {
@@ -156,6 +173,11 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
     private fun shouldBuild(ingrediant: Ingrediant, state: State): Boolean {
         // if we ever have twice as many materials as we need, then we didn't build it last time, so don't build it now
         if (canBuild(state, state.recipe.twiceCosts(ingrediant))) {
+            gTracker.save()
+            return false
+        }
+        // we have mad the most number of these robots that can help, so stop
+        if (state.recipe.maxToMake(ingrediant) == state.numRobots(ingrediant)) {
             gTracker.save()
             return false
         }
