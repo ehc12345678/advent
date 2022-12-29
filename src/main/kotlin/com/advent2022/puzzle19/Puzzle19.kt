@@ -8,34 +8,59 @@ import kotlin.collections.HashMap
 typealias Solution = Int
 typealias Solution2 = Solution
 
-enum class Ingrediant { ore, clay, obsidian, geode }
+enum class Ingrediant(val rank: Int) { ore(1), clay(2), obsidian(3), geode(4) }
 data class CostToMake(var make: Ingrediant, val costs: Map<Ingrediant, Int>)
 typealias Recipe = Map<Ingrediant, CostToMake>
 typealias Data = ArrayList<Recipe>
 
-var numStates = 0
+fun Recipe.costs(ingrediant: Ingrediant) = this[ingrediant]!!.costs
+fun Recipe.twiceCosts(ingrediant: Ingrediant) =
+    costs(ingrediant).map { (ingrediant, cost) -> ingrediant to cost * 2 }.toMap()
+
+data class Tracker(var iteration: Int, var savings: Int = 0) {
+    fun inc() {
+        iteration++
+        if (iteration % 1000000 == 0) {
+            println("$iteration with savings=$savings")
+        }
+    }
+
+    fun save() {
+        savings++
+    }
+}
+var gTracker = Tracker(0)
+
 data class State(
     val recipe: Recipe,
     var numTurns: Int,
     val materials: MutableMap<Ingrediant, Int> = EnumMap(Ingrediant::class.java),
-    val robots: MutableMap<Ingrediant, Int> = EnumMap(Ingrediant::class.java)
+    val robots: MutableMap<Ingrediant, Int> = EnumMap(Ingrediant::class.java),
+    var score: Int = 0
 ) {
-    init {
-       ++numStates
-       if (numStates % 1000000 == 0) {
-           println("$numStates: $score")
-       }
-    }
-
     fun numMaterials(ingrediant: Ingrediant) = materials.getOrDefault(ingrediant, 0)
     fun numRobots(ingrediant: Ingrediant) = robots.getOrDefault(ingrediant, 0)
-    val score: Int
-        get() = numMaterials(Ingrediant.geode)
-    val bestPossible: Int
-        get() = leastPossible + ((numTurns * (numTurns - 1)) / 2)
 
-    val leastPossible: Int
-        get() = score + (numTurns * numRobots(Ingrediant.geode))
+    fun buildRobot(ingrediant: Ingrediant) {
+        if (ingrediant == Ingrediant.geode) {
+            score += (numTurns - 1)
+        }
+        robots[ingrediant] = numRobots(ingrediant) + 1
+    }
+
+    fun payCost(ingrediant: Ingrediant, cost: Int) {
+        materials[ingrediant] = numMaterials(ingrediant) - cost
+    }
+
+    fun payCosts(costs: Map<Ingrediant, Int>) {
+        costs.forEach { (ingrediant, cost) -> payCost(ingrediant, cost) }
+    }
+
+    val bestPossible: Int
+        get() = score + ((numTurns * (numTurns - 1)) / 2)
+
+    // we know this is the best we can do, so just resolve to the best
+    fun toLeastPossible(): State = State(recipe, 0, materials, robots, score)
 }
 
 fun String.toCosts(): Map<Ingrediant, Int> {
@@ -85,27 +110,34 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
 
     private fun maxForRecipe(state: State): State {
         var bestState = state
+        gTracker.inc()
         while (bestState.numTurns > 0) {
-            val buildARobot = Ingrediant.values().filter { canBuild(it, bestState) }.map { buildRobot(it, bestState) }
+            val dontBuild = collectMaterials(bestState)
+            val buildableRobots = Ingrediant.values()
+                .filter { ingrediant -> canBuild(bestState, bestState.recipe.costs(ingrediant)) }
+            val build = buildableRobots
+                .filter { ingrediant -> shouldBuild(ingrediant, bestState) }
+                .map { ingrediant -> buildRobot(ingrediant, bestState) }
+                .map { collectMaterials(it) }
 
-            if (buildARobot.isEmpty()) {
-                // optimization... if we cannot build a robot, just keep going (no recursion)
-                bestState = collectMaterials(bestState)
-            } else if (buildARobot.size == 1 && bestState.robots.size == 1) {
-                // optimizaiton... if we can build a robot, and we don' thave robots, do that (no recursion)
-                bestState = collectMaterials(buildARobot[0])
+            val allPossibilities = build + dontBuild
+
+            val filtered = allPossibilities.filter { canPossiblyBeat(it, bestState) }
+            if (filtered.isEmpty()) {
+                // optimization.. we cannot best the best state, so we are already at the best
+                bestState = bestState.toLeastPossible()
+                gTracker.save()
+            }
+
+            bestState = if (filtered.size == 1) {
+                // if there is only one possibilitiy, iterate, don't recurse
+                filtered[0]
             } else {
-                val buildPossibilities =
-                    (buildARobot + bestState)
-                        .filter { canPossiblyBeat(it, bestState)}
-                        .map { maxForRecipe(collectMaterials(it)) }
-                if (buildPossibilities.isEmpty()) {
-                    // nothing good can happen from here, so the best state is the one we have
-                    break
+                val recurse =  filtered.map { maxForRecipe(it) }
+                val bestNextState = recurse.reduce { acc, it ->
+                    if (acc.score > it.score) acc else it
                 }
-
-                val bestNextState = buildPossibilities.reduce { acc, it -> if (acc.score > it.score) acc else it }
-                bestState = bestNextState
+                bestNextState
             }
         }
 
@@ -113,24 +145,37 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
     }
 
     // we can build it if we have the materials
-    private fun canBuild(ingrediant: Ingrediant, state: State): Boolean {
-        val costs = state.recipe[ingrediant]!!.costs
-        val haveMaterials = costs.entries.all { cost -> state.materials.getOrDefault(cost.key, 0) >= cost.value }
-        return when (state.numTurns) {
-            0, 1 -> false
-            2 -> ingrediant == Ingrediant.obsidian && haveMaterials
-            3 -> ingrediant == Ingrediant.clay || ingrediant == Ingrediant.obsidian && haveMaterials
-            else -> haveMaterials
+    private fun canBuild(state: State, costs: Map<Ingrediant, Int>): Boolean {
+        return costs.entries.all { (ingrediant, cost) -> state.numMaterials(ingrediant) >= cost }
+    }
+
+    private fun shouldBuild(ingrediant: Ingrediant, state: State): Boolean {
+        // if we ever have twice as many materials as we need, then we didn't build it last time, so don't build it now
+        if (canBuild(state, state.recipe.twiceCosts(ingrediant))) {
+            gTracker.save()
+            return false
         }
+
+        val ret = when (state.numTurns) {
+            0 -> false
+            1 -> ingrediant == Ingrediant.geode
+            2 -> TURN_BEFORE_LAST.contains(ingrediant)
+            else -> true
+        }
+        if (!ret) {
+            gTracker.save()
+        }
+        return ret
+    }
+
+    private fun filterOutDontBuild(dontBuild: State, buildable: List<Ingrediant>): Boolean {
+        return buildable.isNotEmpty() // if we cannot build anything, sure, don't build
     }
 
     private fun buildRobot(ingrediant: Ingrediant, state: State): State {
-        val costs = state.recipe[ingrediant]!!.costs
         val newState = State(state.recipe, state.numTurns, HashMap(state.materials), HashMap(state.robots))
-        costs.forEach { (key, value) ->
-            newState.materials[key] = newState.numMaterials(key) - value
-        }
-        newState.robots[ingrediant] = newState.numRobots(ingrediant) + 1
+        newState.payCosts(state.recipe[ingrediant]!!.costs)
+        newState.buildRobot(ingrediant)
         return newState
     }
 
@@ -143,14 +188,23 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         return state
     }
 
-    private fun canPossiblyBeat(newState: State, state: State): Boolean =
+    private fun canPossiblyBeat(newState: State, state: State): Boolean {
         // if we cannot generate enough geodes to possibly beat the best score, then we should give up
-        newState.bestPossible > state.leastPossible
+        if (newState.bestPossible < state.score) {
+            gTracker.save()
+            return false
+        }
+        return true
+    }
 
     fun log(str: String) {
         if (verbose) {
             println(str)
         }
+    }
+
+    companion object {
+        val TURN_BEFORE_LAST = setOf(Ingrediant.ore, Ingrediant.obsidian, Ingrediant.geode)
     }
 }
 
