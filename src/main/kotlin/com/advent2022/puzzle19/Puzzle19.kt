@@ -83,7 +83,7 @@ fun String.toCosts(): Map<Ingrediant, Int> {
 fun main() {
     try {
         val puz = Puzzle19()
-        val solution1 = puz.solvePuzzle("inputs.txt", Data())
+        val solution1 = puz.solvePuzzle("inputsTest.txt", Data())
         println("Solution1: $solution1")
 
         val solution2 = puz.solvePuzzle2("inputs.txt", Data())
@@ -108,6 +108,7 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         val numTurns = 24
         val initialRobots = mutableMapOf(Ingrediant.ore to 1)
         val recipeMax = data.mapIndexed { index, it ->
+            gTracker.reset()
             val max = maxForRecipe(State(it, numTurns, robots = initialRobots))
             println("$index=${max.score}")
             max
@@ -134,31 +135,34 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
         gTracker.inc()
         while (bestState.numTurns > 0) {
             val dontBuild = collectMaterials(bestState)
-            val buildableRobots = Ingrediant.values()
+            val build = Ingrediant.values()
                 .filter { ingrediant -> canBuild(bestState, bestState.recipe.costs(ingrediant)) }
-
-            val build = buildableRobots
                 .filter { ingrediant -> shouldBuild(ingrediant, bestState) }
                 .map { ingrediant -> buildRobot(ingrediant, collectMaterials(bestState)) }
 
             val allPossibilities = build + dontBuild
 
             val filtered = allPossibilities.filter { canPossiblyBeat(it, bestState) }
-            if (filtered.isEmpty()) {
-                // optimization.. we cannot best the best state, so we are already at the best
-                bestState = bestState.toLeastPossible()
+            bestState = if (filtered.isEmpty()) {
+                // optimization... if this is the best we can do, stop right here
                 gTracker.save()
-            }
-
-            bestState = if (filtered.size == 1) {
+                bestState.toLeastPossible()
+            } else if (filtered.size == 1) {
                 // if there is only one possibilitiy, iterate, don't recurse
                 filtered[0]
             } else {
-                val recurse =  filtered.map { maxForRecipe(it) }
+                // do the best we can
+                val recurse = filtered.map { maxForRecipe(it) }
                 val bestNextState = recurse.reduce { acc, it ->
                     if (acc.score > it.score) acc else it
                 }
-                bestNextState
+                if (canPossiblyBeat(bestNextState, bestState)) {
+                    bestNextState
+                } else {
+                    // optimization... if this is the best we can do, stop right here
+                    gTracker.save()
+                    bestState.toLeastPossible()
+                }
             }
         }
 
@@ -176,8 +180,16 @@ class Puzzle19 : Base<Data, Solution?, Solution2?>() {
             gTracker.save()
             return false
         }
-        // we have mad the most number of these robots that can help, so stop
-        if (state.recipe.maxToMake(ingrediant) == state.numRobots(ingrediant)) {
+        // we have made the most number of these robots that can help, so stop
+        val maxToMake = state.recipe.maxToMake(ingrediant)
+        val numCurrentRobots = state.numRobots(ingrediant)
+        if (maxToMake == numCurrentRobots) {
+            gTracker.save()
+            return false
+        }
+        // how many of this ingrediant could I make from existing materials. If I already have enough, don't make more
+        val robotsCouldMake = (state.numMaterials(ingrediant) + (state.numTurns  * numCurrentRobots)) / maxToMake
+        if (robotsCouldMake > state.numTurns) {
             gTracker.save()
             return false
         }
