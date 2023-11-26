@@ -85,7 +85,7 @@ class Puzzle1 : Base<Data, Solution?, Solution2?>() {
     }
 
     private fun sumWindow(data: Data, index: Int, windowSize: Int) : Int {
-        return data.subList(index, index + windowSize).reduce { acc, i -> acc + i }
+        return data.subList(index, index + windowSize).sum()
     }
 }
 

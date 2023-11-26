@@ -17,11 +17,7 @@ class Puzzle3 {
         return lines
     }
 
-    fun parseLine(line: String) : List<Boolean> {
-        val ret = ArrayList<Boolean>()
-        line.trim().forEach { ret.add(it == '#') }
-        return ret
-    }
+    fun parseLine(line: String) : List<Boolean> = line.trim().map { it == '#' }
 
     fun findTrees(left: Int, down: Int, tree: List<List<Boolean>>) : Int {
         var x = left

@@ -44,7 +44,7 @@ class Puzzle2 {
         val count = passwordPlusValidation.password.count {
             it == passwordPlusValidation.ch
         }
-        return count >= passwordPlusValidation.minNum && count <= passwordPlusValidation.maxNum
+        return count in passwordPlusValidation.minNum..passwordPlusValidation.maxNum
     }
 
     fun isValid2(passwordPlusValidation: PasswordPlusValidation) : Boolean {

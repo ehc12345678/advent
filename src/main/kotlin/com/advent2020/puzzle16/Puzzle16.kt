@@ -74,9 +74,8 @@ class Puzzle16 {
         return answer
     }
 
-    private fun findNotInValid(ticket: Ticket, validRanges: ArrayList<NamedRanges>) : Int {
-        val thisTicket = ticket.fold(0) { acc, it -> acc + (if (inValidRanges(it, validRanges)) 0 else it) }
-        return thisTicket
+    private fun findNotInValid(ticket: Ticket, validRanges: ArrayList<NamedRanges>): Int {
+        return ticket.fold(0) { acc, it -> acc + (if (inValidRanges(it, validRanges)) 0 else it) }
     }
 
     private fun inValidRanges(num: Int, validRanges: ArrayList<NamedRanges>) : Boolean {
@@ -85,7 +84,8 @@ class Puzzle16 {
         } != null
     }
 
-    private fun inValidRange(namedRange: NamedRanges, num: Int) = namedRange.ranges.find { range -> range.contains(num) } != null
+    private fun inValidRange(namedRange: NamedRanges, num: Int) =
+        namedRange.ranges.find { range -> range.contains(num) } != null
 
     fun puzzleFindAnswerB(data: Data): Long {
         val validTickets = listOf(data.ticket) +
@@ -159,7 +159,7 @@ class Puzzle16 {
                         columnPossibles.none { other -> hashSet != other && other.contains(column) }
                     }
                     if (solution != null) {
-                        hashSet.removeAll(hashSet.filter { it != solution })
+                        hashSet.removeAll(hashSet.filter { it != solution }.toSet())
                         changed = true
                     }
                 }

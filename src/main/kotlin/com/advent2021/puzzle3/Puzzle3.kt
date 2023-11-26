@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUnsignedTypes::class)
+
 package com.advent2021.puzzle3
 
 import com.advent2021.base.Base
