@@ -45,27 +45,15 @@ class Puzzle1
 
     def get_all_nums(str)
       ret = []
+      str_nums = /(one|two|three|four|five|six|seven|eight|nine)/
+      map = {"one"=>1,"two"=>2,"three"=>3,"four"=>4,
+        "five"=>5,"six"=>6,"seven"=>7,"eight"=>8,"nine"=>9}
       (0..str.length).each do |i|
-        if str[i..].start_with? "one"
-          ret << 1
-        elsif str[i..].start_with? "two"
-          ret << 2
-        elsif str[i..].start_with? "three"
-          ret << 3
-        elsif str[i..].start_with? "four"
-          ret << 4
-        elsif str[i..].start_with? "five"
-          ret << 5
-        elsif str[i..].start_with? "six"
-          ret << 6
-        elsif str[i..].start_with? "seven"
-          ret << 7
-        elsif str[i..].start_with? "eight"
-          ret << 8
-        elsif str[i..].start_with? "nine"
-          ret << 9
-        elsif str[i].to_s.match(/\d/)
-          ret << str[i].to_i
+        substr = str[i..]
+        if substr.start_with? str_nums
+          ret << map[substr.match(str_nums)[0]]
+        elsif substr.start_with? /\d/
+          ret << str[i].to_s.to_i
         end
       end
       ret
@@ -75,8 +63,7 @@ class Puzzle1
        scans = get_all_nums(str)
        first_int = scans[0]
        second_int = scans[-1]
-       ret = (first_int * 10) + second_int
-       ret
+       (first_int * 10) + second_int
     end
 end
 
