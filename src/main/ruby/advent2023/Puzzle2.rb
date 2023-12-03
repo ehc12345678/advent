@@ -39,13 +39,12 @@ class Puzzle2
     end
 
     def min_possible_blocks
-      ret = {:red=>0, :blue=>0, :green=>0}
-      @turns.each do |t|
+      @turns.reduce({:red=>0, :blue=>0, :green=>0}) do |ret, t|
         t.parts.each do |key, value|
           ret[key] = value if value > ret[key]
         end
+        ret
       end
-      ret
     end
   end
 
