@@ -39,42 +39,16 @@ module Puzzle5
     end
 
     def compute_solution2(data)
-      range_1 = (data.seeds[0]..data.seeds[0]+data.seeds[1])
-      range_2 = (data.seeds[2]..data.seeds[2]+data.seeds[3])
-
       combined = data.get_materials_map("seed")
       while combined.dest != "location"
         combined = data.translate_to_try_2(combined, data.get_materials_map(combined.dest))
       end
 
-      # Check
-      # puts "Range: #{range_1} #{range_1.size}"
-      # count = 0
-      # range_1.step(1000).each do |seed|
-      #   part1 = translate_src_into_location(seed, data)
-      #   part2 = combined.translate_src_into_dest(seed)
-      #   puts "#{seed} #{part1}" if (count % 1000) == 0
-      #   if part1 != part2
-      #     puts "#{seed} #{part1}!=#{part2}"
-      #   end
-      #   count = count + 1
-      # end
-      # puts "Range: #{range_2} #{range_2.size}"
 
-      count = 0
-      range_2.step(1000).each do |seed|
-        part1 = translate_src_into_location(seed, data)
-        part2 = combined.translate_src_into_dest(seed)
-        puts "#{seed} #{part1}" if (count % 1000) == 0
-        if part1 != part2
-          puts "#{seed} #{part1}!=#{part2}"
-        end
-        count = count + 1
-      end
-
-      min1 = find_min_in_range(data, combined, range_1)
-      min2 = find_min_in_range(data, combined, range_2)
-      [min1, min2].min
+      (0..data.seeds.size - 1).step(2).map do |n|
+        range = (data.seeds[n]..data.seeds[n]+data.seeds[n+1])
+        find_min_in_range(data, combined, range)
+      end.min
     end
 
     def find_min_in_range(data, map, range)
