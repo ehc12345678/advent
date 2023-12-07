@@ -1,7 +1,5 @@
 load 'base.rb'
 
-load 'base.rb'
-
 module Puzzle6
   class Puzzle
     include Base

@@ -37,19 +37,9 @@ module Puzzle7
         group_nums1 = hand1.grouped.map {|g| g[1]}
         group_nums2 = hand2.grouped.map {|g| g[1]}
 
-        if group_nums1.any? {|a| a.nil?}
-          puts "groups_num1 was nil for #{hand1}"
-          puts "num1: '#{group_nums1}'"
-          throw Exception
-        end
-        if group_nums2.any? {|a| a.nil?}
-          puts "groups_num2 was nil for #{hand2}"
-          puts group_nums2
-          throw Exception
-        end
-
         cmp_groups = compare_arrays(group_nums1, group_nums2)
         cmp_values = compare_arrays(hand1.card_values, hand2.card_values)
+        
         cmp_groups == 0 ? cmp_values : cmp_groups
       end.reverse!
     end
