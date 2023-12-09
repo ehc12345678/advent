@@ -6,14 +6,18 @@ module PuzzleXyz
 
     def main
       solution1 = self.solve_puzzle("puzzleXYZ/inputs.txt", Array.new) do |line, data|
-        data << line.to_i
+        parse_line(data, line)
       end
       puts "Solution1: #{solution1}"
 
       solution2 = self.solve_puzzle2("puzzleXYZ/inputs.txt", Array.new) do |line, data|
-        data << line.to_i
+        parse_line(data, line)
       end
       puts "Solution2: #{solution2}"
+    end
+
+    def parse_line(data, line)
+      data << line.to_i
     end
 
     def compute_solution(data)

@@ -23,10 +23,6 @@ module Puzzle8
     end
 
     def compute_solution2(data)
-      # Thoughts for solution2
-      # do run_instructions for src_node to dest_node, record that as {src_node,dest_node} => count
-      # we can use this to lookup 
-
       start_nodes = data.nodes.filter { |key, value| key.end_with? 'A' }.map {|key, value| key}
 
       nodes_map = data.nodes.map do |key, value|

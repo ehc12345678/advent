@@ -39,7 +39,7 @@ module Puzzle7
 
         cmp_groups = compare_arrays(group_nums1, group_nums2)
         cmp_values = compare_arrays(hand1.card_values, hand2.card_values)
-        
+
         cmp_groups == 0 ? cmp_values : cmp_groups
       end.reverse!
     end
@@ -97,7 +97,7 @@ module Puzzle7
       return [['A', 5]] if groups.empty? 
 
       first_group = groups[0]
-      first_group[1] = first_group[1] + wilds[1]
+      first_group[1] += wilds[1]
       [first_group] + groups[1..] 
     end
 
