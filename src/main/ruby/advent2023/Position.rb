@@ -18,4 +18,24 @@ class Position
   def hash
     to_s.hash
   end
+
+  def +(obj)
+    if obj.kind_of?(Position)
+      Position.new(row + obj.row, col + obj.col)
+    else
+      nil
+    end
+  end
+
+  def -(obj)
+    if obj.kind_of?(Position)
+      Position.new(row - obj.row, col - obj.col)
+    else
+      nil
+    end
+  end
+
+  def *(factor)
+    Position.new(row * factor, col * factor)
+  end
 end

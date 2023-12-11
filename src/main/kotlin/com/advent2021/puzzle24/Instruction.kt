@@ -247,7 +247,7 @@ class Divide(dest: Variable, value: Value): Instruction(dest, value) {
 
 class Mod(dest: Variable, value: Value): Instruction(dest, value) {
     override fun execute(symbolTable: SymbolTable) {
-        if (value.getNumberValue() ?: 0 <= 0) {
+        if ((value.getNumberValue() ?: 0) <= 0) {
             throw IllegalStateException("Mod must be a positive non zero integer")
         }
         dest.assign(dest.divide(value))
