@@ -184,33 +184,6 @@ module Puzzle10
       end
     end
 
-
-    # def fill_water_at_pos(pos, letter, direction, seen)
-    #   return if seen.member?(pos)
-      
-    #   cell = cellp(pos)
-    #   if cell.nil?
-    #     set_cellp(pos, Cell.new(letter))
-    #     seen << pos
-    #   end
-
-    #   delta = case direction
-    #     when :south
-    #       SOUTH
-    #     when :north
-    #       NORTH
-    #     when :EAST
-    #       EAST
-    #     when :WEST
-    #       WEST
-    #   end
-
-    #   if not delta.nil?
-    #     fill_water_at_pos(pos + delta, letter, direction, seen)
-    #   end
-
-    # end
-
     def to_s
       ret = ""
       (0..num_rows-1).each do |row|
