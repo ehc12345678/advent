@@ -43,7 +43,7 @@ module Puzzle10
       the_path.size / 2
     end
 
-    DEBUG = true
+    DEBUG = false
 
     def compute_solution2(data)
       the_path = Set.new(find_the_path(data))
@@ -56,17 +56,26 @@ module Puzzle10
         end
       end
 
+      puts "\n\nGrid after removing extra nodes" if DEBUG
+      puts data if DEBUG
+
       expanded = expanded_grid(data)
-      expanded.fill_outside
+      puts "\n\nAfter expanding" if DEBUG
+      puts expanded if DEBUG
+
+      expanded.fill_outside      
+      puts "\n\nAfter filling" if DEBUG
+      puts expanded if DEBUG
 
       data.find_cells {|c| c == PLACEHOLDER }.each do |pos| 
         # every grid square in expanded is 3x3 times the original, this gets the middle
         expanded_pos = (pos * 3) + Position.new(1,1) 
-        occupied = expanded.cellp(expanded_pos) == PLACEHOLDER ? Cell.new("I") : Cell.new("O")
-        data.set_cellp(pos, occupied)
+        data.set_cellp(pos, expanded.cellp(expanded_pos) )
       end
+      puts "\n\nFinal" if DEBUG
+      puts data if DEBUG
 
-      data.find_cells {|c| c.pipe == "I" }.size
+      data.find_cells {|c| c == PLACEHOLDER}.size
     end
 
     def find_the_path(data)
