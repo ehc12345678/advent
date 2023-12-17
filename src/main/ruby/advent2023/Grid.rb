@@ -9,6 +9,14 @@ class Grid
     @rows << row
   end
 
+  def row(r)
+    @rows[r]
+  end
+
+  def col(c)
+    @rows.map { |r| r[c] }
+  end
+
   def num_rows
     @rows.size
   end
