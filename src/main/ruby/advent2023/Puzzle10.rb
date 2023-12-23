@@ -4,10 +4,6 @@ load 'position.rb'
 require 'Set'
 
 module Puzzle10
-  NORTH = Position.new(-1,0)
-  SOUTH = Position.new(1,0)
-  EAST  = Position.new(0, 1)
-  WEST  = Position.new(0,-1)
   PIPE_MAP = {
     '|' => [NORTH, SOUTH],
     '-' => [EAST, WEST],

@@ -55,12 +55,7 @@ module Puzzle14
     end
   end
 
-  class Data < Grid
-    NORTH = Position.new(-1,0)
-    SOUTH = Position.new(1,0)
-    EAST  = Position.new(0, 1)
-    WEST  = Position.new(0,-1)
-  
+  class Data < Grid  
     def all_rocks_fall_up
       all_rocks_fall_dir(NORTH)
     end

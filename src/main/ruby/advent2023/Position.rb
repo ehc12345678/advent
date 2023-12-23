@@ -39,3 +39,9 @@ class Position
     Position.new(row * factor, col * factor)
   end
 end
+
+NORTH = Position.new(-1,0)
+SOUTH = Position.new(1,0)
+EAST  = Position.new(0, 1)
+WEST  = Position.new(0,-1)
+

@@ -5,6 +5,14 @@ class Grid
     @rows = []
   end
 
+  def initialize_copy(orig)
+    @rows = orig.rows.map do |r|
+      r.map do |c|
+        c.clone
+      end
+    end
+  end
+
   def add_row(row)
     @rows << row
   end
@@ -23,6 +31,10 @@ class Grid
 
   def num_cols
     @rows.empty? ? 0 : @rows[1].size
+  end
+
+  def all_cells
+    @rows.flatten
   end
 
   def cell(row, col)
