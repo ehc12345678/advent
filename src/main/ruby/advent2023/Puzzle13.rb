@@ -1,5 +1,6 @@
 load 'base.rb'
 load 'grid.rb'
+load 'position.rb'
 
 module Puzzle13
   class Puzzle
@@ -31,31 +32,15 @@ module Puzzle13
 
     def compute_solution(data)
       data.sum do |cluster|
-        col_sym = cluster.find_col_symmetry
-        row_sym = cluster.find_row_symmetry
-
-        col_sym ||= 0
-        row_sym ||= 0
-        if (row_sym != 0) and (col_sym != 0)
-          if row_sym > col_sym
-            puts "setting column to 0 because row is greater"
-            col_sym = 0
-          else
-            row_sym = 0
-          end
-        end
-
-        answer = col_sym + (100 * row_sym)
-
-        puts cluster.to_s
-        puts "#{col_sym},#{row_sym}=#{answer}"
-        puts ""
-        answer
+        cluster.cluster_value
       end
     end
 
     def compute_solution2(data)
-      # compute_solution(data)
+      data.sum do |cluster|
+        # cluster.find_first_smudge_value
+        cluster.brute_force_solution_2
+      end
     end
   end
 
@@ -68,34 +53,102 @@ module Puzzle13
       sym_around(num_rows) { |x| row(x) } 
     end
 
-    def sym_around(total, &block)
-      midpoint = total / 2
-
-      (0..midpoint).each do |d|
-        ret = sym_around_pos(midpoint + d, total, &block) if midpoint + d + 1 < total
-        ret = sym_around_pos(midpoint - d, total, &block) if (midpoint - d >= 0 and ret.nil?)
-        return ret unless ret.nil?
-      end
-
-      nil
+    def cluster_value
+      col_sym = find_col_symmetry
+      row_sym = find_row_symmetry
+      col_sym + (100 * row_sym)
     end
 
-    def sym_around_pos(pos, total)
-        # puts "Maybe it is #{pos}"
-        first_pos = pos
-        second_pos = pos + 1
-        same = true
-        while (first_pos > 0 and second_pos < total and same) do
-          first = yield(first_pos)
-          second = yield(second_pos)
-          same = first.eql?(second)
-          # puts "diff #{first.join} #{second.join}" unless same
-          first_pos -= 1
-          second_pos += 1
-        end
-        # puts same ? "found good pos #{pos + 1}" : "no match for #{pos + 1}"
-        same ? pos + 1 : nil
+    def sym_around(total, &block)
+      (0...total-1).each do |d|
+        return d + 1 if sym_around_pos?(d, total, &block)
       end
+      0
+    end
+
+    def sym_around_pos?(pos, total)
+      i = 0
+      while (pos - i >= 0) and (pos + i + 1 < total)
+        first = yield(pos - i)
+        second = yield(pos + i + 1)
+        return false unless first.eql?(second)
+        i += 1
+      end
+      true
+    end
+
+    def brute_force_solution_2
+      (0...num_cols-1).each do |col|
+        (0...num_rows).each do |row|
+          cell_val = cell(row, col)
+          new_val = cell_val == '.' ? '#' : '.'
+          orig_col_sym = find_col_symmetry
+          set_cellp(Position.new(row, col), new_val)
+          new_col_sym = find_col_symmetry
+          unless new_col_sym == orig_col_sym
+            puts "Found a column asymetry at #{row} #{col}, returning #{new_col_sym}"
+            return new_col_sym 
+          end
+          set_cellp(Position.new(row, col), cell_val)
+        end
+      end
+
+      (0...num_rows-1).each do |row|
+        (0...num_cols).each do |col|
+          cell_val = cell(row, col)
+          new_val = cell_val == '.' ? '#' : '.'
+          orig_row_sym = find_row_symmetry
+          set_cellp(Position.new(row, col), new_val)
+          new_row_sym = find_row_symmetry
+          unless new_row_sym == orig_row_sym
+            puts "Found a row asymetry at #{row} #{col}, returning #{new_row_sym}"
+            return new_row_sym * 100 
+          end
+          set_cellp(Position.new(row, col), cell_val)
+        end
+      end
+
+      puts "oops"
+      0
+    end
+
+    # def only_one_diff?(pos, total, &block)
+    #   i = 0
+    #   count = 0
+    #   while (pos - i >= 0) and (pos + i + 1 < total)
+    #     first = yield(pos - i)
+    #     second = yield(pos + i + 1)
+    #     unless first.eql?(second)
+    #       count += (0...first.length).sum do |j|
+    #         first[j] != second[j] ? 1 : 0
+    #       end
+    #       puts "Diff for #{pos} with count #{count}"
+    #       if count > 1
+    #         puts "Count is too high #{pos} with #{count}"
+    #         return false
+    #       end
+    #     end
+    #     i += 1
+    #   end
+    #   puts "** Count is good #{pos} with #{count}"
+    #   true
+    # end
+
+    # def find_first_smudge_value
+    #   (0...num_cols-1).each do |col|
+    #     if (only_one_diff?(col, num_cols) { |c| col(c) })
+    #       puts "#{col} col can be changed"
+    #       return (col * 100)
+    #     end
+    #   end
+    #   (0...num_rows-1).each do |row|
+    #     if (only_one_diff?(row, num_rows) { |r| row(r) })
+    #       puts "#{row} row can be changed"
+    #       return row  
+    #     end
+    #   end
+    #   0
+    # end
 
     def to_s
       (0..num_rows-1).map {|r| row(r).join + "\n"}
