@@ -28,19 +28,74 @@ module Puzzle12
         simple_reg = record.springs_to_simple_reg
         sum += record.find_matches(record.pattern, possible_reg, simple_reg)
         index += 1
-        puts "#{index} of #{data.size}: #{sum}" 
       end
       sum
     end
 
     def compute_solution2(data)
       data.sum do |record|
-        unfold = record.unfold
-        possible_reg = unfold.springs_to_reg
-        simple_reg = unfold.springs_to_simple_reg
-        # puts "#{unfold.pattern} #{possible_reg} #{simple_reg}"
-        unfold.find_matches(unfold.pattern, possible_reg, simple_reg)                
+        brute_with_memomize(record)
       end
+    end
+
+    def brute_with_memomize(record)
+      memory = Hash.new
+      unfold = record.unfold
+      memoize(unfold.pattern, unfold.springs, memory)
+    end
+
+    def memoize(pattern, springs, memory)
+      key = "#{pattern} #{springs.to_s}"
+      unless memory.key?(key)
+        memory[key] = count_ways(pattern, springs, memory)
+      end
+      memory[key]
+    end
+
+    def count_ways(pattern, springs, memory)
+      # if we have consumed all the springs, we have another match, otherwise it is not a match
+      if pattern.nil? or pattern.empty?
+        # puts "Found a solution" if springs.empty?
+        springs.empty? ? 1 : 0
+    
+      # we have consumed all the runs, we just have to make sure there are no more '#'  
+      elsif springs.empty?        
+        # puts "Found a solution for empty pattern #{pattern}" if pattern.index("n").nil?
+        pattern.index("n").nil? ? 1 : 0
+
+      # we need to have at least the number of springs plus spaces between them  
+      elsif pattern.length < springs.sum + springs.length - 1
+        0
+
+      else
+        case pattern[0]
+        when 'd'
+          # skip it
+          memoize(pattern[1..-1], springs, memory)
+
+        when 'n' 
+          # if we find a #, we need to fill the current spring number
+          first = springs.first
+          rest = springs[1..-1]
+          (0...first).each do |i|
+            # there was a dot in an unexpected place
+            if pattern[i] == 'd'
+              return 0
+            end
+          end
+
+          # it is also bad if we have more the expected amount of '#'
+          if pattern[first] == 'n'
+            0
+          else
+            memoize(pattern[first+1..-1], rest, memory)
+          end
+
+        when 'q'
+          # otherwise, it could be either, so try both
+          memoize('n' + pattern[1..-1], springs, memory) + memoize('d' + pattern[1..-1], springs, memory)
+        end
+      end    
     end
   end
 
