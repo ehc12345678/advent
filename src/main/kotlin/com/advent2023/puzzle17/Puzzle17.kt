@@ -11,11 +11,11 @@ typealias Solution2 = Solution
 fun main() {
     try {
         val puz = Puzzle17()
-        val solution1 = puz.solvePuzzle("inputsTest.txt", Data())
+        val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
-        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data())
-        println("Solution2: $solution2")
+//        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data())
+//        println("Solution2: $solution2")
     } catch (t: Throwable) {
         t.printStackTrace()
     }
@@ -30,30 +30,27 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
         val queue = PriorityQueue<Path>(1000) { path1, path2 ->
             path1.compareTo(path2)
         }
-        data.addNeighbors(queue, Path(), Position(0, 0))
+        val first = PathElement(Position(0,0), Dir.RIGHT, 0, 1)
+        data.addNeighbors(queue, Path(listOf(first), HashSet()), Position(0, 0))
 
         val endPoint = Position(data.rows() - 1, data.cols() - 1)
-        val seen = HashMap<Position, Long>()
-        val solutions = ArrayList<Path>()
-//        while (queue.peek().pos != endPoint) {
-        while (queue.isNotEmpty()) {
+        val seen = HashSet<String>()
+        while (queue.peek().pos != endPoint) {
             val top = queue.remove()
 
-            // only try the new path if we have not found a path to this position with a better score
-            if (seen.getOrDefault(top.pos, Long.MAX_VALUE) > top.score) {
-                seen[top.pos] = top.score
-                if (top.pos == endPoint) {
-                    solutions.add(top)
-                } else {
-                    data.addNeighbors(queue, top, top.pos)
+            data.getNeighbors(top.pos, top)
+                .forEach { nextPath ->
+                    val key = "${nextPath.key}/${top.last.key}"
+                    if (!seen.contains(key)) {
+                        seen.add(key)
+                        queue.add(top.addElement(nextPath))
+                    }
                 }
-            }
         }
-//        return queue.peek().score
-        return solutions.minOf { it.score }
+        return queue.peek().score
     }
     override fun computeSolution2(data: Data): Solution2 {
-        return 0
+        return computeSolution(data)
     }
 }
 
@@ -82,18 +79,26 @@ class Data {
     fun value(pos: Position): Int? = value(pos.r, pos.c)
     fun value(r: Int, c: Int): Int? = if (r in grid.indices && c in grid[r].indices) grid[r][c] else null
 
-    private fun addElementIfPossible(queue: PriorityQueue<Path>, pos: Position, direction: Dir, path: Path) {
-        val newPos = pos + direction.delta()
-        val value = value(newPos)
-        if (value != null && path.canAddElement(newPos, direction)) {
-            queue.add(path.addElement(newPos, direction, value))
-        }
+    fun addNeighbors(queue: PriorityQueue<Path>, path: Path, pos: Position) {
+        getNeighbors(pos, path).forEach { queue.add(path.addElement(it)) }
     }
 
-    fun addNeighbors(queue: PriorityQueue<Path>, path: Path, pos: Position) {
-        Dir.values().forEach { dir ->
-            addElementIfPossible(queue, pos, dir, path)
-        }
+    fun getNeighbors(pos: Position, path: Path): List<PathElement> {
+        return Dir.values()
+            .filter { dir ->
+                value(pos + dir.delta()) != null
+            }
+            .map { dir ->
+                val value = value(pos + dir.delta())
+                val numSameDir = if (dir == path.last.direction) {
+                    path.last.numSameDir + 1
+                } else {
+                    1
+                }
+                PathElement(pos + dir.delta(), dir, value!!, numSameDir)
+            }.filter { pathElement ->
+                path.canAddElement(pathElement)
+            }
     }
 
     fun rows() = grid.size
@@ -104,30 +109,35 @@ data class Position(val r: Int, val c: Int) {
     operator fun plus(other: Position) = Position(r + other.r, c + other.c)
 }
 
-data class PathElement(val pos: Position, val direction: Dir, val number: Int)
+data class PathElement(val pos: Position, val direction: Dir, val number: Int, val numSameDir: Int) {
+    val key: String = "$direction $numSameDir $pos"
+}
+
 class Path(
     val elements: List<PathElement> = ArrayList(),
     val seen: Set<Position> = HashSet()
 ) : Comparable<Path> {
     val score : Long = elements.sumOf { it.number.toLong() }
 
-    fun addElement(pos: Position, dir: Dir, num: Int): Path {
-        return Path(elements + PathElement(pos, dir, num), seen + setOf(pos))
+    fun addElement(pathElement: PathElement): Path {
+        return Path(elements + pathElement, seen + setOf(pathElement.pos))
     }
 
     val pos: Position
         get() = elements.last().pos
+    val last: PathElement
+        get() = elements.last()
 
-    fun canAddElement(pos: Position, dir: Dir): Boolean {
+    fun canAddElement(pathElement: PathElement): Boolean {
         // cannot add something we have seen
-        return if (seen.contains(pos)) {
+        return if (seen.contains(pathElement.pos)) {
             false
         // if we haven't seen at least 3 items, we cannot possible have 3 in a row
-        } else if (elements.size < 3) {
+        } else if (pathElement.numSameDir <= 3) {
             true
         // we can add to the path if we don't exceed 3 in the same direction
         } else {
-            !(1.. 3).all { elements[elements.size - it].direction == dir }
+            pathElement.direction != last.direction
         }
     }
 
@@ -143,7 +153,9 @@ class Path(
         return ret
     }
 
+    fun pathElementsAsStr() = elements.joinToString("->") { it.number.toString() }
+
     override fun toString(): String {
-        return "${score},${length}: ${elements.joinToString("->") { it.number.toString() }}"
+        return "${score},${length}: ${pathElementsAsStr()}"
     }
 }
