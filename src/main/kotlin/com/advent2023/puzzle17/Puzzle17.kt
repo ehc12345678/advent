@@ -8,14 +8,38 @@ import kotlin.collections.HashSet
 typealias Solution = Long
 typealias Solution2 = Solution
 
+typealias PredicateCanAddElement = (PathElement, PathElement) -> Boolean
+
+fun solution1pred(pathElement: PathElement, last: PathElement): Boolean {
+    return if (pathElement.numSameDir <= 3) {
+        true
+        // we can add to the path if we don't exceed 3 in the same direction
+    } else {
+        pathElement.direction != last.direction
+    }
+}
+
+fun solution2pred(pathElement: PathElement, last: PathElement): Boolean {
+    return if (last.numSameDir < 4) {
+        // crucible must move in a straight line for 4 consecutive times
+        pathElement.direction == last.direction
+    } else if (pathElement.numSameDir <= 10) {
+        // we can then only move 10 consecutive times in the same direction
+        true
+    } else {
+        pathElement.direction != last.direction
+    }
+}
+
+
 fun main() {
     try {
         val puz = Puzzle17()
         val solution1 = puz.solvePuzzle("inputs.txt", Data())
         println("Solution1: $solution1")
 
-//        val solution2 = puz.solvePuzzle2("inputsTest.txt", Data())
-//        println("Solution2: $solution2")
+        val solution2 = puz.solvePuzzle2("inputs.txt", Data())
+        println("Solution2: $solution2")
     } catch (t: Throwable) {
         t.printStackTrace()
     }
@@ -27,18 +51,26 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
     }
 
     override fun computeSolution(data: Data): Solution {
+        return computeWithPred(data, ::solution1pred)
+    }
+
+    override fun computeSolution2(data: Data): Solution2 {
+        return computeWithPred(data, ::solution2pred)
+    }
+
+    private fun computeWithPred(data: Data, pred: PredicateCanAddElement): Long {
         val queue = PriorityQueue<Path>(1000) { path1, path2 ->
             path1.compareTo(path2)
         }
-        val first = PathElement(Position(0,0), Dir.RIGHT, 0, 1)
-        data.addNeighbors(queue, Path(listOf(first), HashSet()), Position(0, 0))
+        queue.add(Path(listOf(PathElement(Position(0, 0), Dir.RIGHT, 0, 1))))
+        queue.add(Path(listOf(PathElement(Position(0, 0), Dir.DOWN, 0, 1))))
 
         val endPoint = Position(data.rows() - 1, data.cols() - 1)
         val seen = HashSet<String>()
         while (queue.peek().pos != endPoint) {
             val top = queue.remove()
-
-            data.getNeighbors(top.pos, top)
+            val neighbors = data.getNeighbors(top.pos, top, pred)
+            neighbors
                 .forEach { nextPath ->
                     val key = "${nextPath.key}/${top.last.key}"
                     if (!seen.contains(key)) {
@@ -48,9 +80,6 @@ class Puzzle17 : Base<Data, Solution?, Solution2?>() {
                 }
         }
         return queue.peek().score
-    }
-    override fun computeSolution2(data: Data): Solution2 {
-        return computeSolution(data)
     }
 }
 
@@ -79,11 +108,7 @@ class Data {
     fun value(pos: Position): Int? = value(pos.r, pos.c)
     fun value(r: Int, c: Int): Int? = if (r in grid.indices && c in grid[r].indices) grid[r][c] else null
 
-    fun addNeighbors(queue: PriorityQueue<Path>, path: Path, pos: Position) {
-        getNeighbors(pos, path).forEach { queue.add(path.addElement(it)) }
-    }
-
-    fun getNeighbors(pos: Position, path: Path): List<PathElement> {
+    fun getNeighbors(pos: Position, path: Path, canAddPredicate: PredicateCanAddElement): List<PathElement> {
         return Dir.values()
             .filter { dir ->
                 value(pos + dir.delta()) != null
@@ -97,9 +122,10 @@ class Data {
                 }
                 PathElement(pos + dir.delta(), dir, value!!, numSameDir)
             }.filter { pathElement ->
-                path.canAddElement(pathElement)
+                path.canAddElement(pathElement, canAddPredicate)
             }
     }
+
 
     fun rows() = grid.size
     fun cols() = grid[0].size
@@ -114,13 +140,12 @@ data class PathElement(val pos: Position, val direction: Dir, val number: Int, v
 }
 
 class Path(
-    val elements: List<PathElement> = ArrayList(),
-    val seen: Set<Position> = HashSet()
+    private val elements: List<PathElement> = ArrayList()
 ) : Comparable<Path> {
     val score : Long = elements.sumOf { it.number.toLong() }
 
     fun addElement(pathElement: PathElement): Path {
-        return Path(elements + pathElement, seen + setOf(pathElement.pos))
+        return Path(elements + pathElement)
     }
 
     val pos: Position
@@ -128,18 +153,22 @@ class Path(
     val last: PathElement
         get() = elements.last()
 
-    fun canAddElement(pathElement: PathElement): Boolean {
-        // cannot add something we have seen
-        return if (seen.contains(pathElement.pos)) {
+    fun canAddElement(pathElement: PathElement, pred: PredicateCanAddElement): Boolean {
+        // cannot go directly backwards
+        return if (last.direction == opposite(pathElement.direction)) {
             false
-        // if we haven't seen at least 3 items, we cannot possible have 3 in a row
-        } else if (pathElement.numSameDir <= 3) {
-            true
-        // we can add to the path if we don't exceed 3 in the same direction
         } else {
-            pathElement.direction != last.direction
+            pred(pathElement, last)
         }
     }
+
+    private fun opposite(direction: Dir): Dir =
+        when(direction) {
+            Dir.RIGHT -> Dir.LEFT
+            Dir.DOWN -> Dir.UP
+            Dir.UP -> Dir.DOWN
+            Dir.LEFT -> Dir.RIGHT
+        }
 
     val length: Int
         get() = elements.size
@@ -153,7 +182,7 @@ class Path(
         return ret
     }
 
-    fun pathElementsAsStr() = elements.joinToString("->") { it.number.toString() }
+    private fun pathElementsAsStr() = elements.joinToString("->") { it.number.toString() }
 
     override fun toString(): String {
         return "${score},${length}: ${pathElementsAsStr()}"
