@@ -1,6 +1,7 @@
 class Position
   attr_reader :row
   attr_reader :col
+  include Comparable
 
   def initialize(row, col)
     @row = row
@@ -13,6 +14,10 @@ class Position
 
   def eql?(other)
     @row == other.row and @col == other.col
+  end
+
+  def <=>(other)
+    [row, col] <=> [other.row, other.col]
   end
 
   def hash
