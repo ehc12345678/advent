@@ -5,32 +5,32 @@ from collections.abc import Callable
 ReadLineFunc = Callable[..., Any]
 
 class Base:
-  def readInput(self, filename: str, data: Any, readFunc: ReadLineFunc) -> Any:
+  def read_input(self, filename: str, data: Any, read_func: ReadLineFunc) -> Any:
     with open(filename) as file:
       for line in file:
-        readFunc(line.strip(), data)
+        read_func(line.strip(), data)
     return data
 
-  def readOneLine(self, line: str, data: Any): 
+  def read_one_line(self, line: str, data: Any):
      print("Read one line")
 
-  def readOneLine2(self, line: str, data: Any): 
-     self.readOneLine(line, data)
+  def read_one_line2(self, line: str, data: Any):
+     self.read_one_line(line, data)
 
-  def solvePuzzle(self, filename: str, data: Any) -> Any:
-    newData: object = self.readInput(filename, data, self.readOneLine)
-    return self.computeSolution(newData)
+  def solve_puzzle(self, filename: str, data: Any) -> Any:
+    newData: object = self.read_input(filename, data, self.read_one_line)
+    return self.compute_solution(newData)
 
-  def solvePuzzle2(self, filename: str, data: Any) -> Any: 
-    newData: object = self.readInput(filename, data, self.readOneLine2)
-    return self.computeSolution2(newData)
+  def solve_puzzle_2(self, filename: str, data: Any) -> Any:
+    newData: object = self.read_input(filename, data, self.read_one_line2)
+    return self.compute_solution2(newData)
 
   @abc.abstractmethod
-  def computeSolution(self, data: Any) -> Any:
+  def compute_solution(self, data: Any) -> Any:
     pass
 
   @abc.abstractmethod
-  def computeSolution2(self, data: Any) -> Any:
+  def compute_solution2(self, data: Any) -> Any:
     pass
 
 # from typing import TypeVar
