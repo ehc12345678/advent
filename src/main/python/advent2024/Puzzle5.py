@@ -28,10 +28,10 @@ class Graph:
     self.root = Node(0)
     self.nodes = {}
 
-  def add_child_to(self, key: int, child: int):
-    node = self.get_or_create_node(key)
-    child_node = self.get_or_create_node(child)
-    node.add_child_node(child_node)
+  def add_child_to(self, first_num: int, second_num: int):
+    must_come_before = self.get_or_create_node(first_num)
+    must_come_after = self.get_or_create_node(second_num)
+    must_come_after.add_child_node(must_come_before)
 
   def get_or_create_node(self, key: int) -> Node:
     node = self.nodes.get(key, None)
@@ -42,11 +42,12 @@ class Graph:
 
   def find_root_children(self):
     node_keys = set(self.nodes.keys())
+    all_children = set()
     for node in self.nodes.values():
       for child in node.children():
         if child.key in node_keys:
-          node_keys.remove(child.key)
-    for root in node_keys:
+          all_children.add(child.key)
+    for root in (node_keys - all_children):
       self.root.add_child_node(self.nodes[root])
 
   def index_nodes(self) -> dict[int, int]:
@@ -79,7 +80,7 @@ class Puzzle(Base[MyDataType, int, int]):
 
   def main(self):
     # 10877 too high
-    solution1: int = self.solve_puzzle("puzzle5/inputs.txt", MyDataType())  # type: ignore
+    solution1: int = self.solve_puzzle("puzzle5/inputsTest.txt", MyDataType())  # type: ignore
     print("Solution1: {}".format(solution1))
 
     self.first_part_input = True
@@ -105,7 +106,7 @@ class Puzzle(Base[MyDataType, int, int]):
     return ret
 
   def updates_in_right_order(self, update: list[int], indexed: dict[int, int]) -> bool:
-    sorted_update = sorted(update, key=lambda x: indexed.get(x, -1))
+    sorted_update = sorted(update, key=lambda x: -indexed.get(x, -1))
     return sorted_update == update
 
   def compute_solution2(self, data: MyDataType):
