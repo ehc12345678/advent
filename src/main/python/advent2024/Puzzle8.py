@@ -40,7 +40,7 @@ class Puzzle(Base[MyDataType, int, int]):
       solution1: int = self.solve_puzzle("puzzle8/inputs.txt", MyDataType())  # type: ignore
       print("Solution1: {}".format(solution1))
 
-      solution2: int = self.solve_puzzle2("puzzle8/inputsTest.txt", MyDataType()) # type: ignore
+      solution2: int = self.solve_puzzle2("puzzle8/inputs.txt", MyDataType()) # type: ignore
       print("Solution2: {}".format(solution2))
 
     def read_one_line(self, line: str, data: MyDataType):
@@ -64,7 +64,16 @@ class Puzzle(Base[MyDataType, int, int]):
       return len(antinodes)
 
     def compute_solution2(self, data: MyDataType):
-      pass
+      antinodes = set[Point]()
+      for ch in data.antennae:
+        points = data.antennae[ch]
+        for i in range(len(points) - 1):
+          for j in range(i + 1, len(points)):
+            antinodes |= self.calculate_resonant_antinodes(points[i], points[j], data)
+
+      data.print_graph(antinodes)
+
+      return len(antinodes)
 
     def calculate_antinodes(self, point1: Point, point2: Point, data: MyDataType) -> set[Point]:
       delta_row = point2[0] - point1[0]
@@ -78,6 +87,18 @@ class Puzzle(Base[MyDataType, int, int]):
           ret.add(pos)
       return ret
 
+    def calculate_resonant_antinodes(self, point1: Point, point2: Point, data: MyDataType) -> set[Point]:
+      delta_row = point2[0] - point1[0]
+      delta_col = point2[1] - point1[1]
+      return (self.all_pos_in_delta(point1, -delta_row, -delta_col, data) |
+              self.all_pos_in_delta(point1, delta_row, delta_col, data))
+
+    def all_pos_in_delta(self, point: Point, delta_row: int, delta_col: int, data: MyDataType) -> set[Point]:
+      ret = set[Point]()
+      while point[0] in range(data.num_rows) and point[1] in range(data.num_cols):
+        ret.add(point)
+        point = point[0] + delta_row, point[1] + delta_col
+      return ret
 
 puzzle: Puzzle = Puzzle()
 puzzle.main()
