@@ -99,6 +99,7 @@ class Puzzle(Base[MyDataType, int, int]):
     solution1: int = self.solve_puzzle("puzzle6/inputs.txt", MyDataType())  # type: ignore
     print("Solution1: {}".format(solution1))
 
+    # 1902 is too low
     solution2: int = self.solve_puzzle2("puzzle6/inputs.txt", MyDataType())  # type: ignore
     print("Solution2: {}".format(solution2))
 
@@ -109,7 +110,7 @@ class Puzzle(Base[MyDataType, int, int]):
     seen = self.get_path(data)
     return len(seen)
 
-  def get_path(selfself, data: MyDataType) -> set[Point]:
+  def get_path(self, data: MyDataType) -> set[Point]:
     clone = data.clone()
     seen = set[Point]()
     pos = clone.guard.pos

@@ -9,9 +9,8 @@ class Node:
   def children(self) -> Self:
     return self.child_nodes.values()
 
-  def add_child(self, child: int) -> Self:
-    node = Node(child)
-    self.child_nodes[child] = node
+  def add_child_node(self, node: Self) -> Self:
+    self.child_nodes[node.key] = node
     return node
 
   def remove_child(self, child: int):
@@ -22,7 +21,7 @@ class Node:
     return self.child_nodes.get(key, None)
 
   def __str__(self):
-    return str(self.key) + ": " + str(map(lambda x: x.key, self.children))
+    return str(self.key) + ": " + str(map(lambda x: x.key, self.child_nodes))
 
 class Graph:
   def __init__(self):
@@ -30,18 +29,29 @@ class Graph:
     self.nodes = {}
 
   def add_child_to(self, key: int, child: int):
+    node = self.get_or_create_node(key)
+    child_node = self.get_or_create_node(child)
+    node.add_child_node(child_node)
+
+  def get_or_create_node(self, key: int) -> Node:
     node = self.nodes.get(key, None)
-    root_child = self.root.child(child)
-
-    if root_child is not None:
-      self.root.remove_child(child)
     if node is None:
-      node = self.root.add_child(key)
+      node = Node(key)
+      self.nodes[key] = node
+    return node
 
-    self.nodes[key] = node
-    node.add_child(child)
+  def find_root_children(self):
+    node_keys = set(self.nodes.keys())
+    for node in self.nodes.values():
+      for child in node.children():
+        if child.key in node_keys:
+          node_keys.remove(child.key)
+    for root in node_keys:
+      self.root.add_child_node(self.nodes[root])
 
   def index_nodes(self) -> dict[int, int]:
+    self.find_root_children()
+
     indexed = dict[int, int]()
     bfs_queue = [self.root]
     depth_queue = [0]
@@ -68,7 +78,8 @@ class Puzzle(Base[MyDataType, int, int]):
     self.first_part_input = True
 
   def main(self):
-    solution1: int = self.solve_puzzle("puzzle5/inputsTest.txt", MyDataType())  # type: ignore
+    # 10877 too high
+    solution1: int = self.solve_puzzle("puzzle5/inputs.txt", MyDataType())  # type: ignore
     print("Solution1: {}".format(solution1))
 
     self.first_part_input = True
