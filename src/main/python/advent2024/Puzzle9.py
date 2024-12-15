@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from Base import Base
 from advent2024.DoublyLinkedList import DoublyLinkedList, Node
 
@@ -94,7 +96,7 @@ class Puzzle(Base[MyDataType, int, int]):
     # Too high: 6388294593135
     def compute_solution2(self, data: MyDataType):
       data = self.rearrange_list_whole_blocks(data)
-      ret = 0
+      ret = Decimal(0)
 
       i = 0
       for node in data:
@@ -105,11 +107,13 @@ class Puzzle(Base[MyDataType, int, int]):
 
     def rearrange_list_whole_blocks(self, data: MyDataType) -> MyDataType:
       back = data.tail
+      self.print_list(data)
       while back is not None:
         back_prev = back.prev
         if not back.value.free_space:
+          # print("  Trying {}".format(back.value.ordinal))
           first_free = self.find_free_space(data, back, back.value.free_space)
-          if first_free:
+          if first_free is not None:
             remaining_space = first_free.value.block_size - back.value.block_size
             data.delete_node(back)
             data.insert_after_node(back_prev, Node(NodeData(0, True, back.value.block_size)))
@@ -118,6 +122,7 @@ class Puzzle(Base[MyDataType, int, int]):
               first_free.value.block_size = remaining_space
             else:
               data.delete_node(first_free)
+          # self.print_list(data)
 
         back = back_prev
       return data
