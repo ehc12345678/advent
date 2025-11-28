@@ -1,1 +1,2110 @@
-6571 0 5851763 526746 23 69822 9 989
+Au: Abbey, Lynn
+    Gn: fantasy
+        Se: The Ultima Saga
+            1: The Forge of Virtue
+            2: The Temper of Wisdom
+        Se: Unicorn & Dragon
+            1: Unicorn & Dragon
+            2: Conquest
+Au: Abbott, Edwin A.
+    Gn: sci-fi
+        Ti: Flatland
+Au: Adams, Douglas
+    Gn: humor sci-fi
+        Ti: Dirk Gently's Holistic Detective Agency
+        Se: Hitchhiker Trilogy
+            1: The Hitchhiker's Guide to the Galaxy
+            2: The Restaraunt at the End of the Universe
+            3: Life, the Universe and Everything
+            4: So Long and Thanks for All the Fish
+            5: Mostly Harmless
+        Ti: The Long Dark Tea-Time of the Soul
+Au: Adams, Richard
+    Gn: adventure literature
+        Ti: Watership Down
+Au: Albrand, Martha
+    Gn: adventure
+        Ti: A Day in Monte Carlo
+Au: Aldiss, Brian W.
+    Gn: sci-fi
+        Se: The Helliconia Trilogy
+            1: Helliconia Spring
+            2: Helliconia Summer
+            3: Helliconia Winter
+Au: Alexander, Jean
+    Gn: romance
+        Ti: Nurse in South America
+Au: Alexander, Lloyd
+    Gn: fantasy
+        Se: Chronicle of Prydain
+            1: The Book of Three
+            2: The Black Cauldron
+            3: The Castle of Llyr
+            4: Taran Wanderer
+            5: The High King
+    Gn: children adventure
+        Ti: Time Cat
+Au: Ames, Leslie
+    Gn: romance
+        Ti: The Phantom Bride
+Au: Anderson, Poul
+    Gn: sci-fi
+        Ti: Past Times
+Au: Anthony, Piers
+    Gn: fantasy
+        Se: Apprentice Adept
+            1: Split Infinity
+            2: Blue Adept
+            3: Juxtaposition
+            4: Out of Phase
+            5: Robot Adept
+            6: Unicorn Point
+            7: Phaze Doubt
+        Se: The Magic of Xanth
+            1: A Spell for Cameleon
+            2: The Source of Magic
+          - 3: Castle Roogna
+          - 4: Centaur Aisle
+          - 5: Ogre, Ogre
+            6: Night Mare
+            7: Dragon on a Pedestal
+          - 8: Crewel Lye: A Caustic Yarn
+            9: Golem in the Gears
+            9 (hc): Golem in the Gears
+          - 10: Vale of the Vole
+            11: Heaven Cent
+            12: Man from Mundania
+            13: Isle of View
+        Se: The Mode Series
+            1: Virtual Mode
+          - 2: Fractal Mode
+    Gn: sci-fi
+        Se: Bio of a Space Tyrant
+            1: Refugee
+            2: Mercernary
+            3: Politician
+            4: Executive
+            5: Statesman
+        Se: The Cluster Series
+            1: Cluster
+          - 2: Chaining the Lady
+            3: Kirlian Quest
+            4: Thousandstar
+            5: Viscous Circle
+        Se: Of Man and Manta Series
+          - 1: Omnivore
+            2 (hc): Orn
+            3: Ox
+        Ti: Hard Sell
+        Se: The Tarot Series
+            1: God of Tarot
+    Gn: sci-fi fantasy
+        Se: Incarnations of Immortality
+            1 (hc): On a Pale Horse
+            2 (hc): Bearing an Hourglass
+            3 (hc): With a Tangled Skein
+            4 (hc): Wielding a Red Sword
+            5 (hc): Being a Green Mother
+            6: For Love of Evil
+          - 7: And Eternity...
+Au: Anton, Sharon
+    Gn: romance
+        Ti: By Queen's Grace
+Au: Ashton, Elizabeth
+    Gn: romance
+        Ti: Miss Nobody from Nowhere
+Au: Asimov, Isaac
+    Gn: sci-fi
+        Se: The Adventures of Lucky Star
+            Ti (hc): The Adventures of Lucky Star
+                1: David Starr - Space Ranger
+                2: Lucky Starr and the Pirates of the Asteroids
+                3: Lucky Starr and the Oceans of Venus
+            Ti (hc): The Further Adventures of Lucky Starr
+                1: Lucky Starr and the Big Sun of Mercury
+                2: Lucky Starr and the Moons of Jupiter
+                3: Lucky Starr and the Rings of Saturn
+        Ti: Earth is Room Enough
+        Ti: The Edge of Tomorrow
+        Ti: The End of Eternity
+        Se: Fantasic Voyage
+            1 (hc): Fantastic Voyage
+          - 2: Fantastic Voyage II
+        Se: The Foundation Series
+            1: Foundation
+            2: Foundation and Empire
+            3: Second Foundation
+            4: Foundation's Edge
+            5: Foundation and Earth
+            6 (hc): Prelude to Foundation
+            7 (hc): Forward the Foundation
+        Se: The Second Foundation Trilogy
+            1: Foundation's Fear
+               Au: Benford, Gregory
+            2: Foundation and Chaos
+               Au: Bear, Greg
+        Se: The Galactic Empire Novels
+          - 1: The Stars, Like Dust
+            2: The Currents of Space
+            3: Pebble in the Sky
+        Ti: The Gods Themselves
+        Ti: Gold
+        Ti: I, Robot
+        Ti: Los Robots
+            Nb: Spanish
+        Ti: The Martian Way... and Other Stories
+        Ti: Nine Tomorrows
+        Ti: Opus 100
+        Se: The Robot Novels
+            1: The Caves of Steel
+            2: The Naked Sun
+            3: The Robots of Dawn
+            4: Robots and Empire
+        Ti (hc): The Winds of Change... and Other Stories
+    Gn: mystery
+        Ti: Muder at the ABA
+Au: Asimov, Isaac and Silverberg, Robert
+    Gn: sci-fi
+        Ti: Nightfall
+        Ti: The Positronic Man
+        Ti: The Ugly Little Boy
+Ed: Asimov, Isaac
+    Gn: sci-fi
+        Ti: Robots: Isaac Asimov's Wonderful World of Science Fiction #9
+        Se: Isaac Asimov's Robot City
+            1: Odyssey
+                Au: Kube-McDowell, Michael P.
+            2: Suspicion
+                Au: McQuay, Mike
+            3: Cyborg
+                Au: Wu, William F.
+            4: Prodigy
+                Au: Cover, Arthur Byron
+            5: Refuge
+                Au: Chilson, Rob
+            6: Perihelion
+                Au: Wu, William F.
+        Se: Isaac Asimov's Robot City: Robots and Aliens
+            1: Changeling
+                Au: Leigh, Stephen
+            2: Renegade
+                Au: Scotten, Cordell
+            3: Intruder
+                Au: Thurston, Robert
+          - 4: Alliance
+                Au: Oltion, Jerry
+            5: Maverick
+                Au: Berthke, Bruce
+Au: Asimov, Janet
+    Gn: sci-fi
+        Se: Isaac's Universe
+            Ti: Murder at the Galactic Writers' Society
+Au: Asimov, Janet and Asimov, Isaac
+    Gn: sci-fi fantasy
+        Se: Norby
+            Ti: Norby and the Oldest Dragon
+Au: Aspirin, Robert Lynn
+    Gn: fantasy humor
+        Se: The Myth Books
+            Ti (hc): Myth Adventures
+                1: Another Fine Myth
+                2: Myth Conceptions
+                3: Hit or Myth
+            Ti (hc): Myth Alliances
+                4: Myth-ing Persons
+                5: Little Myth Marker
+                6: M.Y.T.H. Inc. Link
+            7: Myth-nomers and Im-pervections
+            8: M.Y.T.H. Inc. in Action
+            9: Sweet Myth-tery of Life
+Ed: Aspirin, Robert Lynn and Abbey, Lynn
+    Gn: fantasy
+        Se: Thieves' World
+            Ti (hc): Santuary
+                1: Thieves' World
+                2: Tales from the Vulgar Unicorn
+                3: Shadows of Sanctuary
+            Ti (hc): Cross-Currents
+                4: Storm Season
+                5: The Face of Chaos
+                6: Wings of Omen
+            Ti (hc): The Shattered Sphere
+                7: The Dead of Winter
+                8: Soul of the City
+                9: Blood Ties
+          - 10: After Math
+          - 11: Uneasy Alliances
+          - 12: Stealer's Sky
+Au: Austen, Jane
+    Gn: romance
+        Ti: Emma
+        Ti: Mansfield Park
+        Ti: Pride and Prejudice
+        Ti: Sense and Sensibility
+Co: Babylon 5
+    Gn: sci-fi
+        Au: Cavelos, Jeanne
+            Ti: The Shadow Within (#7)
+        Au: Davide, Peter
+            Si: Legions of Fire
+                1: The Long Night of Centauri Prime
+                2: Armies of Light and Dark
+                3: Out of the Darkness
+        Au: Drennan, Katheryn
+            Ti: To Dream in the City of Sorrows (#9)
+        Au: Keyes, J. Gregory
+            Si: The Saga of Psi Corps
+                1: Dark Genesis: The Birth of the Psi Corps
+                2: Deadly Relations: Bester Ascendant
+                3: Final Reckoning: The Fate of Bester
+        Au: Sarrantonio, Al
+            Ti: Personal Agendas (#8)
+        Au: Vornholt, John
+            Ti: Blood Oath (#3)
+            Ti: Voices (#1)
+Au: Bach, Richard
+    Gn: sci-fi
+        Ti (hc): One
+    Gn: children
+        Ti: There's No Such Place as Far Away
+Au: Banks, Iain M.
+    Gn: sci-fi
+        Ti: Excession
+Au: Bates, H.E.
+    Gn: fantasy
+        Ti (hc): The Enchantress: and Other Stories
+Au: Bear, Greg
+    Gn: sci-fi
+        Ti: Darwin's Radio
+        Se: Eon
+            0: Legacy
+          - 1: Eon
+            2: Eternity
+        Se: The Forge of God
+            1 (hc): The Forge of God
+            2: Anvil of Stars
+        Se: Hegira
+        Ti: Songs of Earth & Power
+Au: Bedier, Joseph
+    Ti: The Romance of Tristan and Iseult
+        Gn: literature
+Au: Bellairs, John
+    Ti: The House with a Clock in its Walls
+        Gn: children horror
+Au: Bellow, Saul
+    Gn: adventure
+        Ti (hc): The Adventures of Augie March
+        Ti (hc): Henderson the Rain King
+        Ti (hc): Herzog
+Au: Benford, Gregory
+    Gn: sci-fi
+        Si: Great Sky Rider
+          - 1: Great Sky Rider
+            2: Tides of Light
+        Ti: Timescape
+- Ti (hc): Best-in-Books
+    Gn: literature
+        1: Eleanor the Queen
+            Au: Lofts, Norah
+        2: The Tall Dark Man
+            Au: Chamberlain, Anne
+        3: Innocence Under the Elms
+            Au: Rich, Louise Dickinson
+        4: Spies for the Blue and Gray
+            Au: Kane, Harnett T.
+        5: Switzerland
+            Ed: Runyan, A. Milton and Bergane, Vilma F.
+        6: Blessed Event
+            Au: O'Malley, Bill
+        7: Trails of the World
+            Au: Andrews, Ray Chapman
+Au: Bester, Alfred
+    Gn: sci-fi
+        Ti: The Demolished Man
+            Nb: Hugo Winner
+Au: Biggers, Earl Diers
+    Gn: mystery
+        Ti: Charlie Chan Carries On
+Au: Bischoff, David
+    Gn: adventure
+        Ti: War Games
+Au: Blume, Judy
+    Gn: children
+        Ti: Iggie's House
+        Ti: Tales of a Fourth Grade Nothing
+Au: Bova, Ben
+    Gn: sci-fi
+        Se: Orion
+            1: Orion
+            2: Vengeance of Orion
+            3: Orion in the Dying Time
+            4: Orion and the Conqueror
+            5: Orion Among the Stars
+       Ti: Millennium
+Au: Bradbury, Ray
+    Gn: sci-fi
+        Ti: Fahrenheit 451
+        Ti: Something Wicked This Way Comes
+        Ti (hc): Twice 22
+            1: The Golden Apples of the Sun
+            2: The Medicine for Melancholy
+Au: Bradford, Barbara Taylor
+    Gn: romance
+        Ti: Everything to Gain
+Au: Bradley, Marion Zimmer
+    Gn: fantasy
+        Co: Darkover
+            Se: The Renunciates
+                Ti (hc): Oath of the Renunciates
+                    1: The Shattered Chain
+                    2: Thendara House
+                Ti (hc): City of Sorcery
+            Se: Against the Terrans
+                1: The Spell Sword
+              - 2: The Forbidden Tower
+            Se: The Darkover Anthologies
+              - 1: The Keeper's Price
+              - 2: Sword of Chaos
+              - 3: Free Amazons of Darkover
+              - 4: The Other Side of the Mirror
+                5: Red Sun of Darkover
+            Ti (hc): The Mists of Avalon
+    Gn: alt-history fantasy
+        Ti: The Firebrand
+        Ti: The Mysts of Avalon
+Au: Bradley, Marion Zimmer and Norton, Andre and Lackey, Mercedes
+    Gn: fantasy
+        Ti: Tiger Burning Bright
+Au: Bridell, Norman
+    Gn: children
+        Ti: Clifford: the Small Red Puppy
+Au: Brecht, Bertolt
+    Gn: history play
+        Ti: Galileo
+Au: Brennan, Alice
+    Gn: horror
+        Ti: The Haunted
+Au: Brin, David
+    Gn: sci-fi
+        Ti: Earth
+        Se: UpLift
+            1: Sundiver
+          - 2: Startide Rising
+          - 3: The Uplift War
+          - 4: Brightness Reef
+          - 5: Infinity's Shore
+          - 6: Heaven's Reach
+Au: Briskin, Jacqueline
+    Gn: family
+        Ti: Paloverde
+Au: Bronte, Emily
+    Gn: literature
+        Se: Wuthering Heights
+Au: Brooks, Terry
+    Gn: fantasy
+        Se: The Magic Kingdom of Landover
+            1 (hc): Magic Kingdom for Sale: Sold
+            2: The Black Unicorn
+            3: Wizard at Large
+          - 4: The Tangle Box
+          - 5: Witches' Brew
+        Se: Shannara Trilogy
+          - 0: First King of Shannara
+            1: The Sword of Shannara
+            2: The Elfstone of Shannara
+            3 (hc): The Wishsong of Shannara
+        Se: Word and Void
+          - 1: Running with the Demon
+          - 2: A Knight of the Word
+          - 3: Angel Fire East
+            4: Armageddon's Children
+Au: Brown, Dan
+    Gn: suspense
+        Ti: Angels and Demons
+        Ti: The Da Vinci Code
+        Ti: Digital Fortress
+Au: Brown, Mary
+    Gn: fantasy
+        Ti (hc): The Unlikely Ones  
+Au: Brust, Steven
+    Gn: fantasy
+        Ti: Agyar
+        Ti: Brokedown Palace
+        Ti: The Gypsy
+        Se: The Pheonix Guards
+            1: The Pheonix Guards
+            2: Five Hundred Years After
+            3: The Paths of the Dead
+            4: The Lord of Castle Black
+          - 5: Sethra Levode
+        Ti: To Reign in Hell
+        Ti: The Sun, the Moon, & the Stars
+        Se: Vlad Taltos Series    
+            Ti: The Book of Jhereg
+                1: Jhereg
+                2: Yendi
+                3: Teckla
+            4: Taltos
+            5: Pheonix
+            6: Athyra
+            7: Orca
+            8: Dragon
+            9: Issola
+            10 (hc): Dzur
+    Gn: sci-fi
+        Ti: Cowboy Feng's Space Bar and Grille
+Au: Brust, Stephen and Bull, Emma
+    Gn: historical
+        Ti: Freedom & Necessity
+Au: Buck, Perl S.
+    Gn: literature
+        Ti: God's Men
+        Ti: The Good Earth
+Au: Burnett, Frances Hodgson
+    Gn: children
+        Ti: The Secret Garden
+Au: Burnford, Sheila
+    Gn: animal adventure
+        Ti: The Incredible Journey
+Au: Burton, Levar
+    Gn: sci-fi
+        Ti: Aftermath
+Au: Card, Orson Scott
+    Gn: alt-history
+        Ti: Pastwatch: the Redemption
+    Gn: fantasy
+        Ti: Enchantment
+        Se: Tales of Alvin Maker
+            1: Seventh Son
+            2: Red Prophet
+          - 3: Prentice Alvin
+          - 4: Alvin Journeyman
+          - 5: Heartfire
+        Ti: Treasure Box
+    Gn: religion fantasy
+        Se: Women of Genesis
+          - 1: Sarah
+          - 2: Rebekah
+            3: Rachel & Leah
+    Gn: sci-fi
+        Se: Ender
+          - 1: Ender's Game
+            2: Speaker For the Dead
+            3 (hc): Xenocide
+            4: Children of the Mind
+            5: First Meetings in Ender's Universe
+        Se: Ender's Shadow
+          - 1: Ender's Shadow
+            2: Shadow of the Hegemon
+            3: Shadow Puppets
+            4: Shadow of the Giant
+        Se: Homecoming
+            1: The Memory of Earth
+            2: The Call of Earth
+            3: The Ships of Earth
+          - 4: Earthfall
+            5: Earthborn  
+        Ti: Treason
+        Ti: The Worthing Saga
+        Ti (hc): Wyrms
+Ed: Carr, Terry
+    Gn: sci-fi
+        Ti: Terry Carr's Best Science Fiction of the Year (#15)
+Au: Carroll, Marisa
+    Gn: romance
+        Ti: Ties that Bind
+Au: Cartland, Barbara
+    Gn: romance
+        Ti: Towards the Stars
+        Ti: Where is Love
+Au: Chace, Isobel
+    Gn: romance
+      - Ti: Second Best Wife
+Au: Chalker, Jack L.
+    Se: Dancing Gods Series
+        1: The River of the Dancing Gods
+        2: Demons of the Dancing Gods
+    Se: The Saga of the Well of the World
+        1: Midnight at the Well of Souls
+        2: Exiles at the Well of Souls
+        3: Quest for the Well of Souls
+        4: The Return of Nathan Brazil
+        5: Twilight at the Well of Souls: The Legacy of Nathan Brazil
+Au: Chaucer, Geoffrey
+    Gn: literature
+        Ti: The Canterbury Tales
+Au: Cherryh, C.J.
+    Gn: fantasy
+        Se: Chanur
+            Ti: The Chanur Saga
+                1: The Pride of Chanur
+                2: Chanur's Venture
+                3: The Kif Strike Back
+        Se: Cyteen
+          - 1: Cyteen: The Betrayal
+          - 2: Cyteen: The Vindication
+            3: Cyteen: The Rebirth
+        Se: First Contact
+          - 1: Foreigner
+            2: Invader
+            3: Inheritor
+            4: Precursor
+            5: Defender
+          - 6: Explorer
+        Se: Fortress
+            1: Fortress in the Eye of Time
+            2 (hc): Fortress of Eagles
+            3 (hc): Fortress of Owls
+          - 4: Fortress of Dragons
+        Ti: Legions of Hell
+        Ti: Rimrunners
+        Se: Saga of Morgaine
+          - 1: Gate of Ivrel
+          - 2: Well of Shivan
+          - 3: Fires of Azeroth
+            4 (hc): Exile's Gate
+    Gn: sci-fi
+        Se: The Alliance-Union Universe
+            1: Downbelow Station
+Au: Cherryh, C.J. and Fish, Leslie
+    Gn: fantasy
+        Se: The Sword of Knowledge
+            1: A Dirge for Sabis
+Au: Chrighton, Michael
+    Gn: sci-fi
+        Ti: Sphere
+    Gn: thriller
+        Ti: Electronic Life
+Au: Christenberry, Judy and Turner, Linda and Zane, Carolyn
+    Gn: family
+        Ti: A Colton Family Christmas
+Au: Christie, Agatha
+    Gn: mystery
+        Ti: 13 Clues for Miss Maples
+        Ti: 13 For Luck
+        Ti: The ABC Murders
+        Ti: Cat Among the Pigeons
+        Ti: The Clocks
+        Ti: Crooked House
+        Ti: Elephants Can Remember
+        Ti (hc): Five Complete Novels of Murder and Detection
+            1: Ten Little Indians
+            2: Peril at End House
+            3: The Murder at Hazel Moor
+            4: Easy to Kill
+            5: Evil Under the Sun
+        Ti: Hickory Dickory Death
+        Nb: Hercule Poirot
+            Ti: Death on the Nile
+            Ti: Elephants Can Remember
+            Ti: Funerals are Fatal
+            Ti: Murder in Mesopotamia
+            Ti: Murder in Retrospect
+            Ti: Murder on the Orient Express
+            Ti: Third Girl
+Au: Clair, Daphne
+    Gn: romance
+        Ti: The Sleeping Fire
+Au: Clancy, Tom
+    Gn: adventure techno-thriller
+        Nb: Jack Ryan
+            1: The Hunt for Red October
+            2: Patriot Games
+            3: The Cardinal of the Kremlin
+            4: Clear and Present Danger
+            5: The Sum of All Fears
+            6 (hc): Without Remorse
+            7: Debt of Honor
+            8: Executive Orders
+            9: Rainbow Six
+            10: The Bear and the Dragon
+            11: Red Rabbit
+            12: Teeth of the Tiger
+        Ti: Red Storm Rising
+Au: Clancy, Tom and Pieczenik, Steve
+    Gn: adventure techno-thriller
+        Se: Net Force
+            1: Hidden Agendas
+        Se: Op-Center
+            1: Op-Center
+            2: Games of State
+Au: Clancy, Tom and Greenberg, Martin
+    Gn: adventure techno-thriller
+        Ti: SSN
+Ed: Clancy, Tom
+    Gn: adventure techno-thriller
+        Se: Op-Center
+            Ti: Op-Center
+Au: Clark, Arthur C.
+    Gn: sci-fi
+        Ti: Islands in the Sky
+        Se: Odyssey Series
+          - 1: 2001: a space odyssey
+            2: 2010: odyssey two
+            3: 2061: odyssey three
+        Ti (hc): The Songs of Distant Earth
+        Ti: Tales from the "White Hart"
+Ed: Clark, Arthur, C.
+    Gn: sci-fi
+        Se: Venus Prime
+            Au: Paul Preuss
+                1: Breaking Strain
+                2: Maelstrom
+                3: Hide and Seek
+Au: Clavell, James
+    Gn: history japan
+        Se: The Asian Saga
+            1: Shogun (1600)
+          - 2: Tai-Pan (1841)
+          - 3: Gai-Jin (1862)
+            4: King Rat (1945)
+            5: Noble House (1963)
+          - 6: Whirlwind (1979)
+Au: Cleary, Beverly
+    Gn: children
+        Ti: Emily's Runaway Imagination
+Au: Collins, Stuart
+    Gn: horror
+        Ti: Burndown
+Au: Conan Doyle, Sir Authur
+    Gn: mystery
+        Nb: Sherlock Holmes
+            Ti: The Adventures of Sherlock Holmes
+            Ti: The Hound of the Baskervilles
+            Ti: The Complete Sherlock Holmes
+            Ti: The Complete Sherlock Holmes II
+Au: Conley, Jane Leslie
+    Gn: children fantasy
+        Ti: Rasco and the Rats of NIMH
+Au: Cook, Glen
+    Gn: sci-fi
+        Se: The Starfishers Trilogy
+            1: Shadowline
+            2: Starfishers
+            3: Stars' End
+Au: Cooper, Louise
+    Gn: fantasy
+        Se: Time Master Trilogy
+            1: The Initiate
+Au: Cornwell, Bernard
+    Gn: fantasy
+        Ti (hc): The Winter King
+Au: Cory, Desmond
+    Gn: suspense thriller
+        Se: Deadfall
+Au: Coyne, John
+    Gn: horror
+        Ti (hc): Hobgoblin
+Au: Cross, Ronald Anthony
+    Se: The Eternal Guardians
+        1: The Fourth Guardian
+        2: The Lost Guardian
+Au: Dante
+    Gn: literature
+        Ti: The Inferno
+Au: David, Peter
+    Gn: fantasy
+        Se: Knight
+            1: One Knight Only
+            2: Knight Life
+Au: Davidson, Carson
+    Gn: children
+        Ti: Fast-talking Dolphin
+Au: Delany, Samuel R.
+    Gn: sci-fi
+        Ti: Stars in My Pocket Like Grains of Sand
+Au: Deveraux, Jude
+    Gn: romance
+        Ti: An Angel for Emily
+        Ti: The Awakening
+        Ti: The Blessing
+        Ti: Forever...
+        Ti: The Heiress
+        Ti: High Tide
+        Ti: Highland Velvet
+        Ti: Remembrance
+        Ti: The Summerhouse
+        Ti: Sweet Liar
+        Ti: Temptation
+        Ti: The Temptress
+        Ti: Velvet Angel
+        Ti: Velvet Promise
+        Ti: Velvet Song
+        Ti: Wild Orchids
+Au: Dick, Phillip
+    Gn: sci-fi
+        Ti: Blade Runner (Do Androids Dreams of Electric Sheep)
+        Ti: Blade Runner 2: The Edge of Human
+            Au: Jeter, K. W.
+        Ti: Flow My Tears, the Policeman Said
+        Ti: A Maze of Death
+        Ti: The Man in the High Castle
+        Ti: Radio Free Albemuth
+        Ti: The Three Stigmata of Palmer Eldritch
+        Ti: Ubik
+Au: Dick, Phillip and Zelazny, Roger
+    Gn: sci-fi
+        Ti: Deus Irae
+Au: Dickens, Charles
+    Gn: literature
+        Ti: A Tale of Two Cities
+        Ti (hc): A Tale of Two Cities
+        Ti (hc): David Copperfield
+        Ti (hc): Oliver Twist
+Au: Dickson, Gordon R.
+    Gn: sci-fi
+        Ti: The Alien Way
+        Se: The Childe Cycle Series
+            1: Dorsai!
+            2: Lost Dorsai
+          - 3: Necromancer
+          - 4: Soldier, Ask Not
+          - 5: The Spirit of Dorsai
+          - 6: Tactics of Mistake
+            7: The Final Encyclopedia
+        Ti: The Man the Worlds Rejected
+        Ti: Mission to Universe
+        Ti: None But Man
+        Ti: Space Winners
+        Ti: Survival
+        Ti: Way of the Pilgrim
+        Ti: Wolfling
+    Gn: fantasy
+        Se: The Dragon and the George
+            1 (hc): The Dragon and the George
+            2: The Dragon Knight
+          - 3: The Dragon on the Border
+            4: The Dragon, the Earl, and the Troll
+          - 5: The Dragon and the Djinn
+Au: Dodd, Christina
+    Gn: romance
+        Ti: The Runaway Princess
+Au: Donaldson, Stephen R.
+    Gn: fantasy
+        Se: The Chronicles of Thomas Covenant the Unbeliever
+            1 (hc): Lord Foul's Bane
+            2 (hc): The Illearth War
+            3 (hc): The Power That Preserves
+            4 (hc): Gilden-Fire
+                Nb: novellette
+        Se: The Second Chronicles of Thomas Covenant
+            1 (hc): The Wounded Land
+            2 (hc): The One Tree
+            3 (hc): White Gold Wielder
+        Se: The Last Chronicles of Thomas Covenant
+            1: Runes of the Earth
+        Se: Mordant's Need
+            1: The Mirror of Her Dreams
+            2 (hc): A Man Rides Through
+     Gn: sci-fi
+        Se: The Gap Series
+            1: The Gap into Conflict: The Real Story
+            2: The Gap into Vision: Forbidden Knowledge
+            3: The Gap into Power: A Dark and Hungry God Arises
+            4: The Gap into Madness: Chaos and Order
+            5: The Gap into Ruin: This Day All Gods Die
+Co: Dragonlance
+    Gn: fantasy
+        Au: Weis, Margaret and Hickman, Tracy
+            Se: Chronicles
+                1: Dragons of Autumn Twilight
+                2: Dragons of Winter Night
+                3: Dragons of Spring Dawning
+                4: Dragons of Summer Flame
+            Se: Legends
+                1: Time of the Twins
+                2: War of the Twins
+                3: Test of the Twins
+            Ti: The Second Generation
+        Se: Heroes
+            1: The Legend of Huma
+                Au: Knaak, Richard A.
+            2: Stormblade
+                Au: Berberick, Nancy Varian
+            3: Weasel's Luck
+                Au: Williams, Micheal
+        Se: The Meetings Sextent
+            1: Kindred Spirits
+                Au: Anthony, Mark and Porath, Ellen
+          - 2: Wanderlust
+          - 3: Dark Heart
+            4: The Oath and the Measure
+                Au: Williams, Michael
+          - 5: Steel and Stone
+          - 6: The Companions
+        Se: Preludes
+            1: Darkness and Light
+                Au: Thompson, Paul B. and Carter, Tonya R.
+            2: Kendermore
+                Au: Kirchoff, Mary
+            3: Brothers Majere
+                Au: Stein, Kevin
+        Se: The Raistlin Chronicles
+            1: The Soulforge
+                Au: Weis, Margaret
+            2: Brothers in Arms
+                Au: Weis, Margaret and Perrin, Don
+        Se: Tales
+            Ed: Weis, Margaret and Hickman, Tracy
+                1: The Magic of Kyrnn
+                2: Kender, Gully Dwarves, and Gnomes
+                3: Love and War
+Ti: Dragonslayer
+    Gn: fantasy illustrated
+Au: Drake, David and Morris, Janet
+    Gn: fantasy
+        Ti: Explorers in Hell
+        Ti: Vettius and His Friends
+Au: Drew, Willand
+    Gn: fantasy movie
+        Ti (hc): Willow
+Au: Dumas, Alexandre
+    Gn: adventure
+        Se: The Three Musketeers
+            1: The Three Musketeers
+            2: The Man in the Iron Mask
+            3: Twenty Years After
+Co: Earth 2
+    Gn: sci-fi
+        Au: Dalton, Sean
+            Ti: Puzzle
+Au: Eco, Umberto
+    Gn: mystery
+        Ti: The Name of the Rose
+Au: Eddings, David
+    Gn: fantasy
+        Se: The Belgariad
+            1: Pawn of Prophecy
+            2: Queen of Sorcery
+            3: Magician's Gambit
+            4: Castle of Wizardry
+            5: Enchanter's End Game
+        Se: The Mallorean
+            1: Guardians of the West
+            2: King of the Murgos
+            3 (hc): Demon Lord of Karanda
+            4 (hc): Sorceress of Darshiva
+          - 5: The Seeress of Kell
+        Se: The Elenium
+            1 (hc): The Diamond Throne
+          - 2: The Ruby Knight
+          - 3: The Sapphire Rose
+Au: Edmondson, G.C and Kotlan, C.M.
+    Gn: sci-fi
+        Ti: Maximum Effort
+Au: Eliot, T.S.
+    Gn: literature play
+        Ti: Murder in the Cathedral
+Au: Eliot, George
+    Gn: literature
+        Ti: Silas Marner
+Se: Earth 2
+    Gn: sci-fi
+        Au: Dalton, Sean
+          - Ti: Puzzle
+Au: Estes, Rose
+    Gn: adventure interactive
+        Ti: Revenge of the Rainbow Dragons
+Au: Exupäry, Antoine de Saint
+    Gn: children
+        Ti: The Little Prince
+Ed: Farmer, Phillip Jose
+    Gn: fantasy
+        Se: The Dungeon
+          - 1: The Black Tower
+            2: The Dark Abyss
+               Au: Coville, Bruce
+            3: The Valley of Thunder
+               Au: De Lint, Charles
+            4: The Lake of Fire
+               Au: Bailey, Robin W.
+Au: Faulkner, William
+    Gn: literature
+        Ti: The Sound and the Fury
+Au: Feist, Raymond E.
+    Gn: fantasy horror
+        Ti: Faerie Tale
+    Gn: fantasy
+        Se: The Riftwar Saga
+            1: Magician: Apprentice
+            2: Magician: Master
+          - 3: Silverthorn
+            4: A Darkness at Sethanon
+          - 5: Prince of the Blood
+            6: The King's Buccaneer
+        Se: The Serpentwar Saga
+            1: Shadow of a Dark Queen
+            2: Rise of a Merchant Prince
+            3: Rage of a Demon King
+            4: Shards of a Broken Crown
+Au: Flint, Eric
+    Gn: alt-history
+        Ti: 1632
+        Ti: 1633
+	    Au: Flint, Eric and Weber, David
+Au: Follett, Ken
+    Gn: mystery
+        Ti: The Man From St. Petersburg
+Co: Forgotten Realms
+    Gn: fantasy
+        Au: Awlinson, Richard
+            Se: The Avatar Trilogy
+                1: Shadowdale
+                2: Tantras
+                3: Waterdeep
+        Au: Douglas, Niles
+            Se: The Moonshae Trilogy
+                1: Darkwalker on Moonshae
+              - 2: Black Wizards
+                3: Darkwell
+        Au: Greenwood, Ed
+            Ti: Spellfire
+        Au: Salvitor, R. A.
+            Se: The Icewind Dale Trilogy
+                1: The Crystal Shard    
+                2: Streams of Silver
+                3: The Halfling's Gem
+Au: Foster, Alan Dean
+    Gn: sci-fi movie
+        Ti: The Last Starfighter
+Au: Frazier, Charles
+    Gn: literature
+        Ti: Cold Mountain
+Au: Friedman, C.S.
+    Gn: sci-fi
+        Ti: This Alien Shore
+Au: Gabaldon, Diana
+    Gn: literature
+        Ti: Outlander
+Au: Gaeddery, LouAnn
+    Gn: children
+        Ti: Just Like Sisters
+Ed: Galloway, Bruce
+    Gn: fantasy
+        Ti (hc): Fantasy Wargaming
+Au: Gardner, Craig Shaw
+    Gn: fantasy
+        Se: The Dragon Circle
+            1: Dragon Sleeping
+            2: Dragon Waking  
+            3: Dragon Burning
+    Gn: fantasy humor
+        Ti (hc): The Exploits of Ebenezym
+            1: A Malady of Magicks
+            2: A Multitude of Monsters
+            3: A Night in Netherhells
+         Ti: The Other Sinbad
+Au: Gear, W. Michael
+    Gn: sci-fi
+        Ti: StarStrike
+Au: Gibson, William
+    Gn: cyberpunk sci-fi
+        Ti: Idoru
+        Ti: Mona Lisa Overdrive
+        Ti: Neuromancer
+Au: Gibson, William and Bruce Sterling
+    Gn: cyberpunk sci-fi
+        Ti: The Difference Engine
+Au: Gilbreth, Frank and Gilbreth, Ernestine
+    Gn: children humor
+        Ti: Cheaper by the Dozen
+Au: Gilman, Dorothy
+    Gn: adventure
+        Ti: The Elusive Mrs. Pollifax
+Au: Golding, William
+    Gn: literature
+        Ti: Lord of the Flies
+Au: Goldman, William
+    Gn: fantasy
+        Ti: The Princess Bride
+Au: Goodkind, Terry
+    Gn: fantasy
+        Se: Wizard
+            1: Wizard's First Rule
+            1 (hc): Wizard's First Rule
+            2: Stone of Tears
+            3: Blood of the Fold
+            4 (hc): Temple of the Winds
+            5 (hc): Soul of the Fire
+            6 (hc): Faith of the Fallen
+            7 (hc): The Pillars of Creation
+            8: Naked Empire
+          - 9: Chainfire
+Au: Gordon, Stuart
+    Gn: fantasy
+        Se: Watchers Series
+          - 1: Archon
+            2: The Hidden World
+Au: Grisham, John
+    Gn: family
+        Ti: Shopping Christmas
+    Gn: law mystery
+        Ti: The Broker
+        Ti: The Client
+        Ti: The Partner
+        Ti: The Pelican Brief
+        Ti: The Rainmaker
+        Ti: The Runaway Jury
+        Ti: The Street Lawyer
+        Ti: A Time to Kill
+    Gn: sports
+        Ti: Bleachers
+Au: Gunn, James E.
+    Gn: sci-fi
+        Ti: Star Bridge
+Se: Gone with the Wind
+    Gn: romance
+      - 1: Gone with the Wind
+            Au: Mitchells, Margaret
+        2: Scarlet
+            Au: Ripley, Alexandra
+Au: Hambly, Barbary
+    Gn: fantasy
+        Ti: The Dark Hand of Magic
+        Ti (hc): Darkmage
+        Se: The Darwath Trilogy
+          - 1: The Time of the Dark
+            2: The Walls of Air
+            3: The Armies of Daylight
+        Se: Dragons
+            1 (hc): Dragonsbane
+          - 2: Dragonshadow
+            3: Knight of the Demon Queen
+        Se: Sun-Cross
+            Ti: The Rainbow Abyss
+        Ti: The Witches of Wenshar
+Au: Hampson, Anne
+    Gn: romance
+        Ti: Harbour of Love
+Au: Haley, Alex
+    Gn: literature slavery
+        Ti: Roots
+Au: Hardy, Lyndon
+    Gn: fantasy
+        Se: Master of the Five Magics
+            1: Master of the Five Magics
+            2: Secret of the Sixth Magic
+Au: Hardy, Thomas
+    Gn: literature
+        Ti: Tess of the d'Ubervilles
+        Ti: The Works of Thomas Hardy
+            1: The Mayor of Casterbridge
+            2: The Return of the Native
+Au: Hart, Catherine
+    Gn: romance
+        Ti: Horizons
+Au: Hawthorne, Nathaniel
+    Gn: literature
+        Ti: The House of the Seven Gables
+        Ti: The Scarlet Letter
+Au: Heinlein, Robert A.
+    Gn: sci-fi
+        Ti: The Cat Who Walks Through Walls
+        Ti: Friday
+        Ti: A Heinlein Trio
+            1: The Puppet Masters
+            2: Double Star
+            3: The Door Into Summer
+        Ti: The Star Beast
+        Ti: Starship Tropers
+        Ti: Stranger in a Strange Land
+Au: Henley, Virginia
+    Gn: romance
+        Ti: Undone
+Au: Herbert, Frank
+    Gn: sci-fi
+        Se: Dune
+            1: Dune
+Au: Hesse, Hermann
+    Gn: religion
+        Ti: Siddhartha
+Au: Heyer, Georgette
+    Gn: children mystery
+        Ti: The Unfinished Clue
+Au: Hickham, Homer H.
+    Gn: fiction
+        Ti: October Sky
+Au: Hildick, E. W.
+    Gn: children mystery
+        Ti: The Case of the Treetop Treasure
+Au: Hinton, S. E.
+    Gn: movie adventure
+        Ti: The Outsiders
+        Ti: Rumble Fish
+Au: Hobb, Robin
+    Gn: fantasy
+        Se: The Farseer
+            1: Assassin's Apprentice
+            2: Royal Assassin
+            3 (hc): Assassin's Quest
+Au: Hooker, Richard
+    Gn: war humor
+        Ti: M.A.S.H.
+Au: Homer
+    Gn: literature
+        Ti: The Iliad
+        Ti: The Odyssey
+Au: Howell, Hannah
+    Gn: romance
+        Si: Highland
+          - 1: Highland Destiny
+          - 2: Highland Honor
+          - 3: Highland Promise
+            4: Highland Vow
+          - 5: Highland Knight
+          - 6: Highland Hearts
+          - 7: Highland Bride
+          - 8: Highland Angel
+          - 9: Highland Groom
+           10: Highland Warrior
+           11: Highland Conqueror
+           12: Highland Champion
+        Ti: A Stockingful of Joy
+Au: Hoyle, Sir Fred
+    Gn: alt-history
+        Ti: October the First Is Too Late
+Au: Hubbard, L. Ron
+    Gn: sci-fi
+        Se: Mission Earth
+            1: The Invaders Plan
+            2: Black Genesis
+            3: The Enemy Within
+          - 4: An Alien Affair
+          - 5: Fortune of Fear
+          - 6: Death Quest
+          - 7: Voyage of Vengeance
+          - 8: Disaster
+          - 9: Villainy Victorious
+          - 10: The Doomed Planet
+Au: Iggulden, Conn
+    Gn: historical
+        Ti: Emperor: The Gates of Rome
+Au: Innes, Michel
+    Gn: mystery
+        Nb: Sir John Appleby
+            Ti: Appeleby's Answer
+        Ti: The Bloody Wood
+Au: Irving, John
+    Gn: literature
+        Ti: The Cider House Rules
+        Ti: The World According to Garp
+Au: Jenkins, Peter
+    Gn: adventure
+      - Ti: A Walk Across America
+Au: Jetter, K. W.
+    Gn: sci-fi
+        Se: Blade Runner 2
+            1: The Edge of Human
+Au: Johnson, James B.
+    Gn: sci-fi
+        Ti: Daystar and Shadow
+Au: Johnston, Mary
+    Gn: romance
+        Ti: To Have and to Hold
+Au: Jordan, Robert
+    Se: The Wheel of Time
+        1: The Eye of the World
+        2: The Great Hunt
+        3: The Dragon Reborn
+        4: The Shadow Rising
+Au: Junger, Sebastian
+    Gn: fiction
+        Ti: The Perfect Storm
+Au: Kaye, Marvin
+    Gn: horror
+        Ti (hc): Devils & Demons
+Au: Keene, Carolyn
+    Gn: children mystery
+        Nb: Nancy Drew
+            Ti: The Clue of the Tapping Heels
+            Ti: The Thirteen Pearl
+Au: Kent, Deborah
+    Gn: romance
+        Ti: Jody
+Au: Kerr, Katharine
+    Gn: fantasy
+        Se: Deverry and the Westlands
+            1: Daggerspell
+          - 2: Darkspell
+          - 3: The Bristling Wood
+          - 4: The Dragon Relevant
+          - 5: A Time of Exile
+          - 6: A Time of Omens
+          - 7: Days of Blood and Fire
+          - 8: Days of Air and Darkness
+Au: Keyes, Daniel
+    Ti: Flowers for Algernon
+Au: King, Steven
+    Gn: horror
+        Ti (hc): Misery
+        Ti: The Talisman
+        Ti: Thinner
+        Ti (hc): The Tommyknockers
+Au: King, Steven and Straub, Peter
+    Gn: horror fantasy
+        Ti: The Talisman
+Au: Kipling, Rudyard
+    Gn: sea adventure literature
+        Ti: Captain Courageous
+    Gn: adventure
+        Ti: Kim
+    Gn: children
+        Ti: Just So Stories
+Au: Knaak, Richard
+    Gn: fantasy
+        Se: The Dragonrealm Series
+          - 1: Firedrake
+            2: Ice Dragon
+            3: Wolfhelm
+Au: Knowles, John
+    Gn: literature
+        Ti: A Seperate Piece
+Au: Koob, Theodora
+    Gn: children
+        Ti: The Deep Search
+Au: Kotzwinkle, William
+    Gn: adventure movie
+        Ti: Superman III
+Au: Kube-McDowell
+    Gn: sci-fi
+        Ti: The Quiet Pools
+        Se: Black Fleet Crisis
+            1: Before the Storm
+Au: Kurtz, Katherine
+    Gn: fantasy
+        Se: The Adept
+            1: The Adept
+          - 2: The Lodge of the Lynx
+        Se: Legends of Camber of Culdi
+            1 (hc): Camber of Culdi
+            2 (hc): Saint Camber
+            3 (hc): Camber the Heretic
+        Se: The Histories of King Kelson
+            1 (hc): The Bishop's Heir
+            2 (hc): The King's Justice
+            3 (hc): The Quest for Saint Camber
+Au: Lackey, Mercedes
+    Gn: fantasy
+        Ti: By the Sword
+Au: Lahiri, Jhumpa
+    Gn: fiction
+        Ti: Interpreter of Maladies
+Au: Lancaster, Lydia
+    Gn: romance
+        Ti: The Temptation
+Au: Larson, Glen A. and Hill, Roger
+    Gn: action movie
+        Ti: Knight Rider
+Au: Laverty, Bernard Mac
+    Gn: movie
+        Ti: Cal
+Au: Lawhead, Stephen R.
+    Gn: alt-history fantasy
+        Se: The Pendragon Cycle
+            1: Taliesin
+            2: Merlin
+            3: Arthur
+        Se: Song of Albion
+            1: The Paradise War
+          - 2: The Silver Hand
+Au: Lee, Miranda
+    Gn: romance
+        Ti: The Boss's Baby
+Au: Lee, Tanith
+    Gn: sci-fi
+        Ti: The Silver Metal Lover
+    Gn: fantasy
+        Ti: A Heroine of the World
+        Se: Tales from the Flat Earth
+            Ti (hc): Tales from the Flat Earth: The Lords of Darkness
+                1: Night's Master
+                2: Death's Master
+                3: Delusion's Master
+            Ti (hc): Tales from the Flat Earth: Night's Daughter
+                4: Delirium's Mistress
+                5: Night's Sorceries
+Au: LeGuin, Ursula K.
+    Gn: fantasy
+        Se: The Earthsea Cycle
+            1: A Wizard of Earthsea
+            2: The Tombs of Atuan
+            3: The Farthest Shore
+            4: Tehanu
+    Gn: sci-fi
+        Ti: City of Illusions
+        Ti: Rocannon's World
+Au: Leiber, Fritz
+    Gn: sci-fi
+        Ti (hc): The Wanderer
+Au: Leigh, Roberta
+    Gn: romance
+        Ti: Cinderalla in Mink
+Au: Leigh, Stephen
+    Gn: sci-fi
+        Ti (hc): The Crystal Memory
+Au: Lem, Stanislaw
+    Gn: sci-fi
+        Ti: His Master's Voice
+        Ti: Solaris
+Au: L'Engle, Madeleine
+    Gn: children sci-fi
+        Ti: Wrinkle in Time Series
+          - 1: A Wrinkle in Time
+            2: A Wind in the Door
+          - 3: A Swiftly Tilting Planet
+Au: Lewis, C.S.
+    Gn: fantasy
+        Se: The Chronicles of Narnia
+            1: The Lion, the Witch, and the Wardrobe
+            2: Prince Caspion
+            3: The Voyage of the "Dawn Treader"
+            4: The Silver Chair
+            5: The Horse and His Boy
+            6: The Magician's Nephew
+            7: The Last Battle
+    Gn: sci-fi religion
+        Si: Space Trilogy
+            1: Out of the Silent Planet
+            2: Perelanda
+            3: That Hideous Strength
+Au: Livingston, Ian
+    Gn: interactive adventure
+        Ti: Deathtrap Dungeon
+Au: Long, Lyda Balknap
+    Gn: horror
+        Ti: The Witch Tree
+Au: Lowry, Lois
+    Gn: fiction
+        Ti: The Giver
+Au: McCaffrey, Anne
+    Gn: sci-fi
+        Se: Cystal Singer
+            1: Cystal Singer
+            2: Killashandra
+    Gn: fantasy
+        Co: The Dragonriders of Pern
+            Se: The Dragonriders of Pern
+                Ti (hc): Dragonriders of Pern
+                    1: Dragonflight
+                    2: Dragonquest
+                    3: The White Dragon
+                4: Dragonsong
+                5: Dragonsinger
+                6: Dragondrums
+                7: Moreta: Dragonlady of Pern
+              - 8: Nerilka's Story
+              - 9: Dragonsdawn
+              - 10: The Renegades of Pern
+                11: All the Weyrs of Pern
+Au: McCaffrey, Anne and Nye, Jody Lynn
+    Gn: sci-fi
+        Ti: Crisis on Doona
+Au: McCourt, Frank
+    Gn: literature
+        Ti: Angela's Ashes
+Au: Maguire, Gregory
+    Gn: fantasy
+        Ti: Confessions of an Ugly Stepsister
+Au: McKiernan, Dennis L.
+    Gn: fantasy
+        Co: Mithgar
+            Ti: Dragondoom
+            Ti: The Dragonstone
+            Se: The Iron Tower Trilogy
+                1: The Dark Tide
+                2: Shadows of Doom
+                3: The Darkest Day
+            Ti: The Eye of the Hunter
+            Se: The Silver Call Duology
+                1: Trek to Kraggen-Cor
+                2: The Brega Path
+            Ti: Tales From the One-Eyed Crow: the Vulg Master
+            Ti: Voyage of the Fox Rider
+Au: McKinley, Robin
+    Gn: fantasy
+        Se: The Legend of the Blue Sword
+            1: The Blue Sword
+            2: The Hero and the Crown
+Au: MacLeod, Charlotte
+    Gn: mystery
+        Ti: The Resurrection Man
+Au: Malcolm, Margaret
+    Gn: romance
+        Ti: Dear Tyrant
+Au: March, Ngaio
+    Gn: mystery
+        Ti: Death of a Peer
+Au: Martin, George R. R.
+    Gn: fantasy
+        Ti: A Game of Thrones
+Au: Martin, William
+    Gn: fiction
+        Ti: Cape Cod
+Au: Mather, Anne
+    Gn: romance
+        Ti: Strange Intimacy
+Au: Mazer, Norma Fox
+    Gn: adventure movie
+        Ti: Supergirl
+Au: Menides, Laura Jehn
+    Gn: literature
+        Ti: As I Lay Dying: Opera Libretto
+Au: Michaels, Kasey and Eagle, Kathleen and Richard, Emile
+    Gn: family
+        Ti: A Funny Thing Happened on the Way to the Delivery Room
+Au: Michner, James
+    Gn: fiction
+        Ti: Hawaii
+        Ti: Poland
+Au: Miller, Arthur
+    Gn: literature drama play
+        Ti: Death of a Salesman
+Au: Miller, Marcia
+    Gn: romance
+        Ti: Designed by Stacey
+Au: Milne, A.A.
+    Gn: children
+        Ti: The House at Pooh Corner
+        Ti: Three Stories from Winnie the Pooh
+        Ti: Winnie-the-Pooh: The Honey Tree
+Au: Mitgang, Herbert
+    Gn: romance
+        Ti: The Return
+Au: Montgomery, L.M.
+    Gn: romance
+        Se: The Emily Books
+            1: Emily of New Moon
+            2: Emily Climbs
+            3: Emily's Quest
+Au: Montgomery, R.A. and Reese, R.
+    Gn: spanish interactive
+        Se: Evasion
+Au: Moorcock, Michael
+    Gn: fantasy
+        Se: The Chronicles of Castle Brass
+            - 1: Count Brass
+            - 2: The Champion of Garathorm
+              3: THe Quest for Tanelorn
+        Se: The Chronicles of Corum
+            - 1: The Knights of the Swords
+              2: The Queen of the Swords
+              3: The King of the Swords
+              4: The Bull and the Spear
+              5: The Oak and the Ram
+              6: The Sword and Stallion
+        Se: The Cornelius Chronicles
+              1: The Cornelius Chronicles
+            - 2: The Cornelius Chronicles Volume 2
+            - 3: The Cornelius Chronicles Volume 3
+        Se: Dancers at the End of Time
+            - 1: An Alien Heat
+            - 2: The Hollow Lands
+              3: The End of All Songs
+        Se: The Elric Saga
+            Ti (hc): The Elric Saga: Part I
+                1: Elric of Melnibone
+                2: The Sailor on the Seas of Fate
+                3: The Weird of the White Wold
+            Ti (hc): The Elric Saga: Part II
+                1: The Vanishing Tower
+                2: The Bane of the Black Sword
+                3: Stormbringer
+        Se: Eternal Champion
+          - 1: The Eternal Champion
+          - 2: Phoenix in Obsidian (The Silver Warriors)
+            3: The Dragon in the Sword
+        Ti: Gloriana, or the Unfulfill'd Queen: Being a Romance
+    Gn: sci-fi
+        Ti: The Time Dweller
+Au: Morris, Janet
+    Gn: fantasy
+        Se: Thieve's World: Tempus
+            1: Tempus
+            2 (hc): Beyond the Viel
+            3 (hc): Beyond Wizardwall
+Au: Namban, Akahige
+    Gn: historical erotic
+      - Ti: Shogun's Agent
+Au: Nettles, Graig and Golenback, Peter
+    Gn: humor
+        Ti: Balls
+Au: Niven, Larry
+    Gn: sci-fi
+        Se: The Integral Tree Series
+            1 (hc): The Integral Tree
+            2 (hc): The Smoke Ring
+        Se: The Known Space Series
+          - 1: A Gift from Earth
+          - 2: The Long Arm of Gil Hamilton
+          - 3: Neutron Star
+            4: Ringworld
+            5 (hc): The Ringworld Engineers
+          - 6: Tales of Known Space: The Universe of Larry Niven
+          - 7: World of Ptavvs
+Au: Niven, Larray and Pournelle, Jerry
+    Gn: sci-fi
+        Ti: Footfall
+        Ti: The Legacy of Heorot
+        Ti: The Mote in God's Eye
+Au: Norris, Frank
+    Gn: literature
+        Ti: The Octopus
+Au: O'Brien, Jack
+    Gn: adventure animal
+        Se: Silver Chief Series 
+            1 (hc): Silver Chief, Dog of the North
+            2 (hc): Silver Chief to the Rescue
+            3 (hc): Return of Silver Chief
+          - 4: Silver Chief's Revenge
+Au: O'Connell, Jack
+    Gn: crime
+        Ti: Box Nine
+Au: O'More, Peggy
+    Gn: romance
+        Se: Romance Is Where You Find It
+Au: O'Neil, Dennis
+    Gn: adventure
+        Ti: Batman: Knightfall
+Au: Orwell, George
+    Gn: literature
+        Ti: 1984
+        Ti: Animal Farm
+Au: Paolini, Christopher
+    Gn: fantasy
+        Se: Inheritance
+          - 1: Eragon
+	    2 (hc): Eldest
+Au: Patterson, James
+    Gn: thriller
+        Ti: 2nd Chance
+Au: Paulus, Trina
+    Gn: children
+        Ti: hope for the flowers
+Au: Paz, Octavio
+    Gn: spanish literature poetry
+        Ti: Convergences: Essays on Art and Literature
+        Ti: Early Poems 1935-1955
+Au: Perdue, Lewis
+    Gn: fiction
+        Ti: The Da Vinci Legacy
+Au: Percy, Walker
+    Gn: fantasy
+        Ti (hc): Lancelot
+Au: Pirsig, Robert M.
+    Gn: literature philosophy
+        Ti: Zen and the Art of Motorcycle Maintenance
+Au: Pohl, Fredrik
+    Gn: sci-fi
+        Se: The Heechee Saga
+            1: Gateway
+          - 2: Beyond the Blue Event Horizon
+          - 3: Heechee Rendezous
+          - 4: The Annals of the Heechee
+Au: Pratchett, Terry
+    Gn: humor fantasy
+        Se: Discworld
+          - 1: The Colour of Magic
+            2: The Light Fantastic
+          - 3: Equal Rites
+            4: Mort
+            5: Reaper Man
+            6: Moving Pictures
+          - 7: Sourcery
+          - 8: Wyrd Sisters
+          - 9: Pyramids
+          - 10: Guards! Guards!
+Au: Pynchon, Thomas
+    Gn: literature
+        Ti: The Crying of Lot 49
+Au: Rand, Ayn
+    Gn: philosophy literature objectivism
+        Ti: Atlas Shrugged
+      - Ti: The Fountainhead
+Au: Rawn, Melanie
+    Gn: fantasy
+        Se: Dragon Prince Series
+            1: Dragon Prince
+Co: Reader's Digest: Best Loved Books
+    Gn: literature
+        Ti: Best Loved Book: V1
+            1: Treasure Island
+                Au: Stevenson, Robert Lewis
+            2: David Copperfield
+                Au: Dickens, Charles
+            3: The Call of the Wild
+                Au: London, Hack
+            4: Madame Curie
+                Au: Curie, Eve
+Co: Reader's Digest Condensed Books
+    Gn: literature
+        Ti: Condensed Books: V1 (1974)
+            1: The Tower
+                Au: Stern, Richard Martin
+            2: Incident at Hawk's Hill
+                Au: Eckert, Allan W.
+            3: Stay of Execution: A Sort of Memoir
+                Au: Alsop, Stewart
+            4: The Mountain Farm
+                Au: Raymond, Ernest
+            5: The Thirteenth Trick
+                Au: Braddon, Russell
+Au: Remarque, Erich Maria
+    Gn: war
+        Ti: All Quiet on the Western Front
+Au: Rendell, Ruth
+    Gn: mystery
+        Ti: Vanity Dies Hard
+Ed: Rey, Lester Del
+    Gn: sci-fi anthology
+      - Ti: The Science Fiction Hall of Fame: Volume 1
+Au: Rice, Anne
+    Gn: horror
+        Se: Vampire Chronicles
+            1: Interview with the Vampire
+          - 2: The Vampire Lestat
+          - 3: The Queen of the Damned
+          - 4: The Tale of the Body Thief
+    Gn: fiction erotica
+        Ti: Belinda
+Au: Riefe, Alan
+    Gn: mystery
+        Ti: Cage #4: The Silver Puma
+Au: Rinehart, Mary Roberts
+    Gn: mystery
+        Ti: The Great Mistake
+Au: Ripley, Alexandra
+    Gn: romance
+        Ti: Scarlett
+        Ti: The Time Returns
+Au: Robinson, Kim Stanley
+    Gn: sci-fi
+        Ti: Red Mars
+Au: Rome, Margaret
+    Gn: romance
+        Ti: Son of Adam
+Au: Rosenburg, Joel
+    Gn: fantasy
+        Se: Guardians of the Flame
+            Ti (hc): Guardians of the Flame: The Warriors
+                1: The Sleeping Dragon
+                2: The Sword and the Chain
+                3: The Silver Chain
+        Se: Keepers of the Hidden Ways
+            1: The Fire Duke
+Au: Rowley, Christopher
+    Gn: sci-fi
+        Ti: The War for Eternity
+Au: Rowling, J. K.
+    Gn: fantasy
+        Se: Harry Potter
+            1: Harry Potter and the Sorcerer's Stone
+            2: Harry Potter and the Chamber of Secrets
+            3: Harry Potter and the Prisoner of Azkaban
+            4: Harry Potter and the Goblet of Fire
+            5 (hc): Harry Potter and the Order of the Phoenix
+            6 (hc): Harry Potter and the Half-Blood Prince
+Au: Russell, Sean
+    Gn: fiction
+        Se: The River Into Darkness
+            1: The Vaulted Hills
+            2: The Compass of the Soul
+Au: Saberhagen, Fred
+    Gn: fantasy
+        Se: The Swords
+            Ti (hc): The Complete Book of Swords
+                1: The First Book of Swords
+                2: The Second Book of Swords
+                3: The Third Book of Swords
+        Ti: The White Bull
+Au: Sagan, Carl
+    Gn: sci-fi
+        Ti: Contact
+Au: Salinger, J.D.
+    Gn: literature
+        Ti: The Catcher in the Rye
+Au: Schulz, Charles M.
+    Gn: children
+        Ti: You're a Winner, Charlie Brown!
+Au: Scott, Sir Walter
+    Gn: history romance
+        Ti: Ivanhoe
+Au: Shakespeare, William
+    Gn: literature play
+        Ti: Henry V
+        Ti: Julius Caesar
+        Ti: Romeo and Juliet
+Au: Shea, Robert and Wilson, Robert Anton
+    Gn: fiction
+        Ti: The Illuminatus! Trilogy
+            1: The Eye in the Pyramid
+            2: The Golden Apple
+            3: Leviathan
+Au: Sheldon, Sidney
+    Gn: suspense thriller
+        Ti: The Best Laid Plans
+        Ti: The Doomsday Conspiracy
+Au: Shelley, Mary
+    Gn: sci-fi literature
+        Ti: Frankenstein
+Au: Silverburg, Robert
+    Gn: sci-fi
+        Se: The Majipoor Chronicles
+            1: Lord Valentine's Castle
+            2: Valentine Pontifex
+            3: Majipoor Chronicles
+	  - 4: The Mountains of Majipoor
+            5: Sorcerers of Majipoor
+        Se: At Winter's End
+            1: At Winter's End
+            2: The New Springtime
+        Ti: The World Inside
+Ed: Silverburg, Robert
+    Gn: sci-fi
+        Se: Time Gate
+            1: Time Gate
+            2: Time Gate: Dangerous Interfaces
+Au: Sizemore, Susan
+    Gn: romance time-travel
+        Ti: After the Storm
+        Ti: One of These Nights
+Au: Small, Bertrice
+    Gn: romance
+        Ti: The Innocent
+Au: Sophocles
+    Gn: literature
+        Ti: Oedipus the King
+Au: Sparks, Nicholas
+    Gn: romance
+        Ti: The Notebook
+        Ti: The Wedding
+Co: Star Trek
+    Gn: sci-fi fun
+        Au: Andrews, Bart and Dunning, Brad
+            Ti: The Star Trek Quiz Book
+    Gn: sci-fi
+        Au: Bear, Greg
+            Ti: Corona
+        Au: Goldin, Stephen
+            Ti: Trek to Madworld
+        Au: Hambly, Barbara
+            Ti: Ishmael (#23)
+        Au: Irwin, Walter, and Love, G.B.
+            Ti: The Best of Trek #13
+        Au: Marshak, Sandra and Culbreath, Myrna
+            Ti: Triangle
+        Au: McIntyre, Vonda N.
+            Ti: The Entropy Effect
+        Au: Sackett, Susan
+            Ti: Letters to Star Trek
+        Au: Sherman, Josephia and Schwartz, Susan
+            Ti: Vulcan's Force
+Co: Star Trek: Deep Space Nine        
+    Gn: sci-fi
+        Au: Jeter, K.W.
+            Ti: Warped
+Co: Star Trek: The Next Generation
+    Gn: sci-fi
+        Au: Duane, Diane
+            Ti: Dark Mirror
+        Au: Friedman, Michael Jan
+            Ti: A Call to Darkness (#9)
+            Ti: Fortune's Light (#15)
+        Au: Hugh, Dafydd
+            Ti: Balance of Power (#33)
+        Au: Lorrah, Jean
+            Ti: Survivors (#4)
+Co: Star Trek: Voyager
+    Gn: sci-fi
+        Au: Taylor, Jeri
+            Ti: Mosaic
+Co: Star Wars
+    Gn: sci-fi
+        Au: Allen, Roger MacBride
+            Se: The Corellian Trilogy
+                1: Ambush at Corellia
+              - 2: Assault at Selonia
+              - 3: Showdown at Centerpoint
+        Au: Anderson, Kevin J.
+            Se: The Jedi Academy Trilogy
+              - 1: Jedi Search
+              - 2: Dark Apprentice
+                3: Champions of the Force
+        Au: Kube-McDowell, Michael P.
+            Ti: Before the Storm
+        Au: Perry, Steve
+            Ti (hc): Shadows of the Empire
+        Au: Stackpole, Michael A.
+            Ti: I, Jedi
+        Au: Tyers, Kathy
+            Ti: The Truce at Bakura
+        Au: Zahn, Timothy
+            Se: Star Wars
+                1: Heir to the Empire
+                2: Dark Force Rising
+                3 (hc): The Last Command
+Au: Stasheff, Christopher
+    Gn: fantasy
+        Se: Her Majesty's Wizard
+            1 (hc): Her Majesty's Wizard
+            2: The Oathbound Wizard
+        Se: The Warlock Series
+            Ti (hc): To the Magic Born
+                1: Escape Velocity
+                2: The Warlock in Spite of Himself
+          - 3: King Kobold Revived
+            4: The Warlock Unlocked
+          - 5: The Warlock Enraged
+            Ti (hc): The Warlock's Night Out
+                6: The Warlock Wandering
+                7: The Warlock is Missing
+          - 8: The Warlock Heretical
+          - 9: The Warlock's Companion
+          - 10: The Warlock Insane
+          - 11: The Warlock Rock
+          - 12: Warlock and Son
+Au: Steel, Danielle
+    Gn: romance
+        Ti: The House of the Hope Street
+        Ti: Wanderlust
+Au: Steinbeck, John
+    Gn: literature
+        Ti: East of Eden
+Au: Steel, Danielle
+    Gn: romance
+        Ti: Wanderlust
+Au: Stephenson, Neal
+    Gn: fiction
+        Ti: Cryptonomicon
+        Ti: Snow Crash
+Au: Stern, Roger
+    Gn: comic
+        Ti: The Never Ending Battle
+Au: Stevenson, Robert Louis
+    Gn: adventure literature
+        Ti: The Strange Case of Dr. Jekyll and Mr. Hyde
+        Ti: Treasure Island
+Au: Stewart, Mary
+    Gn: fantasy
+        Se: Merlin Trilogy
+            1 (hc): The Crystal Cave
+            2 (hc): The Hollow Hills
+            3 (hc): The Last Enchantment
+            4 (hc): The Wicked Day
+        Ti: The Prince and the Pilgrim
+    Gn: fiction
+        Ti: Thornyhold
+Au: Stratton-Porter, Gene
+    Ti (hc): Keeper of the Bees
+Au: Sutcliff, Rosemary
+    Gn: alt-history fantasy
+        Ti (hc): Sword at Sunset
+Au: Swift, Jonathan
+    Gn: adventure literature
+        Ti: Gulliver's Travels and Other Writings
+Au: Taylor, Phoebe Atwood
+    Gn: mystery
+        Ti: Octagon House
+Au: Terry, C.V.
+    Gn: adventure
+        Ti: Buccaneer Surgeon
+Au: Thoreau, Henry David
+    Gn: literature
+        Ti: Walden and Civil Disobedience
+Au: Thornton, Jane Foster
+    Gn: romance
+        Se: Electric High
+          - 1: Breakaway
+            2: Close Harmony
+            3: Heartbreaker
+Au: Tiptree, James Jr.
+    Gn: sci-fi
+        Ti (hc): The Starry Rift
+Au: Tolkien, J.R.R.
+    Gn: fantasy
+        Co: Middle Earth
+            Se: The Lord of the Rings
+                0: The Hobbit
+                1: The Fellowship of the Ring
+                2: The Two Towers
+                3: The Return of the King
+            Ti: Bored of the Rings
+                Au: Lampoon, Harvard
+            Ti: Roverandom
+            Co (hc): Smith of Wooten Major and Farmer Giles of Ham
+                1: Smith of Wooten Major
+                2: Farmer Giles of Ham
+            Ed: Tolkien, Christopher
+                Ti: The History of Middle Earth
+                    1 (hc): The Book of Lost Tales, Part One
+                  - 2: The Book of Lost Tales, Part Two
+                  - 3: The Lays of Beleriand
+                Ti (hc): The Silmarillian
+                Ti (hc): The Tolkien Reader
+                Ti (hc): Unfinished Tales
+             Ti: The Tolkien Reader
+Au: Tolstoy, Leo
+    Gn: literature
+        Ti (hc): Anna Karenina
+Au: Trevanian
+    Gn: literature
+        Ti: Shibumi
+Au: Turtledove, Harry
+    Gn: alt-history
+        Ti (hc): Isaac Asimov's: Agent of Byzantium
+Au: Twain, Mark
+    Gn: fantasy literature
+        Ti: A Connecticut Yankee in King Arthur's Court
+        Ti: The Prince and the Pauper
+Au: Tyler, Vicki
+    Gn: romance
+        Ti: Someday Soon
+Au: Tynan, Kathleen
+    Gn: mystery
+        Ti: Agatha
+Au: Verne, Jules
+    Gn: sci-fi
+        Ti: Around the World in Eighty Days
+        Ti: Journey to the Center of the Earth
+Au: Vinge, Joan D.
+    Gn: sci-fi
+        Ti: A Fire Upon the Deep
+        Ti: Mad Max Beyond Thunderdome
+Au: Vonnegut, Kurt
+    Gn: sci-fi literature
+        Ti: Jailbird
+        Ti: Player Piano
+        Ti: Slaughterhouse-Five
+Au: Wambaugh, Joseph
+    Gn: mystery
+        Ti: Echoes in the Darkness
+Au: Weber, David
+    Gn: sci-fi
+        Se: Honor Harrington
+            1: On Basilisk Station
+            2: The Honor of the Queen
+            3: The Short Victorious War
+            4: Field of Dishonor
+            5: Flag in Exile
+            6: Honor Among Enemies
+            7: In Enemy Hands
+            8: Echoes of Honor
+            9: Ashes of Victory
+           10: War of Honor
+        Co: Honorverse
+         - Ti: Crown of Slaves
+               Au: Eric Flint
+           Ti: The Shadow of Saganami   
+    Gn: fantasy
+        Ti: The War God's Own
+Ed: Weber, David
+    Gn: sci-fi
+        Se: Worlds of Honor
+Au: Weis, Margaret and Hickman, Tracy
+    Gn: fantasy
+        Se: The Darksword Trilogy
+          - 1: Forging the Darksword
+          - 2: Doom of the Darksword
+          - 3: Triumph of the Darksword
+            4: Darksword Adventures
+        Se: The Death Gate Cycle
+            1: Dragon Wing
+            2: Elven Star
+            3: Fire Sea
+            4: Serpent Mage
+            5: The Hand of Chaos
+            6: Into the Labyrinth
+            7: The Seventh Gate
+Au: Wells, H.G.
+    Gn: sci-fi
+        Ti: The Time Machine
+        Ti: The War of the Worlds
+Au: Wharton, Edith
+    Gn: romance
+        Ti: The Age of Innocence
+Au: White, E.B.
+    Gn: fantasy
+        Ti (hc): Charlotte's Web
+Au: White, Leslie Turner
+    Gn: fantasy
+        Ti (hc): The Winged Sword
+Au: Whitney, Phyllis A.
+    Gn: romance
+        Ti: Ever After
+Au: Whitney, Phyllis A.
+    Gn: mystery
+        Ti (hc): The Mystery of the Crimson Ghost
+Au: Willis, Connie
+    Gn: fiction
+        Ti: Bellwether
+        Ti: Passage
+Ed: Wollheim, Donald A.
+    Gn: sci-fi
+        Ti (hc): The 1986 Annual World's Best SF
+Au: Wolfe, Gene
+    Gn: sci-fi
+        Se: The Book of the Long Sun
+            1: Nightside the Long Sun
+          - 2: Lake of the Long Sun
+          - 3: ??
+            4: The Urth of the New Sun
+Au: Woods, Stuart
+    Gn: mystery
+        Ti: Capital Crimes
+Au: Woodley, Richard
+    Gn: adventure
+        Ti: Man from Atlantis
+Au: Woolf, Virginia
+    Gn: literature
+        Ti: Mrs. Dalloway
+Au: Wyse, Lois
+    Gn: romance
+        Ti: The Rosemary Touch
+Au: Young, Mirian
+    Gn: adventure children
+        Ti (hc): A Witch's Garden
+Au: Zahn, Timothy
+    Gn: sci-fi
+        Se: Conquerors' saga
+            1: Conquerors' Pride
+            2: Conquerors' Heritage
+          - 3: Conquerors' Legacy
+Au: Zelazny, Roger
+    Gn: fantasy sci-fi
+        Se: The Amber Novels
+            Ti: The Great Book of Amber
+                1: Nine Princes in Amber
+                2: The Guns of Avalon
+                3: Sign of the Unicorn
+                4: The Hand of Oberon
+                5: The Counts of Chaos
+                6: Trumps of Doom
+                7: Blood of Amber
+                8: Sign of Chaos
+                9: Knight of Shadows
+               10: Prince of Chaos
+            Ti (hc): The Chronicles of Amber: Volume 1
+                1: Nine Princes in Amber
+                2: The Guns of Avalon
+            Ti (hc): The Chronicles of Amber: Volume 2
+                3: Sign of the Unicorn
+                4: The Hand of Oberon
+                5: The Counts of Chaos
+            6 (hc): Trumps of Doom
+            7 (hc): Blood of Amber
+            8 (hc): Sign of Chaos
+     Gn: sci-fi
+        Ti: The Doors of His Face, The Lamps of His Mouth and Other Stories
+        Ti: Today We Choose Faces
+        Ti: This Immortal
+Au: Zimmer, Paul Edwin
+    Gn: fantasy
+        Se: The Dark Border Series
+          - 1: The Lost Prince
+          - 2: King Chondos' Ride
+            3: A Gathering of Heroes
+Au: Zindel, Paul
+    Gn: literature
+        Ti (hc): The Pigman
+Ed: Zipes, Jack
+    Gn: children fairy tale
+        Ti: The Complete Fairy Tales of the Brother Grimm

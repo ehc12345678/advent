@@ -1,1 +1,45 @@
-125 17
+Co: Star Wars
+    Gn: sci-fi
+        Au: Allen, Roger MacBride
+            Se: The Corellian Trilogy
+                1: Ambush at Corellia
+              - 2: Assault at Selonia
+              - 3: Showdown at Centerpoint
+        Au: Anderson, Kevin J.
+            Se: The Jedi Academy Trilogy
+              - 1: Jedi Search
+              - 2: Dark Apprentice
+                3: Champions of the Force
+        Au: Kube-McDowell, Michael P.
+            Ti: Before the Storm
+        Au: Perry, Steve
+            Ti (hc): Shadows of the Empire
+        Au: Stackpole, Michael A.
+            Ti: I, Jedi
+        Au: Tyers, Kathy
+            Ti: The Truce at Bakura
+        Au: Zahn, Timothy
+            Se: Star Wars
+                1: Heir to the Empire
+                2: Dark Force Rising
+                3 (hc): The Last Command
+Au: Stasheff, Christopher
+    Gn: fantasy
+        Se: Her Majesty's Wizard
+            1 (hc): Her Majesty's Wizard
+            2: The Oathbound Wizard
+        Se: The Warlock Series
+            Ti (hc): To the Magic Born
+                1: Escape Velocity
+                2: The Warlock in Spite of Himself
+          - 3: King Kobold Revived
+            4: The Warlock Unlocked
+          - 5: The Warlock Enraged
+            Ti (hc): The Warlock's Night Out
+                6: The Warlock Wandering
+                7: The Warlock is Missing
+          - 8: The Warlock Heretical
+          - 9: The Warlock's Companion
+          - 10: The Warlock Insane
+          - 11: The Warlock Rock
+          - 12: Warlock and Son
