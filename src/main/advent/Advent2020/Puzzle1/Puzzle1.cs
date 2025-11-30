@@ -10,21 +10,9 @@ public class Puzzle1 : Base<Data, Solution1, Solution2>
 {
     private const int Goal = 2020;
 
-    public static void Run()
+    protected override Data CreateData()
     {
-        try
-        {
-            var puz = new Puzzle1();
-            var solution1 = puz.SolvePuzzle("inputs.txt", []);
-            Console.WriteLine($"Solution1: {solution1}");
-
-            var solution2 = puz.SolvePuzzle2("inputs.txt", []);
-            Console.WriteLine($"Solution2: {solution2}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
+        return [];
     }
     
     public override void ParseLine(string line, Data data)
@@ -35,7 +23,12 @@ public class Puzzle1 : Base<Data, Solution1, Solution2>
     public override Solution1 ComputeSolution(Data data)
     {
         var pair = FindTwoSumOperands(data, Goal);
-        return pair.Item1 * pair.Item2;
+        if (pair != null)
+        {
+            return pair.Item1 * pair.Item2;
+        }
+
+        return -1;
     }
 
     private static Tuple<int, int>? FindTwoSumOperands(Data data, int goal)

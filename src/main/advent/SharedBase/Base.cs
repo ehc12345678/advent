@@ -2,8 +2,26 @@ using System.Reflection;
 
 namespace advent.SharedBase;
 
-public abstract class Base<TData, TSolution1, TSolution2>
+public abstract class Base<TData, TSolution1, TSolution2> : IPuzzle
 {
+    public virtual void Run()
+    {
+        try
+        {
+            var solution1 = SolvePuzzle("inputs.txt", CreateData());
+            Console.WriteLine($"Solution1: {solution1}");
+
+            var solution2 = SolvePuzzle2("inputsTest.txt", CreateData());
+            Console.WriteLine($"Solution2: {solution2}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+    protected abstract TData CreateData();
+
     public delegate void ParseLineDelegate(string line, TData data);
     
     // Throws exception if the function cannot open the file
