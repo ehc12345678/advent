@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices.JavaScript;
-using advent.Advent2025.SharedBase;
+using advent.SharedBase;
 
 namespace advent.Advent2025.Puzzle0;
 

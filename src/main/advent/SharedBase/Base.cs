@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace advent.Advent2025.SharedBase;
+namespace advent.SharedBase;
 
 public abstract class Base<TData, TSolution1, TSolution2>
 {
