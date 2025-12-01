@@ -4,14 +4,16 @@ namespace advent.SharedBase;
 
 public abstract class Base<TData, TSolution1, TSolution2> : IPuzzle
 {
-    public virtual void Run()
+    public virtual void Run(bool testSolution1 = false, bool testSolution2 = false)
     {
         try
         {
-            var solution1 = SolvePuzzle("inputs.txt", CreateData());
+            var file1 = testSolution1 ? "inputsTest.txt" : "inputs.txt";
+            var solution1 = SolvePuzzle(file1, CreateData());
             Console.WriteLine($"Solution1: {solution1}");
 
-            var solution2 = SolvePuzzle2("inputsTest.txt", CreateData());
+            var file2 = testSolution2 ? "inputsTest.txt" : "inputs.txt";
+            var solution2 = SolvePuzzle2(file2, CreateData());
             Console.WriteLine($"Solution2: {solution2}");
         }
         catch (Exception ex)
