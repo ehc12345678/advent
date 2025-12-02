@@ -59,64 +59,31 @@ public class Puzzle1 : Base<Data, Solution1, Solution2>
 
     public int GetNewPosition(int position, SafeInstruction safeInstruction, out int numTimesCrossZero)
     {
-        const int maxPosition = 100;
-        int newPosition;
-        numTimesCrossZero = 0;
-        if (safeInstruction.Direction == Direction.Right)
+        const int max = 100; // range 0–99
+        var delta = (safeInstruction.Direction == Direction.Right ? safeInstruction.NumTurns : -safeInstruction.NumTurns);
+        var end = position + delta;
+
+        if (delta >= 0)
         {
-            newPosition = position + safeInstruction.NumTurns;
+            numTimesCrossZero = end / max;
         }
         else
         {
-            newPosition = position - safeInstruction.NumTurns;
+            switch (end)
+            {
+                case 0:
+                    numTimesCrossZero = 1; // exactly land on zero
+                    break;
+                case < 0:
+                    numTimesCrossZero = (-end) / max + 1;
+                    break;
+                default:
+                    numTimesCrossZero = 0;
+                    break;
+            }
         }
 
-        switch (newPosition)
-        {
-            case > 0:
-                numTimesCrossZero = newPosition / maxPosition;
-                newPosition %= maxPosition;
-                break;
-            case < 0:
-                numTimesCrossZero = (-newPosition / maxPosition) + 1;
-                newPosition += (numTimesCrossZero * maxPosition);
-                if (newPosition == 0)
-                {
-                    ++numTimesCrossZero;
-                }
-                break;
-            default:
-                ++numTimesCrossZero;
-                break;
-        }
-
-        // Console.Write($"The dial is rotated");
-        // Console.Write(safeInstruction.Direction == Direction.Left ? " L" : " R");
-        // Console.Write(safeInstruction.NumTurns);
-        // Console.Write($" to point at {newPosition}");
-        // Console.WriteLine($"; during this rotation, it points at 0 {numTimesCrossZero} times.");
+        var newPosition = ((end % max) + max) % max;
         return newPosition;
-    }
-
-    public int GetNewPosition(int position, Direction direction, int numTurns, out int numTimesCrossZero)
-    {
-        const int maxPosition = 100;
-        var delta = (direction == Direction.Right ? numTurns : -numTurns);
-        var newPosition = position + delta;
-
-        if (delta > 0)
-        {
-            numTimesCrossZero = newPosition / maxPosition;
-        }
-        else if (delta < 0)
-        {
-            numTimesCrossZero = -(newPosition / maxPosition) + 1;
-        }
-        else
-        {
-            numTimesCrossZero = 0;
-        }
-
-        return ((position % maxPosition) + maxPosition) % maxPosition;
     }
 }

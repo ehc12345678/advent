@@ -7,7 +7,7 @@ namespace advent;
 
 class Program
 {
-    const bool TestSolution1 = true;
+    const bool TestSolution1 = false;
     const bool TestSolution2 = false;
 
     private static readonly IPuzzle[] AllPuzzles =
