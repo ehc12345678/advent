@@ -34,7 +34,7 @@ public class Puzzle1 : Base<Data, Solution1, Solution2>
         var answer = 0;
         foreach (var safeInstruction in data)
         {
-            var newPosition = GetNewPositionBruteForce(position, safeInstruction, safeInstruction.Direction, safeInstruction.NumTurns, out _);
+            var newPosition = GetNewPosition(position, safeInstruction, safeInstruction.Direction, safeInstruction.NumTurns, out _);
             if (newPosition == 0)
             {
                 answer++;

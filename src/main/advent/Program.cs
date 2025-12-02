@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using advent.Advent2025.Puzzle1;
+using advent.Advent2025.Puzzle2;
 using advent.SharedBase;
 
 namespace advent;
@@ -8,12 +9,12 @@ namespace advent;
 class Program
 {
     const bool TestSolution1 = false;
-    const bool TestSolution2 = false;
+    const bool TestSolution2 = true;
 
     private static readonly IPuzzle[] AllPuzzles =
     [
-        new Puzzle1()
-        // Add Puzzle2(), Puzzle3(), etc.
+        new Puzzle1(),
+        new Puzzle2()
     ];
     
     public static void Main(string[] args)

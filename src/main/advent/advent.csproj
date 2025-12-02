@@ -14,5 +14,7 @@
         <EmbeddedResource Include="Advent2025\Puzzle0\inputsTest.txt" />
         <EmbeddedResource Include="Advent2025\Puzzle1\inputs.txt" />
         <EmbeddedResource Include="Advent2025\Puzzle1\inputsTest.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle2\inputs.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle2\inputsTest.txt" />
     </ItemGroup>
 </Project>
