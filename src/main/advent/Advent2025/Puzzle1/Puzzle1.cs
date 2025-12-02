@@ -34,7 +34,7 @@ public class Puzzle1 : Base<Data, Solution1, Solution2>
         var answer = 0;
         foreach (var safeInstruction in data)
         {
-            var newPosition = GetNewPosition(position, safeInstruction, out _);
+            var newPosition = GetNewPositionBruteForce(position, safeInstruction, safeInstruction.Direction, safeInstruction.NumTurns, out _);
             if (newPosition == 0)
             {
                 answer++;
@@ -50,40 +50,71 @@ public class Puzzle1 : Base<Data, Solution1, Solution2>
         var answer = 0;
         foreach (var safeInstruction in data)
         {
-            var newPosition = GetNewPosition(position, safeInstruction, out var numTimesCrossZero);
+            var newPosition = GetNewPosition(position, safeInstruction, safeInstruction.Direction, safeInstruction.NumTurns, out var numTimesCrossZero);
             answer += numTimesCrossZero;
             position = newPosition;
         }
         return answer;
     }
 
-    public int GetNewPosition(int position, SafeInstruction safeInstruction, out int numTimesCrossZero)
+    public int GetNewPosition(int position, SafeInstruction safeInstruction, Direction direction, int numTurns,
+        out int numTimesCrossZero)
     {
-        const int max = 100; // range 0–99
-        var delta = (safeInstruction.Direction == Direction.Right ? safeInstruction.NumTurns : -safeInstruction.NumTurns);
-        var end = position + delta;
-
-        if (delta >= 0)
+        const int max = 100; // positions 0..99
+        numTimesCrossZero = 0;
+        if (direction == Direction.Right)
         {
-            numTimesCrossZero = end / max;
-        }
-        else
-        {
-            switch (end)
+            var k0 = (position == 0) ? max : (max - position); // if start==0, first hit is at k=100
+            if (k0 <= numTurns)
             {
-                case 0:
-                    numTimesCrossZero = 1; // exactly land on zero
-                    break;
-                case < 0:
-                    numTimesCrossZero = (-end) / max + 1;
-                    break;
-                default:
-                    numTimesCrossZero = 0;
-                    break;
+                numTimesCrossZero = 1 + (numTurns - k0) / max;
+            }
+        }
+        else 
+        {
+            var k0 = (position == 0) ? max : position; 
+            if (k0 <= numTurns)
+            {
+                numTimesCrossZero = 1 + (numTurns - k0) / max;
             }
         }
 
+        // compute new position normalized into 0..99
+        var delta = (direction == Direction.Right) ? numTurns : -numTurns;
+        var end = position + delta;
         var newPosition = ((end % max) + max) % max;
         return newPosition;
     }
+    
+    public int GetNewPositionBruteForce(int position, SafeInstruction safeInstruction, Direction direction,
+        int numTurns, out int numTimesCrossZero)
+    {
+        const int max = 100; // range 0–99
+        
+        // Awful brute force
+        var delta = direction == Direction.Right ? 1 : -1;
+        var newPosition = position;
+        numTimesCrossZero = 0;
+        for (var i = 0; i < numTurns; ++i)
+        {
+            newPosition += delta;
+            if (newPosition == max)
+            {
+                newPosition = 0;
+            }
+            else if (newPosition < 0)
+            {
+                newPosition = max - 1;
+            }
+
+            if (newPosition == 0)
+            {
+                numTimesCrossZero++;
+            }
+        }
+        
+        return newPosition;
+    }
+    
+    
 }

@@ -29,31 +29,7 @@ class Program
             index = int.Parse(args[0]);
         }
         var puzzle = AllPuzzles[index - 1];
-        
-        var puzzle1 = new Advent2025.Puzzle1.Puzzle1();
-        int position = 0;
-        SafeInstruction[] tests = [
-            new SafeInstruction(Direction.Right, 100),
-            new SafeInstruction(Direction.Left, 100),
-            new SafeInstruction(Direction.Left, 101),
-            new SafeInstruction(Direction.Left, 25),
-            new SafeInstruction(Direction.Left, 100),
-            new SafeInstruction(Direction.Left, 200),
-            new SafeInstruction(Direction.Left, 50),
-            new SafeInstruction(Direction.Right, 80),
-            new SafeInstruction(Direction.Right, 680),
-            new SafeInstruction(Direction.Left, 720),
-        ];
-        // foreach (var test in tests)
-        // {
-        //     var newPos = puzzle1.GetNewPosition(position, test, out var numTimesCrossZero);
-        //     Console.WriteLine($"{position} ({test.Direction} {test.NumTurns}): {newPos} cross={numTimesCrossZero}");
-        //     position = newPos;
-        // }
-        Console.WriteLine("-----");
-
         puzzle.Run(TestSolution1, TestSolution2);
-        
     }
     
     private static void PrintPuzzleList()
