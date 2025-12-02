@@ -30,20 +30,11 @@ public class Puzzle1 : Base<Data, Solution1, Solution2>
 
     public override Solution1 ComputeSolution(Data data)
     {
-        const int maxPosition = 100;
         var position = 50;
         var answer = 0;
         foreach (var safeInstruction in data)
         {
-            var newPosition = (safeInstruction.Direction == Direction.Left) ?
-                position - safeInstruction.NumTurns :
-                position + safeInstruction.NumTurns;
-            if (newPosition < 0)
-            {
-                newPosition += maxPosition;
-            }
-
-            newPosition %= maxPosition;
+            var newPosition = GetNewPosition(position, safeInstruction, out _);
             if (newPosition == 0)
             {
                 answer++;
@@ -55,34 +46,77 @@ public class Puzzle1 : Base<Data, Solution1, Solution2>
 
     public override Solution2 ComputeSolution2(Data data)
     {
-        const int maxPosition = 100;
         var position = 50;
         var answer = 0;
         foreach (var safeInstruction in data)
         {
-            var newPosition = (safeInstruction.Direction == Direction.Left) ?
-                position - safeInstruction.NumTurns:
-                position + safeInstruction.NumTurns;
-
-            int numTimesCrossZero = 0;
-            if (safeInstruction.Direction == Direction.Right)
-            {
-                // 089 = 0, 137 = 1, 238 = 2, so this works
-                numTimesCrossZero = newPosition / maxPosition;
-                newPosition %= maxPosition;
-            }
-            else
-            {
-                // 089 = 0, -11 = 1, -145 = 2, -238 = 3 
-                if (newPosition < 0)
-                {
-                    numTimesCrossZero = (-newPosition / maxPosition) + 1;
-                    newPosition += maxPosition * numTimesCrossZero;
-                }
-            }
+            var newPosition = GetNewPosition(position, safeInstruction, out var numTimesCrossZero);
             answer += numTimesCrossZero;
             position = newPosition;
         }
         return answer;
+    }
+
+    public int GetNewPosition(int position, SafeInstruction safeInstruction, out int numTimesCrossZero)
+    {
+        const int maxPosition = 100;
+        int newPosition;
+        numTimesCrossZero = 0;
+        if (safeInstruction.Direction == Direction.Right)
+        {
+            newPosition = position + safeInstruction.NumTurns;
+        }
+        else
+        {
+            newPosition = position - safeInstruction.NumTurns;
+        }
+
+        switch (newPosition)
+        {
+            case > 0:
+                numTimesCrossZero = newPosition / maxPosition;
+                newPosition %= maxPosition;
+                break;
+            case < 0:
+                numTimesCrossZero = (-newPosition / maxPosition) + 1;
+                newPosition += (numTimesCrossZero * maxPosition);
+                if (newPosition == 0)
+                {
+                    ++numTimesCrossZero;
+                }
+                break;
+            default:
+                ++numTimesCrossZero;
+                break;
+        }
+
+        // Console.Write($"The dial is rotated");
+        // Console.Write(safeInstruction.Direction == Direction.Left ? " L" : " R");
+        // Console.Write(safeInstruction.NumTurns);
+        // Console.Write($" to point at {newPosition}");
+        // Console.WriteLine($"; during this rotation, it points at 0 {numTimesCrossZero} times.");
+        return newPosition;
+    }
+
+    public int GetNewPosition(int position, Direction direction, int numTurns, out int numTimesCrossZero)
+    {
+        const int maxPosition = 100;
+        var delta = (direction == Direction.Right ? numTurns : -numTurns);
+        var newPosition = position + delta;
+
+        if (delta > 0)
+        {
+            numTimesCrossZero = newPosition / maxPosition;
+        }
+        else if (delta < 0)
+        {
+            numTimesCrossZero = -(newPosition / maxPosition) + 1;
+        }
+        else
+        {
+            numTimesCrossZero = 0;
+        }
+
+        return ((position % maxPosition) + maxPosition) % maxPosition;
     }
 }
