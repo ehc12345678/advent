@@ -9,7 +9,7 @@ namespace advent;
 class Program
 {
     const bool TestSolution1 = false;
-    const bool TestSolution2 = true;
+    const bool TestSolution2 = false;
 
     private static readonly IPuzzle[] AllPuzzles =
     [
@@ -29,6 +29,7 @@ class Program
         {
             index = int.Parse(args[0]);
         }
+
         var puzzle = AllPuzzles[index - 1];
         puzzle.Run(TestSolution1, TestSolution2);
     }

@@ -39,34 +39,71 @@ public class Puzzle2 : Base<Data, Solution1, Solution2>
         var answer = new BigInteger();
         foreach (var range in data)
         {
-            answer += CountHitsBruteFource(range);
+            answer += CountHitsBruteForce(range, IsHit);
         }
         return answer;
     }
 
     public override Solution2 ComputeSolution2(Data data)
     {
-        return -1;
+        var answer = new BigInteger();
+        foreach (var range in data)
+        {
+            answer += CountHitsBruteForce(range, IsHit2);
+        }
+        return answer;
     }
 
-    public BigInteger CountHitsBruteFource(Range range)
+    public BigInteger CountHitsBruteForce(Range range, Func<long, bool> hitTestFunc)
     {
         var numHits = new BigInteger();
         for (var i = range.Min; i <= range.Max; i++)
         {
-            String numRepresentation = i.ToString();
-            if ((numRepresentation.Length % 2) == 0)
+            if (hitTestFunc(i))
             {
-                var half = (numRepresentation.Length / 2);
-                var firstHalf = numRepresentation[..half];
-                var secondHalf = numRepresentation[half..];
-                if (firstHalf == secondHalf)
-                {
-                    numHits += i;
-                }
+                numHits += i;
             }
         }
 
         return numHits;
+    }
+    
+    private static bool IsHit(long id)
+    {
+        String numRepresentation = id.ToString();
+        if ((numRepresentation.Length % 2) == 0)
+        {
+            var half = (numRepresentation.Length / 2);
+            var firstHalf = numRepresentation[..half];
+            var secondHalf = numRepresentation[half..];
+            return firstHalf == secondHalf;
+        }
+
+        return false;
+    }
+
+    public static bool IsHit2(long id)
+    {
+        String numRepresentation = id.ToString();
+        var half = (numRepresentation.Length / 2);
+        for (var i = 1; i <= half; i++)
+        {
+            if ((numRepresentation.Length % i) == 0)
+            {
+                var match = numRepresentation[..i];
+                var good = true;
+                for (var index = i; good && index < numRepresentation.Length; index += i)
+                {
+                    var check = numRepresentation[index..(index + i)];
+                    good = check == match;
+                }
+
+                if (good)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
