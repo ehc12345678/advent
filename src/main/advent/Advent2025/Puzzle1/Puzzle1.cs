@@ -14,8 +14,11 @@ public struct SafeInstruction(Direction dir, int numTurns)
    public int NumTurns = numTurns;
 }
 
-public class Puzzle1 : Base<Data, Solution1, Solution2> 
+public class Puzzle1 : Base<Data, Solution1, Solution2>
 {
+    public override bool Solution1TestSolution => false;
+    public override bool Solution2TestSolution => false;
+
     protected override Data CreateData()
     {
         return [];

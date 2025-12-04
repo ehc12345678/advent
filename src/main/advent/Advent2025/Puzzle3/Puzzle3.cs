@@ -8,6 +8,9 @@ using Solution2 = long;
 
 public class Puzzle3 : Base<Data, Solution1, Solution2> 
 {
+    public override bool Solution1TestSolution => false;
+    public override bool Solution2TestSolution => false;
+
     protected override Data CreateData()
     {
         return [];

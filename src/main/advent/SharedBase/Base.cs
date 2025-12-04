@@ -22,6 +22,10 @@ public abstract class Base<TData, TSolution1, TSolution2> : IPuzzle
         }
     }
 
+    public virtual bool Solution1TestSolution => true;
+
+    public virtual bool Solution2TestSolution => true;
+
     protected abstract TData CreateData();
 
     public delegate void ParseLineDelegate(string line, TData data);

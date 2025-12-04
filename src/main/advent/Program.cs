@@ -35,7 +35,7 @@ class Program
         }
 
         var puzzle = AllPuzzles[index - 1];
-        puzzle.Run(TestSolution1, TestSolution2);
+        puzzle.Run(puzzle.Solution1TestSolution, puzzle.Solution2TestSolution);
     }
     
     private static void PrintPuzzleList()
