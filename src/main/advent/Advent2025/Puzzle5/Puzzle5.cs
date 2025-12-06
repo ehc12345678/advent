@@ -67,7 +67,7 @@ public class Puzzle5 : Base<Data, Solution1, Solution2>
         var ranges = new List<Range<long>>();
         foreach (var range in data.Ranges)
         {
-            var index = FindSortedSpot(range, ranges);
+            var index = ranges.FindIndex(r => r.Low > range.Low || r.Overlap(range));
 
             // dedup ranges
             if (index >= 0)
@@ -90,23 +90,5 @@ public class Puzzle5 : Base<Data, Solution1, Solution2>
         return ranges
             .Select(range => range.High - range.Low)
             .Sum();
-    }
-
-    private int FindSortedSpot(Range<long> newRange, List<Range<long>> ranges)
-    {
-        return ranges.FindIndex(r => r.Low > newRange.Low || r.Overlap(newRange));
-
-        // int index;
-        // var last = range;
-        // for (index = 0; index < ranges.Count; ++index)
-        // {
-        //     var thisRange = ranges[index];
-        //     if (last.Low >= range.Low || thisRange.Overlap(range))
-        //     {
-        //         return index;
-        //     }
-        //     last = thisRange;
-        // }
-        // return index;
     }
 }
