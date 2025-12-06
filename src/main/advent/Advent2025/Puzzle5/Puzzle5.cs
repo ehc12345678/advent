@@ -16,7 +16,7 @@ public class Puzzle5 : Base<Data, Solution1, Solution2>
     private bool _pastRanges;
 
     public override bool Solution1TestSolution => false;
-    public override bool Solution2TestSolution => true;
+    public override bool Solution2TestSolution => false;
 
     protected override Data CreateData()
     {
@@ -31,7 +31,7 @@ public class Puzzle5 : Base<Data, Solution1, Solution2>
             if (line != "")
             {
                 var split = line.Split("-");
-                var range = new Range<long>(long.Parse(split[0]), long.Parse(split[1]), true, true);
+                var range = new Range<long>(long.Parse(split[0]), long.Parse(split[1]) + 1);
                 data.Ranges.Add(range);
             }
             else
@@ -63,6 +63,50 @@ public class Puzzle5 : Base<Data, Solution1, Solution2>
 
     public override Solution2 ComputeSolution2(Data data)
     {
-        return -1;
+        // this stack of ranges for non overlapping 
+        var ranges = new List<Range<long>>();
+        foreach (var range in data.Ranges)
+        {
+            var index = FindSortedSpot(range, ranges);
+
+            // dedup ranges
+            if (index >= 0)
+            {
+                var workingRange = range;
+                while (index < ranges.Count && ranges[index].Overlap(workingRange))
+                {
+                    var rangeAtIndex = ranges[index];
+                    workingRange = workingRange.Combine(rangeAtIndex);
+                    ranges.RemoveAt(index);
+                }
+
+                ranges.Insert(index, workingRange);
+            }
+            else
+            {
+                ranges.Add(range);
+            }
+        }
+        return ranges
+            .Select(range => range.High - range.Low)
+            .Sum();
+    }
+
+    private int FindSortedSpot(Range<long> newRange, List<Range<long>> ranges)
+    {
+        return ranges.FindIndex(r => r.Low > newRange.Low || r.Overlap(newRange));
+
+        // int index;
+        // var last = range;
+        // for (index = 0; index < ranges.Count; ++index)
+        // {
+        //     var thisRange = ranges[index];
+        //     if (last.Low >= range.Low || thisRange.Overlap(range))
+        //     {
+        //         return index;
+        //     }
+        //     last = thisRange;
+        // }
+        // return index;
     }
 }
