@@ -58,7 +58,7 @@ public abstract class Base<TData, TSolution1, TSolution2> : IPuzzle
     }
 
     public abstract void ParseLine(string line, TData data);
-    public void ParseLine2(string line, TData data) => ParseLine(line, data);
+    public virtual void ParseLine2(string line, TData data) => ParseLine(line, data);
 
     public virtual TSolution1 SolvePuzzle(string file, TData data)
     {
