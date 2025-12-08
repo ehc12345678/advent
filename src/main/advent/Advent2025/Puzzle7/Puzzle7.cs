@@ -13,11 +13,8 @@ public class Data(HashSet<Point> splitters)
     public int NumRows { get; set; }
     public int NumCols { get; set; }
 
-    private HashSet<Point> _visited = [];
-    
     public bool AddRay(Point point)
     {
-        if (_visited.Contains(point)) return false;
         Rays.Add(new Ray(point));
         Visit(point);
         return true;
@@ -41,7 +38,6 @@ public class Data(HashSet<Point> splitters)
 
     public bool MoveRay(Ray ray, Point newPos)
     {
-        if (_visited.Contains(newPos)) return false;
         ray.CurrentPos = newPos;
         Visit(newPos);
         return true;
@@ -49,35 +45,7 @@ public class Data(HashSet<Point> splitters)
 
     private void Visit(Point point)
     {
-        _visited.Add(point);
         NumCols = Math.Max(NumCols, point.Col);
-    }
-
-    public string ToPrintable()
-    {
-        string s = "";
-        for (var row = 0; row < NumRows; row++)
-        {
-            for (var col = 0; col < NumCols; col++)
-            {
-                if (_visited.Contains(new Point(row, col)))
-                {
-                    s += '|';
-                }
-                else if (HasSplitter(new Point(row, col)))
-                {
-                    s += '^';
-                }
-                else
-                {
-                    s += '.';
-                }
-            }
-
-            s += "\n";
-        }
-
-        return s;
     }
 }
 
@@ -119,6 +87,7 @@ public class Puzzle7: Base<Data, Solution1, Solution2>
     {
         var anyChanges = true;
         var split = 0;
+        List<Point> visited = [];
         while (anyChanges)
         {
             var thisRoundChanges = false;
@@ -127,23 +96,41 @@ public class Puzzle7: Base<Data, Solution1, Solution2>
                 var currentPos = ray.CurrentPos;
                 if (currentPos.Row < data.NumRows - 1)
                 {
-                    var newPos = currentPos + new Point(1, 0);
+                    var nextRow = new Point(1, 0);
+                    var newPos = currentPos + nextRow;
                     if (data.HasSplitter(newPos))
                     {
                         data.RemoveRay(ray);
-                        thisRoundChanges = data.AddRay(newPos + new Point(0, -1)) || thisRoundChanges;
-                        thisRoundChanges = data.AddRay(newPos + new Point(0, 1)) || thisRoundChanges;
+                        var leftOfSplit = newPos + new Point(0, -1);
+                        if (!visited.Contains(leftOfSplit))
+                        {
+                            data.AddRay(leftOfSplit);
+                            visited.Add(leftOfSplit);
+                            thisRoundChanges = true;
+                        }
+
+                        var rightOfSplit = newPos + new Point(0, 1);
+                        if (!visited.Contains(rightOfSplit))
+                        {
+                            data.AddRay(rightOfSplit);
+                            visited.Add(rightOfSplit);
+                            thisRoundChanges = true;
+                        }
                         split++;
                     }
                     else
                     {
-                        thisRoundChanges = data.MoveRay(ray, newPos);
+                        if (!visited.Contains(newPos))
+                        {
+                            data.MoveRay(ray, newPos);
+                            visited.Add(newPos);
+                            thisRoundChanges = true;
+                        }
                     }
                 }
             }
             anyChanges = thisRoundChanges;
         }
-        // Console.WriteLine(data.ToPrintable());
         return split;
     }
 

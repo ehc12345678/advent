@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using advent.SharedBase;
 
 namespace advent.Advent2025.Puzzle4;
@@ -61,10 +60,8 @@ public class Puzzle4 : Base<Data, Solution1, Solution2>
     }
 }
 
-public readonly struct Point(int row, int col)
+public readonly record struct Point(int Row, int Col)
 {
-    public int Row => row;
-    public int Col => col;
     public static Point operator +(Point first, Point second) => new(first.Row + second.Row, first.Col + second.Col);
 
     public override string ToString()
