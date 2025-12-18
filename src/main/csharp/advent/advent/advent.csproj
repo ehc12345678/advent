@@ -7,4 +7,28 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+
+    <ItemGroup>
+        <EmbeddedResource Include="Advent2020\Puzzle1\inputs.txt" />
+        <EmbeddedResource Include="Advent2020\Puzzle1\inputsTest.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle0\inputs.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle0\inputsTest.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle1\inputs.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle1\inputsTest.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle2\inputs.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle2\inputsTest.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle3\inputs.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle3\inputsTest.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle4\inputs.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle4\inputsTest.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle5\inputs.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle5\inputsTest.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle6\inputs.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle6\inputsTest.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle7\inputs.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle7\inputsTest.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle8\inputs.txt" />
+        <EmbeddedResource Include="Advent2025\Puzzle8\inputsTest.txt" />
+    </ItemGroup>
+
 </Project>
