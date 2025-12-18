@@ -6,5 +6,6 @@ bin
 .vscode
 src/main/kotlin/com/erik
 **/__pycache__
+src/main/csharp/advent/advent/obj
 
 

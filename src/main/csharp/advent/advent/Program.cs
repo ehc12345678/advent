@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System;
 using advent.Advent2025.Puzzle1;
 using advent.Advent2025.Puzzle2;
 using advent.Advent2025.Puzzle3;
@@ -11,7 +12,7 @@ using advent.SharedBase;
 
 namespace advent;
 
-class Program
+internal static class Program
 {
     private static readonly IPuzzle[] AllPuzzles =
     [
